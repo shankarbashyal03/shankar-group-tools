@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labels & Folders</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2196f3;
+            --primary-light: #64b5f6;
+            --primary-dark: #1976d2;
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --text-light: #b0b0b0;
+            --border: #333333;
+            --danger: #f44336;
+            --success: #4caf50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 i {
+            color: var(--primary);
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .labels-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .add-label-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .add-label-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        .labels-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .label-item {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+
+        .label-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .label-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .label-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .label-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .label-count {
+            background: var(--border);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .label-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .action-btn.delete:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.cancel {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .modal-btn.cancel:hover {
+            background: var(--text-light);
+        }
+
+        .modal-btn.save {
+            background: var(--primary);
+            color: white;
+        }
+
+        .modal-btn.save:hover {
+            background: var(--primary-dark);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .labels-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .nav-tab span {
+                display: none;
+            }
+            
+            .nav-tab i {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-tags"></i> Labels & Folders</h1>
+    </div>
+
+    <div class="nav-tabs">
+        <a href="index.html" class="nav-tab">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="labels.html" class="nav-tab active">
+            <i class="fas fa-tags"></i>
+            <span>Labels</span>
+        </a>
+        <a href="notes.html" class="nav-tab">
+            <i class="fas fa-edit"></i>
+            <span>New Note</span>
+        </a>
+    </div>
+
+    <div class="labels-container">
+        <button class="add-label-btn" onclick="showLabelModal()">
+            <i class="fas fa-plus"></i> Create New Label
+        </button>
+
+        <div class="labels-list" id="labelsList">
+            <!-- Labels will appear here -->
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-tags"></i>
+            <h3>No labels yet</h3>
+            <p>Create your first label to organize notes</p>
+        </div>
+    </div>
+
+    <!-- Label Modal -->
+    <div class="modal" id="labelModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">New Label</h2>
+            <div class="form-group">
+                <label for="labelName">Label Name</label>
+                <input type="text" id="labelName" placeholder="Enter label name" autofocus>
+            </div>
+            <div class="form-group">
+                <label>Color</label>
+                <div class="color-options">
+                    <div class="color-option" style="background:#2196f3" data-color="#2196f3"></div>
+                    <div class="color-option" style="background:#4caf50" data-color="#4caf50"></div>
+                    <div class="color-option" style="background:#ff9800" data-color="#ff9800"></div>
+                    <div class="color-option" style="background:#f44336" data-color="#f44336"></div>
+                    <div class="color-option" style="background:#9c27b0" data-color="#9c27b0"></div>
+                    <div class="color-option" style="background:#00bcd4" data-color="#00bcd4"></div>
+                    <div class="color-option" style="background:#ffeb3b" data-color="#ffeb3b"></div>
+                    <div class="color-option" style="background:#795548" data-color="#795548"></div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeLabelModal()">Cancel</button>
+                <button class="modal-btn save" onclick="saveLabel()">Save Label</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load labels from localStorage
+        let labels = JSON.parse(localStorage.getItem('labels')) || [];
+        let editingLabelId = null;
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+        function renderLabels() {
+            const list = document.getElementById('labelsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (labels.length === 0) {
+                emptyState.style.display = 'block';
+                list.innerHTML = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            list.innerHTML = '';
+
+            labels.forEach(label => {
+                // Count notes with this label
+                const noteCount = notes.filter(note => note.label === label.id).length;
+                
+                const item = document.createElement('div');
+                item.className = 'label-item';
+                
+                item.innerHTML = `
+                    <div class="label-header">
+                        <div class="label-color" style="background:${label.color}"></div>
+                        <div class="label-name">${label.name}</div>
+                        <div class="label-count">${noteCount} notes</div>
+                    </div>
+                    <div class="label-actions">
+                        <button class="action-btn" onclick="editLabel(${label.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="action-btn delete" onclick="deleteLabel(${label.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                
+                list.appendChild(item);
+            });
+        }
+
+        function showLabelModal(editId = null) {
+            const modal = document.getElementById('labelModal');
+            const title = document.getElementById('modalTitle');
+            const nameInput = document.getElementById('labelName');
+            
+            if (editId) {
+                const label = labels.find(l => l.id === editId);
+                if (label) {
+                    title.textContent = 'Edit Label';
+                    nameInput.value = label.name;
+                    editingLabelId = editId;
+                    
+                    // Select the color
+                    document.querySelectorAll('.color-option').forEach(option => {
+                        option.classList.remove('selected');
+                        if (option.dataset.color === label.color) {
+                            option.classList.add('selected');
+                        }
+                    });
+                }
+            } else {
+                title.textContent = 'New Label';
+                nameInput.value = '';
+                editingLabelId = null;
+                
+                // Select first color by default
+                document.querySelectorAll('.color-option').forEach((option, index) => {
+                    option.classList.remove('selected');
+                    if (index === 0) option.classList.add('selected');
+                });
+            }
+            
+            modal.style.display = 'flex';
+            nameInput.focus();
+        }
+
+        function closeLabelModal() {
+            document.getElementById('labelModal').style.display = 'none';
+        }
+
+        function saveLabel() {
+            const name = document.getElementById('labelName').value.trim();
+            const selectedColor = document.querySelector('.color-option.selected')?.dataset.color || '#2196f3';
+            
+            if (!name) {
+                alert('Please enter a label name');
+                return;
+            }
+            
+            // Check for duplicate names (excluding the one being edited)
+            const isDuplicate = labels.some(label => 
+                label.name.toLowerCase() === name.toLowerCase() && 
+                label.id !== editingLabelId
+            );
+            
+            if (isDuplicate) {
+                alert('A label with this name already exists');
+                return;
+            }
+            
+            if (editingLabelId) {
+                // Update existing label
+                labels = labels.map(label => 
+                    label.id === editingLabelId 
+                    ? {...label, name, color: selectedColor}
+                    : label
+                );
+            } else {
+                // Create new label
+                const newId = labels.length > 0 ? Math.max(...labels.map(l => l.id)) + 1 : 1;
+                labels.push({
+                    id: newId,
+                    name,
+                    color: selectedColor
+                });
+            }
+            
+            localStorage.setItem('labels', JSON.stringify(labels));
+            closeLabelModal();
+            renderLabels();
+        }
+
+        function editLabel(id) {
+            showLabelModal(id);
+        }
+
+        function deleteLabel(id) {
+            // Check if label is used in any notes
+            const isUsed = notes.some(note => note.label === id);
+            
+            if (isUsed) {
+                if (!confirm('This label is used in some notes. Delete anyway? Notes will keep the label but you can\'t add it to new notes.')) {
+                    return;
+                }
+            } else {
+                if (!confirm('Delete this label?')) {
+                    return;
+                }
+            }
+            
+            labels = labels.filter(label => label.id !== id);
+            localStorage.setItem('labels', JSON.stringify(labels));
+            renderLabels();
+        }
+
+        // Color selection
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Close modal on background click
+        document.getElementById('labelModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLabelModal();
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLabelModal();
+        });
+
+        // Initial render
+        renderLabels();
+        
+        // Auto-save when window closes
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('labels', JSON.stringify(labels));
+        });
+    </script>
+</body>
+</html>

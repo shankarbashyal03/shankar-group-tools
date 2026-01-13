@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health & Fitness Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --primary-light: #4895ef;
+            --secondary: #7209b7;
+            --secondary-light: #b5179e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --success: #4cc9f0;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+
+        .calculator-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .calculator-header {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        input, select {
+            padding: 14px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .measurement-system {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .system-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .system-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .calculate-btn, .clear-btn {
+            padding: 16px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .calculate-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, var(--gray), #adb5bd);
+            color: white;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #5a6268, var(--gray));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f0f4ff, #e6f7ff);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .result-category {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .result-description {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .category-underweight {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .category-normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .category-overweight {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .category-obese1 {
+            background-color: #ffeaa7;
+            color: #8d6e00;
+        }
+
+        .category-obese2 {
+            background-color: #fd7e14;
+            color: white;
+        }
+
+        .category-obese3 {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .category-essential {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .category-athlete {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .category-fitness {
+            background-color: #cce7ff;
+            color: #004085;
+        }
+
+        .category-average {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .category-obese {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .calorie-goal {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+        }
+
+        .goal-loss {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .goal-maintain {
+            background-color: #cce7ff;
+            color: #004085;
+        }
+
+        .goal-gain {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .calculator-card {
+                padding: 25px;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-container {
+                padding: 15px;
+            }
+            
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation for result */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Health & Fitness Calculator</h1>
+            <p class="subtitle">Calculate your BMI, Body Fat Percentage, and Daily Calorie Needs</p>
+        </header>
+
+        <div class="calculator-card">
+            <div class="calculator-header">
+                <h2>Health Metrics Calculator</h2>
+                <p>Enter your details to calculate your health metrics</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="bmi">BMI Calculator</button>
+                <button class="tab" data-tab="bodyfat">Body Fat Calculator</button>
+                <button class="tab" data-tab="calories">Calorie Calculator</button>
+            </div>
+
+            <!-- BMI Calculator -->
+            <div id="bmi-calculator" class="calculator-section">
+                <div class="measurement-system">
+                    <button class="system-btn active" data-system="metric">Metric System</button>
+                    <button class="system-btn" data-system="imperial">Imperial System</button>
+                </div>
+
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" placeholder="Enter your age" min="1" max="120">
+                    </div>
+
+                    <div id="metric-inputs">
+                        <div class="input-group">
+                            <label for="heightCm">Height (cm)</label>
+                            <input type="number" id="heightCm" placeholder="Enter height in cm">
+                        </div>
+                        <div class="input-group">
+                            <label for="weightKg">Weight (kg)</label>
+                            <input type="number" id="weightKg" placeholder="Enter weight in kg">
+                        </div>
+                    </div>
+
+                    <div id="imperial-inputs" class="hidden">
+                        <div class="input-group">
+                            <label for="heightFeet">Height (feet)</label>
+                            <input type="number" id="heightFeet" placeholder="Feet">
+                        </div>
+                        <div class="input-group">
+                            <label for="heightInches">Height (inches)</label>
+                            <input type="number" id="heightInches" placeholder="Inches">
+                        </div>
+                        <div class="input-group">
+                            <label for="weightLbs">Weight (pounds)</label>
+                            <input type="number" id="weightLbs" placeholder="Enter weight in lbs">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body Fat Calculator -->
+            <div id="bodyfat-calculator" class="calculator-section hidden">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="bf-gender">Gender</label>
+                        <select id="bf-gender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="bf-age">Age</label>
+                        <input type="number" id="bf-age" placeholder="Enter your age" min="1" max="120">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="bf-weight">Weight (kg)</label>
+                        <input type="number" id="bf-weight" placeholder="Enter weight in kg">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="bf-height">Height (cm)</label>
+                        <input type="number" id="bf-height" placeholder="Enter height in cm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calorie Calculator -->
+            <div id="calories-calculator" class="calculator-section hidden">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="cal-gender">Gender</label>
+                        <select id="cal-gender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="cal-age">Age</label>
+                        <input type="number" id="cal-age" placeholder="Enter your age" min="1" max="120">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="cal-weight">Weight (kg)</label>
+                        <input type="number" id="cal-weight" placeholder="Enter weight in kg">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="cal-height">Height (cm)</label>
+                        <input type="number" id="cal-height" placeholder="Enter height in cm">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="activity">Activity Level</label>
+                        <select id="activity">
+                            <option value="1.2">Sedentary (little or no exercise)</option>
+                            <option value="1.375">Lightly active (light exercise 1-3 days/week)</option>
+                            <option value="1.55">Moderately active (moderate exercise 3-5 days/week)</option>
+                            <option value="1.725">Very active (hard exercise 6-7 days/week)</option>
+                            <option value="1.9">Extremely active (very hard exercise, physical job)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="goal">Weight Goal</label>
+                        <select id="goal">
+                            <option value="loss">Weight Loss</option>
+                            <option value="maintain">Maintain Weight</option>
+                            <option value="gain">Weight Gain</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="calculate-btn" id="calculateBtn">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+                <button class="clear-btn" id="clearBtn">
+                    <i class="fas fa-broom"></i> Clear All
+                </button>
+            </div>
+
+            <div class="results-container" id="resultsContainer">
+                <!-- Results will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- BMI Table (shown only when BMI tab is active) -->
+        <div id="bmi-table" class="table-container">
+            <h3>BMI Classification</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>BMI</th>
+                        <th>Category</th>
+                        <th>Health Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>&lt; 18.5</td>
+                        <td class="category-underweight">Underweight</td>
+                        <td>Increased risk</td>
+                    </tr>
+                    <tr>
+                        <td>18.5 - 24.9</td>
+                        <td class="category-normal">Normal Weight</td>
+                        <td>Lowest risk</td>
+                    </tr>
+                    <tr>
+                        <td>25 - 29.9</td>
+                        <td class="category-overweight">Overweight</td>
+                        <td>Increased risk</td>
+                    </tr>
+                    <tr>
+                        <td>30 - 34.9</td>
+                        <td class="category-obese1">Obese Class I</td>
+                        <td>High risk</td>
+                    </tr>
+                    <tr>
+                        <td>35 - 39.9</td>
+                        <td class="category-obese2">Obese Class II</td>
+                        <td>Very high risk</td>
+                    </tr>
+                    <tr>
+                        <td>&gt;= 40</td>
+                        <td class="category-obese3">Obese Class III</td>
+                        <td>Extremely high risk</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Body Fat Table (shown only when Body Fat tab is active) -->
+        <div id="bodyfat-table" class="table-container hidden">
+            <h3>Body Fat Percentage Categories</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Women</th>
+                        <th>Men</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="category-essential">Essential Fat</td>
+                        <td>10-13%</td>
+                        <td>2-5%</td>
+                    </tr>
+                    <tr>
+                        <td class="category-athlete">Athletes</td>
+                        <td>14-20%</td>
+                        <td>6-13%</td>
+                    </tr>
+                    <tr>
+                        <td class="category-fitness">Fitness</td>
+                        <td>21-24%</td>
+                        <td>14-17%</td>
+                    </tr>
+                    <tr>
+                        <td class="category-average">Average</td>
+                        <td>25-31%</td>
+                        <td>18-24%</td>
+                    </tr>
+                    <tr>
+                        <td class="category-obese">Obese</td>
+                        <td>32%+</td>
+                        <td>25%+</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>© 2023 Health & Fitness Calculator | For educational purposes only.</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const tabs = document.querySelectorAll('.tab');
+        const calculatorSections = document.querySelectorAll('.calculator-section');
+        const systemBtns = document.querySelectorAll('.system-btn');
+        const metricInputs = document.getElementById('metric-inputs');
+        const imperialInputs = document.getElementById('imperial-inputs');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const bmiTable = document.getElementById('bmi-table');
+        const bodyfatTable = document.getElementById('bodyfat-table');
+
+        // Current active tab
+        let activeTab = 'bmi';
+
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show corresponding calculator section
+                calculatorSections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(`${tabName}-calculator`).classList.remove('hidden');
+                
+                // Show corresponding table
+                if (tabName === 'bmi') {
+                    bmiTable.classList.remove('hidden');
+                    bodyfatTable.classList.add('hidden');
+                } else if (tabName === 'bodyfat') {
+                    bmiTable.classList.add('hidden');
+                    bodyfatTable.classList.remove('hidden');
+                } else {
+                    bmiTable.classList.add('hidden');
+                    bodyfatTable.classList.add('hidden');
+                }
+                
+                activeTab = tabName;
+            });
+        });
+
+        // Measurement system switching
+        systemBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const system = btn.getAttribute('data-system');
+                
+                systemBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                if (system === 'metric') {
+                    metricInputs.classList.remove('hidden');
+                    imperialInputs.classList.add('hidden');
+                } else {
+                    metricInputs.classList.add('hidden');
+                    imperialInputs.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Calculate based on active tab
+        calculateBtn.addEventListener('click', () => {
+            switch(activeTab) {
+                case 'bmi':
+                    calculateBMI();
+                    break;
+                case 'bodyfat':
+                    calculateBodyFat();
+                    break;
+                case 'calories':
+                    calculateCalories();
+                    break;
+            }
+        });
+
+        // Clear all inputs
+        clearBtn.addEventListener('click', () => {
+            // Clear all input fields
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+            
+            // Clear results
+            resultsContainer.innerHTML = '';
+        });
+
+        // BMI Calculation
+        function calculateBMI() {
+            const gender = document.getElementById('gender').value;
+            const age = parseInt(document.getElementById('age').value);
+            let height, weight;
+
+            if (document.querySelector('.system-btn.active').getAttribute('data-system') === 'metric') {
+                height = parseFloat(document.getElementById('heightCm').value) / 100; // Convert to meters
+                weight = parseFloat(document.getElementById('weightKg').value);
+            } else {
+                const feet = parseFloat(document.getElementById('heightFeet').value);
+                const inches = parseFloat(document.getElementById('heightInches').value);
+                weight = parseFloat(document.getElementById('weightLbs').value);
+                height = (feet * 12 + inches) * 0.0254; // Convert to meters
+                weight = weight * 0.453592; // Convert to kg
+            }
+
+            if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0 || isNaN(age)) {
+                alert("Please enter valid values for all fields");
+                return;
+            }
+
+            const bmi = weight / (height * height);
+            displayBMIResult(bmi);
+        }
+
+        // Display BMI Results
+        function displayBMIResult(bmi) {
+            let category, categoryClass;
+
+            if (bmi < 18.5) {
+                category = "Underweight";
+                categoryClass = "category-underweight";
+            } else if (bmi < 25) {
+                category = "Normal Weight";
+                categoryClass = "category-normal";
+            } else if (bmi < 30) {
+                category = "Overweight";
+                categoryClass = "category-overweight";
+            } else if (bmi < 35) {
+                category = "Obese Class I";
+                categoryClass = "category-obese1";
+            } else if (bmi < 40) {
+                category = "Obese Class II";
+                categoryClass = "category-obese2";
+            } else {
+                category = "Obese Class III";
+                categoryClass = "category-obese3";
+            }
+
+            resultsContainer.innerHTML = `
+                <div class="result-card fade-in">
+                    <div class="result-title">Body Mass Index (BMI)</div>
+                    <div class="result-value">${bmi.toFixed(1)}</div>
+                    <div class="result-category ${categoryClass}">${category}</div>
+                </div>
+            `;
+        }
+
+        // Body Fat Calculation (simplified method)
+        function calculateBodyFat() {
+            const gender = document.getElementById('bf-gender').value;
+            const age = parseInt(document.getElementById('bf-age').value);
+            const weight = parseFloat(document.getElementById('bf-weight').value);
+            const height = parseFloat(document.getElementById('bf-height').value);
+
+            if (isNaN(weight) || isNaN(height) || isNaN(age)) {
+                alert("Please enter valid values for all fields");
+                return;
+            }
+
+            // Simplified body fat calculation based on BMI
+            const bmi = weight / ((height/100) * (height/100));
+            let bodyFatPercentage;
+            
+            if (gender === 'male') {
+                bodyFatPercentage = (1.20 * bmi) + (0.23 * age) - 16.2;
+            } else {
+                bodyFatPercentage = (1.20 * bmi) + (0.23 * age) - 5.4;
+            }
+
+            displayBodyFatResult(bodyFatPercentage, gender);
+        }
+
+        // Display Body Fat Results
+        function displayBodyFatResult(bodyFat, gender) {
+            let category, categoryClass;
+
+            if (gender === 'male') {
+                if (bodyFat < 6) {
+                    category = "Essential Fat";
+                    categoryClass = "category-essential";
+                } else if (bodyFat < 14) {
+                    category = "Athlete";
+                    categoryClass = "category-athlete";
+                } else if (bodyFat < 18) {
+                    category = "Fitness";
+                    categoryClass = "category-fitness";
+                } else if (bodyFat < 25) {
+                    category = "Average";
+                    categoryClass = "category-average";
+                } else {
+                    category = "Obese";
+                    categoryClass = "category-obese";
+                }
+            } else {
+                if (bodyFat < 14) {
+                    category = "Essential Fat";
+                    categoryClass = "category-essential";
+                } else if (bodyFat < 21) {
+                    category = "Athlete";
+                    categoryClass = "category-athlete";
+                } else if (bodyFat < 25) {
+                    category = "Fitness";
+                    categoryClass = "category-fitness";
+                } else if (bodyFat < 32) {
+                    category = "Average";
+                    categoryClass = "category-average";
+                } else {
+                    category = "Obese";
+                    categoryClass = "category-obese";
+                }
+            }
+
+            resultsContainer.innerHTML = `
+                <div class="result-card fade-in">
+                    <div class="result-title">Body Fat Percentage</div>
+                    <div class="result-value">${bodyFat.toFixed(1)}%</div>
+                    <div class="result-category ${categoryClass}">${category}</div>
+                </div>
+            `;
+        }
+
+        // Calorie Calculation
+        function calculateCalories() {
+            const gender = document.getElementById('cal-gender').value;
+            const age = parseInt(document.getElementById('cal-age').value);
+            const weight = parseFloat(document.getElementById('cal-weight').value);
+            const height = parseFloat(document.getElementById('cal-height').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+            const goal = document.getElementById('goal').value;
+
+            if (isNaN(weight) || isNaN(height) || isNaN(age)) {
+                alert("Please enter valid values for all fields");
+                return;
+            }
+
+            // Calculate BMR (Basal Metabolic Rate) using Mifflin-St Jeor Equation
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+
+            // Calculate TDEE (Total Daily Energy Expenditure)
+            const tdee = bmr * activity;
+
+            // Adjust for goal
+            let maintenanceCalories = tdee;
+            let lossCalories = tdee - 500;
+            let gainCalories = tdee + 500;
+
+            displayCalorieResult(maintenanceCalories, lossCalories, gainCalories, goal);
+        }
+
+        // Display Calorie Results
+        function displayCalorieResult(maintain, loss, gain, goal) {
+            let goalText, goalClass;
+
+            if (goal === 'loss') {
+                goalText = `For weight loss: ${Math.round(loss)} calories/day`;
+                goalClass = 'goal-loss';
+            } else if (goal === 'maintain') {
+                goalText = `To maintain weight: ${Math.round(maintain)} calories/day`;
+                goalClass = 'goal-maintain';
+            } else {
+                goalText = `For weight gain: ${Math.round(gain)} calories/day`;
+                goalClass = 'goal-gain';
+            }
+
+            resultsContainer.innerHTML = `
+                <div class="result-card fade-in">
+                    <div class="result-title">Daily Calorie Needs</div>
+                    <div class="result-value">${Math.round(maintain)}</div>
+                    <div class="result-description">Calories needed to maintain current weight</div>
+                    <div class="calorie-goal ${goalClass}">${goalText}</div>
+                </div>
+                <div class="result-card fade-in">
+                    <div class="result-title">Calorie Targets</div>
+                    <div class="result-description">
+                        <p><strong>Weight Loss:</strong> ${Math.round(loss)} calories/day</p>
+                        <p><strong>Maintenance:</strong> ${Math.round(maintain)} calories/day</p>
+                        <p><strong>Weight Gain:</strong> ${Math.round(gain)} calories/day</p>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

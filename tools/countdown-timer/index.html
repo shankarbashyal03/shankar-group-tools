@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        body.light-mode {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .light-mode .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-button {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mode-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .light-mode .mode-toggle {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        
+        .mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .light-mode .mode-toggle:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.8rem;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .light-mode h1 {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .light-mode .subtitle {
+            color: #666;
+        }
+        
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .time-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 15px;
+            width: 120px;
+        }
+        
+        .time-value {
+            font-size: 4.5rem;
+            font-weight: 700;
+            background: linear-gradient(to bottom, #fff, #d1d1d1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            line-height: 1;
+        }
+        
+        .light-mode .time-value {
+            background: linear-gradient(to bottom, #333, #666);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .time-label {
+            font-size: 1.1rem;
+            color: #8a8a8a;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        
+        .light-mode .time-label {
+            color: #555;
+        }
+        
+        .colon {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #6a11cb;
+            margin-bottom: 30px;
+        }
+        
+        .light-mode .colon {
+            color: #8e2de2;
+        }
+        
+        .control-panel {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .light-mode .control-panel {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .input-field {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bbb;
+            font-weight: 500;
+        }
+        
+        .light-mode label {
+            color: #555;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .light-mode input, .light-mode select {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.3);
+        }
+        
+        .light-mode input:focus, .light-mode select:focus {
+            border-color: #8e2de2;
+            box-shadow: 0 0 0 2px rgba(142, 45, 226, 0.3);
+        }
+        
+        /* Fix for preset dropdown visibility */
+        select option {
+            background-color: #1a1a2e;
+            color: white;
+        }
+        
+        .light-mode select option {
+            background-color: white;
+            color: #333;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 16px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+        }
+        
+        .pause-btn {
+            background: linear-gradient(to right, #ff8a00, #e52e71);
+            color: white;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .message {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background-color: rgba(106, 17, 203, 0.2);
+            display: none;
+        }
+        
+        .light-mode .message {
+            background-color: rgba(142, 45, 226, 0.2);
+            color: #333;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin-top: 25px;
+            overflow: hidden;
+        }
+        
+        .light-mode .progress-bar {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .light-mode .progress {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+        }
+        
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ff4757;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .light-mode .offline-indicator {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .timer-container {
+                margin: 30px 0;
+            }
+            
+            .time-value {
+                font-size: 3.5rem;
+            }
+            
+            .time-box {
+                width: 90px;
+                margin: 0 8px;
+            }
+            
+            .colon {
+                font-size: 2.8rem;
+                margin-bottom: 25px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .header-controls {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .back-button, .mode-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .time-value {
+                font-size: 2.8rem;
+            }
+            
+            .time-box {
+                width: 70px;
+                margin: 0 5px;
+            }
+            
+            .colon {
+                font-size: 2.2rem;
+                margin-bottom: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-field {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        <i class="fas fa-wifi-slash"></i> You're offline
+    </div>
+    
+    <div class="container">
+        <!-- Header with back button and theme toggle -->
+        <div class="header-controls">
+            <a href="index.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <button class="mode-toggle" id="modeToggle">
+                <i class="fas fa-moon"></i> Dark Mode
+            </button>
+        </div>
+        
+        <h1><i class="fas fa-clock"></i> Countdown Timer</h1>
+        <p class="subtitle">Set your countdown and track time with precision</p>
+        
+        <div class="timer-container">
+            <div class="time-box">
+                <div class="time-value" id="days">00</div>
+                <div class="time-label">Days</div>
+            </div>
+            <div class="colon">:</div>
+            <div class="time-box">
+                <div class="time-value" id="hours">00</div>
+                <div class="time-label">Hours</div>
+            </div>
+            <div class="colon">:</div>
+            <div class="time-box">
+                <div class="time-value" id="minutes">00</div>
+                <div class="time-label">Minutes</div>
+            </div>
+            <div class="colon">:</div>
+            <div class="time-box">
+                <div class="time-value" id="seconds">00</div>
+                <div class="time-label">Seconds</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div class="control-panel">
+            <div class="input-group">
+                <div class="input-field">
+                    <label for="date"><i class="far fa-calendar-alt"></i> Target Date</label>
+                    <input type="date" id="date">
+                </div>
+                <div class="input-field">
+                    <label for="time"><i class="far fa-clock"></i> Target Time</label>
+                    <input type="time" id="time" value="12:00">
+                </div>
+                <div class="input-field">
+                    <label for="presets"><i class="fas fa-bolt"></i> Quick Presets</label>
+                    <select id="presets">
+                        <option value="custom">Custom Time</option>
+                        <option value="5min">5 Minutes</option>
+                        <option value="10min">10 Minutes</option>
+                        <option value="30min">30 Minutes</option>
+                        <option value="1hour">1 Hour</option>
+                        <option value="tomorrow">Tomorrow at 9 AM</option>
+                        <option value="newyear">Next New Year</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="start-btn" id="startBtn">
+                    <i class="fas fa-play"></i> Start
+                </button>
+                <button class="pause-btn" id="pauseBtn" disabled>
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button class="reset-btn" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+        </div>
+        
+        <div class="message" id="message">
+            Countdown Complete! 🎉
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const dateInput = document.getElementById('date');
+        const timeInput = document.getElementById('time');
+        const presetsSelect = document.getElementById('presets');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const messageEl = document.getElementById('message');
+        const progressBar = document.getElementById('progress');
+        const modeToggle = document.getElementById('modeToggle');
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        const body = document.body;
+        
+        // Timer variables
+        let countdownDate = null;
+        let countdownInterval = null;
+        let isRunning = false;
+        let totalDuration = 0;
+        let remainingTime = 0;
+        
+        // Initialize the app
+        function initApp() {
+            // Set minimum date to today
+            const today = new Date();
+            const todayFormatted = today.toISOString().split('T')[0];
+            dateInput.setAttribute('min', todayFormatted);
+            
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowFormatted = tomorrow.toISOString().split('T')[0];
+            dateInput.value = tomorrowFormatted;
+            
+            // Update time display immediately
+            updateDisplay(0);
+            
+            // Load theme preference from localStorage
+            const savedTheme = localStorage.getItem('countdownTimerTheme');
+            if (savedTheme === 'light') {
+                enableLightMode();
+            }
+            
+            // Check online status
+            updateOnlineStatus();
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
+            // Add service worker for offline functionality
+            registerServiceWorker();
+        }
+        
+        // Register service worker for offline functionality
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+            }
+        }
+        
+        // Update online/offline indicator
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineIndicator.style.display = 'none';
+            } else {
+                offlineIndicator.style.display = 'block';
+            }
+        }
+        
+        // Theme toggle functionality
+        modeToggle.addEventListener('click', () => {
+            if (body.classList.contains('light-mode')) {
+                disableLightMode();
+            } else {
+                enableLightMode();
+            }
+        });
+        
+        function enableLightMode() {
+            body.classList.add('light-mode');
+            modeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+            localStorage.setItem('countdownTimerTheme', 'light');
+        }
+        
+        function disableLightMode() {
+            body.classList.remove('light-mode');
+            modeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+            localStorage.setItem('countdownTimerTheme', 'dark');
+        }
+        
+        // Event Listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        presetsSelect.addEventListener('change', handlePresetSelect);
+        
+        // Handle preset selection
+        function handlePresetSelect() {
+            const preset = presetsSelect.value;
+            
+            // Clear any running timer
+            if (isRunning) {
+                clearInterval(countdownInterval);
+                isRunning = false;
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+            }
+            
+            const now = new Date();
+            
+            switch(preset) {
+                case 'custom':
+                    // Reset to default (tomorrow at 12:00)
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    const tomorrowFormatted = tomorrow.toISOString().split('T')[0];
+                    dateInput.value = tomorrowFormatted;
+                    timeInput.value = '12:00';
+                    break;
+                    
+                case '5min':
+                    const fiveMinLater = new Date(now.getTime() + 5 * 60000);
+                    dateInput.value = fiveMinLater.toISOString().split('T')[0];
+                    timeInput.value = `${fiveMinLater.getHours().toString().padStart(2, '0')}:${fiveMinLater.getMinutes().toString().padStart(2, '0')}`;
+                    break;
+                    
+                case '10min':
+                    const tenMinLater = new Date(now.getTime() + 10 * 60000);
+                    dateInput.value = tenMinLater.toISOString().split('T')[0];
+                    timeInput.value = `${tenMinLater.getHours().toString().padStart(2, '0')}:${tenMinLater.getMinutes().toString().padStart(2, '0')}`;
+                    break;
+                    
+                case '30min':
+                    const thirtyMinLater = new Date(now.getTime() + 30 * 60000);
+                    dateInput.value = thirtyMinLater.toISOString().split('T')[0];
+                    timeInput.value = `${thirtyMinLater.getHours().toString().padStart(2, '0')}:${thirtyMinLater.getMinutes().toString().padStart(2, '0')}`;
+                    break;
+                    
+                case '1hour':
+                    const oneHourLater = new Date(now.getTime() + 60 * 60000);
+                    dateInput.value = oneHourLater.toISOString().split('T')[0];
+                    timeInput.value = `${oneHourLater.getHours().toString().padStart(2, '0')}:${oneHourLater.getMinutes().toString().padStart(2, '0')}`;
+                    break;
+                    
+                case 'tomorrow':
+                    const tomorrow9AM = new Date();
+                    tomorrow9AM.setDate(tomorrow9AM.getDate() + 1);
+                    tomorrow9AM.setHours(9, 0, 0, 0);
+                    dateInput.value = tomorrow9AM.toISOString().split('T')[0];
+                    timeInput.value = '09:00';
+                    break;
+                    
+                case 'newyear':
+                    const nextYear = now.getFullYear() + 1;
+                    const newYear = new Date(nextYear, 0, 1, 0, 0, 0);
+                    dateInput.value = newYear.toISOString().split('T')[0];
+                    timeInput.value = '00:00';
+                    break;
+            }
+            
+            // Reset display
+            updateDisplay(0);
+            progressBar.style.width = '0%';
+            messageEl.style.display = 'none';
+        }
+        
+        // Start the countdown
+        function startTimer() {
+            // Get target date and time
+            const targetDate = new Date(dateInput.value);
+            const [hours, minutes] = timeInput.value.split(':');
+            targetDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+            
+            // Validate date is in the future
+            const now = new Date();
+            if (targetDate <= now) {
+                alert('Please select a future date and time.');
+                return;
+            }
+            
+            countdownDate = targetDate;
+            totalDuration = countdownDate.getTime() - now.getTime();
+            remainingTime = totalDuration;
+            
+            // Start the interval
+            countdownInterval = setInterval(updateCountdown, 1000);
+            isRunning = true;
+            
+            // Update button states
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Running';
+            
+            // Hide message if shown
+            messageEl.style.display = 'none';
+            
+            // Save timer state for offline persistence
+            saveTimerState();
+            
+            // Initial update
+            updateCountdown();
+        }
+        
+        // Pause the countdown
+        function pauseTimer() {
+            if (!isRunning) return;
+            
+            clearInterval(countdownInterval);
+            isRunning = false;
+            
+            // Update button states
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+            
+            // Save timer state
+            saveTimerState();
+        }
+        
+        // Reset the countdown
+        function resetTimer() {
+            clearInterval(countdownInterval);
+            isRunning = false;
+            
+            // Reset button states
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+            
+            // Reset display
+            updateDisplay(0);
+            progressBar.style.width = '0%';
+            messageEl.style.display = 'none';
+            
+            // Clear saved timer state
+            localStorage.removeItem('countdownTimerState');
+        }
+        
+        // Update the countdown display
+        function updateCountdown() {
+            const now = new Date().getTime();
+            remainingTime = countdownDate.getTime() - now;
+            
+            // If countdown is finished
+            if (remainingTime <= 0) {
+                clearInterval(countdownInterval);
+                updateDisplay(0);
+                progressBar.style.width = '100%';
+                messageEl.style.display = 'block';
+                
+                // Play a sound (in a real app, you would have an audio file)
+                try {
+                    // Create a simple beep sound using Web Audio API
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 1);
+                } catch (e) {
+                    console.log("Audio not supported");
+                }
+                
+                // Update button states
+                startBtn.disabled = true;
+                pauseBtn.disabled = true;
+                
+                // Clear saved timer state
+                localStorage.removeItem('countdownTimerState');
+                
+                return;
+            }
+            
+            // Update the display
+            updateDisplay(remainingTime);
+            
+            // Update progress bar
+            const progressPercent = 100 - (remainingTime / totalDuration) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            
+            // Save timer state periodically
+            if (Math.floor(remainingTime / 1000) % 5 === 0) {
+                saveTimerState();
+            }
+        }
+        
+        // Save timer state to localStorage for offline persistence
+        function saveTimerState() {
+            if (countdownDate) {
+                const timerState = {
+                    targetTime: countdownDate.getTime(),
+                    isRunning: isRunning,
+                    remainingTime: remainingTime,
+                    totalDuration: totalDuration
+                };
+                localStorage.setItem('countdownTimerState', JSON.stringify(timerState));
+            }
+        }
+        
+        // Restore timer state from localStorage
+        function restoreTimerState() {
+            const savedState = localStorage.getItem('countdownTimerState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                const now = new Date().getTime();
+                
+                // Only restore if the target time is in the future
+                if (state.targetTime > now) {
+                    countdownDate = new Date(state.targetTime);
+                    totalDuration = state.totalDuration;
+                    remainingTime = state.remainingTime - (now - (state.targetTime - state.remainingTime));
+                    
+                    if (remainingTime > 0) {
+                        updateDisplay(remainingTime);
+                        
+                        // Update progress bar
+                        const progressPercent = 100 - (remainingTime / totalDuration) * 100;
+                        progressBar.style.width = `${progressPercent}%`;
+                        
+                        // If timer was running, restart it
+                        if (state.isRunning) {
+                            countdownInterval = setInterval(updateCountdown, 1000);
+                            isRunning = true;
+                            startBtn.disabled = true;
+                            pauseBtn.disabled = false;
+                            startBtn.innerHTML = '<i class="fas fa-play"></i> Running';
+                        }
+                    } else {
+                        // Timer has expired
+                        localStorage.removeItem('countdownTimerState');
+                    }
+                } else {
+                    // Timer has expired
+                    localStorage.removeItem('countdownTimerState');
+                }
+            }
+        }
+        
+        // Update the display with remaining time
+        function updateDisplay(time) {
+            const days = Math.floor(time / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((time % (1000 * 60)) / 1000);
+            
+            daysEl.textContent = days.toString().padStart(2, '0');
+            hoursEl.textContent = hours.toString().padStart(2, '0');
+            minutesEl.textContent = minutes.toString().padStart(2, '0');
+            secondsEl.textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        // Add some visual effects to the timer
+        document.querySelectorAll('.time-value').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.transition = 'transform 0.2s ease';
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Initialize the app
+        initApp();
+        
+        // Restore timer state on page load
+        window.addEventListener('load', restoreTimerState);
+        
+        // Add beforeunload event to save state when page is closed
+        window.addEventListener('beforeunload', saveTimerState);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <title>Calendar - Todo App</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --text-light: #1e293b;
+            --text-dark: #f1f5f9;
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
+            --secondary-light: #94a3b8;
+            --secondary-dark: #cbd5e1;
+        }
+
+        [data-theme="light"] {
+            --bg-color: var(--bg-light);
+            --card-color: var(--card-light);
+            --text-color: var(--text-light);
+            --border-color: var(--border-light);
+            --secondary-color: var(--secondary-light);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: var(--bg-dark);
+            --card-color: var(--card-dark);
+            --text-color: var(--text-dark);
+            --border-color: var(--border-dark);
+            --secondary-color: var(--secondary-dark);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .header h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: var(--card-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+        }
+
+        /* Calendar Navigation */
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            background: var(--card-color);
+            border-radius: 16px;
+            padding: 16px 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .current-month {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-color);
+            text-align: center;
+            flex: 1;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .view-option {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .view-option.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Calendar Grid */
+        .calendar-grid {
+            background: var(--card-color);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-weight: 600;
+            color: var(--secondary-color);
+            padding: 12px;
+            font-size: 0.9rem;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .day.other-month {
+            opacity: 0.4;
+        }
+
+        .day.today {
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 10%, transparent);
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .day-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: 8px;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .day-task {
+            font-size: 0.7rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-count {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Day View */
+        .day-view {
+            background: var(--card-color);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .day-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .day-stats {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        .day-tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .time-slot {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .time-label {
+            font-weight: 600;
+            color: var(--text-color);
+            min-width: 60px;
+        }
+
+        .time-tasks {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Task Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-color);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
+        }
+
+        .task-details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .detail-icon {
+            font-size: 20px;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .task-action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .task-action-btn.complete {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+        }
+
+        .task-action-btn.complete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .task-action-btn.edit {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+        }
+
+        .task-action-btn.edit:hover {
+            border-color: var(--primary);
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-label {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-color);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: var(--secondary-color);
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 10%, transparent);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .calendar-nav {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .nav-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .day-tasks {
+                max-height: 60px;
+            }
+            
+            .time-slot {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bottom-nav {
+                padding: 10px;
+            }
+            
+            .nav-label {
+                font-size: 0.75rem;
+            }
+            
+            .weekday {
+                padding: 8px 4px;
+                font-size: 0.8rem;
+            }
+            
+            .day {
+                padding: 4px;
+            }
+            
+            .day-number {
+                font-size: 0.9rem;
+            }
+            
+            .view-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()" aria-label="Go back">
+                    ←
+                </button>
+                <h1>📅 Calendar</h1>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn" onclick="goToToday()">
+                    <span>📌</span>
+                    <span>Today</span>
+                </button>
+                <button class="action-btn" onclick="toggleTheme()" id="themeToggle">
+                    <span class="theme-icon">☀️</span>
+                    <span>Light Mode</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="calendar-nav">
+            <div class="nav-controls">
+                <button class="nav-btn" onclick="prevMonth()">←</button>
+                <div class="current-month" id="currentMonth">January 2024</div>
+                <button class="nav-btn" onclick="nextMonth()">→</button>
+            </div>
+            
+            <div class="view-toggle">
+                <div class="view-option active" data-view="month">Month</div>
+                <div class="view-option" data-view="week">Week</div>
+                <div class="view-option" data-view="day">Day</div>
+            </div>
+        </div>
+
+        <div class="calendar-grid" id="calendarView">
+            <!-- Calendar will be loaded here -->
+        </div>
+
+        <div class="day-view" id="dayView" style="display: none;">
+            <div class="day-header">
+                <div class="day-title" id="selectedDayTitle">Today</div>
+                <div class="day-stats" id="dayStats">0 tasks</div>
+            </div>
+            <div class="day-tasks-list" id="dayTasksList">
+                <!-- Day tasks will be loaded here -->
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--primary);"></div>
+                <div class="legend-label">Personal</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--success);"></div>
+                <div class="legend-label">Work</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--warning);"></div>
+                <div class="legend-label">Study</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--danger);"></div>
+                <div class="legend-label">Health</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--info);"></div>
+                <div class="legend-label">Other</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Details Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="taskModalTitle">Task Details</div>
+                <button class="modal-close" onclick="hideTaskModal()">×</button>
+            </div>
+            <div class="task-details" id="taskDetails">
+                <!-- Task details will be loaded here -->
+            </div>
+            <div class="task-actions">
+                <button class="task-action-btn complete" onclick="toggleTaskComplete()">Mark Complete</button>
+                <button class="task-action-btn edit" onclick="editTask()">Edit Task</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="todo.html" class="nav-item">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Tasks</span>
+        </a>
+        <a href="calendar.html" class="nav-item active">
+            <span class="nav-icon">📅</span>
+            <span class="nav-label">Calendar</span>
+        </a>
+        <a href="categories.html" class="nav-item">
+            <span class="nav-icon">🏷️</span>
+            <span class="nav-label">Categories</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">Settings</span>
+        </a>
+    </nav>
+
+    <script>
+        // Theme Management
+        function toggleTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('.theme-icon');
+            const themeText = themeToggle.querySelector('span:last-child');
+            const currentTheme = document.body.dataset.theme;
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.body.dataset.theme = newTheme;
+            themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+            themeText.textContent = newTheme === 'light' ? 'Dark Mode' : 'Light Mode';
+            
+            // Save preference
+            localStorage.setItem('theme', newTheme);
+            
+            // Update meta theme-color
+            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            metaThemeColor.content = newTheme === 'light' ? '#6366f1' : '#0f172a';
+        }
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.dataset.theme = savedTheme;
+        
+        // Back button functionality
+        function goBack() {
+            if (document.referrer && document.referrer.includes(location.hostname)) {
+                history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Calendar Management
+        class CalendarManager {
+            constructor() {
+                this.currentDate = new Date();
+                this.currentView = 'month';
+                this.todos = JSON.parse(localStorage.getItem('todos')) || [];
+                this.categories = JSON.parse(localStorage.getItem('categories')) || [];
+                this.selectedTask = null;
+                this.selectedDay = new Date();
+            }
+            
+            // Date Navigation
+            prevMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                this.renderCalendar();
+            }
+            
+            nextMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                this.renderCalendar();
+            }
+            
+            goToToday() {
+                this.currentDate = new Date();
+                this.selectedDay = new Date();
+                this.renderCalendar();
+                this.renderDayView();
+            }
+            
+            // View Management
+            setView(view) {
+                this.currentView = view;
+                
+                // Update active view button
+                document.querySelectorAll('.view-option').forEach(option => {
+                    option.classList.remove('active');
+                    if (option.dataset.view === view) {
+                        option.classList.add('active');
+                    }
+                });
+                
+                // Show/hide views
+                if (view === 'day') {
+                    document.getElementById('calendarView').style.display = 'none';
+                    document.getElementById('dayView').style.display = 'block';
+                    this.renderDayView();
+                } else {
+                    document.getElementById('calendarView').style.display = 'block';
+                    document.getElementById('dayView').style.display = 'none';
+                    this.renderCalendar();
+                }
+            }
+            
+            // Calendar Rendering
+            renderCalendar() {
+                const container = document.getElementById('calendarView');
+                const month = this.currentDate.getMonth();
+                const year = this.currentDate.getFullYear();
+                
+                // Update month header
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                document.getElementById('currentMonth').textContent = 
+                    `${monthNames[month]} ${year}`;
+                
+                // Get first day of month
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startingDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                
+                // Create calendar grid
+                let calendarHTML = `
+                    <div class="weekdays">
+                        <div class="weekday">Sun</div>
+                        <div class="weekday">Mon</div>
+                        <div class="weekday">Tue</div>
+                        <div class="weekday">Wed</div>
+                        <div class="weekday">Thu</div>
+                        <div class="weekday">Fri</div>
+                        <div class="weekday">Sat</div>
+                    </div>
+                    <div class="days-grid">
+                `;
+                
+                // Add empty cells for days before the first day of month
+                for (let i = 0; i < startingDay; i++) {
+                    const prevDate = new Date(year, month, -i);
+                    calendarHTML += this.createDayCell(prevDate, true);
+                }
+                
+                // Add cells for each day of the month
+                const today = new Date();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    const isToday = date.toDateString() === today.toDateString();
+                    const isSelected = date.toDateString() === this.selectedDay.toDateString();
+                    
+                    let dayClass = 'day';
+                    if (isToday) dayClass += ' today';
+                    if (isSelected) dayClass += ' selected';
+                    
+                    calendarHTML += this.createDayCell(date, false, isToday);
+                }
+                
+                // Add empty cells to complete the grid (6 rows × 7 columns = 42 cells)
+                const totalCells = 42; // 6 weeks × 7 days
+                const remainingCells = totalCells - (startingDay + daysInMonth);
+                for (let i = 1; i <= remainingCells; i++) {
+                    const nextDate = new Date(year, month + 1, i);
+                    calendarHTML += this.createDayCell(nextDate, true);
+                }
+                
+                calendarHTML += '</div>';
+                container.innerHTML = calendarHTML;
+                
+                // Add click event listeners to days
+                document.querySelectorAll('.day:not(.other-month)').forEach(day => {
+                    const dateStr = day.dataset.date;
+                    day.addEventListener('click', () => {
+                        this.selectedDay = new Date(dateStr);
+                        this.setView('day');
+                    });
+                });
+            }
+            
+            createDayCell(date, isOtherMonth, isToday = false) {
+                const day = date.getDate();
+                const month = date.getMonth();
+                const year = date.getFullYear();
+                const dateStr = date.toISOString().split('T')[0];
+                
+                // Get tasks for this day
+                const tasks = this.getTasksForDate(date);
+                
+                // Get category colors for tasks
+                const taskHTML = tasks.slice(0, 3).map(task => {
+                    const category = this.categories.find(c => c.id === task.category);
+                    const color = category ? category.color : '#94a3b8';
+                    return `<div class="day-task" style="background: color-mix(in srgb, ${color} 20%, transparent);" onclick="event.stopPropagation(); calendarManager.showTaskDetails(${task.id})">${task.title}</div>`;
+                }).join('');
+                
+                return `
+                    <div class="day ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}" data-date="${dateStr}">
+                        <div class="day-number">${day}</div>
+                        ${tasks.length > 0 ? `<div class="task-count">${tasks.length}</div>` : ''}
+                        ${tasks.length > 0 ? `<div class="day-tasks">${taskHTML}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            // Day View Rendering
+            renderDayView() {
+                const tasks = this.getTasksForDate(this.selectedDay);
+                const dateStr = this.selectedDay.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                document.getElementById('selectedDayTitle').textContent = dateStr;
+                document.getElementById('dayStats').textContent = `${tasks.length} tasks`;
+                
+                // Group tasks by time
+                const timeSlots = {};
+                tasks.forEach(task => {
+                    const time = task.time || 'No Time';
+                    if (!timeSlots[time]) {
+                        timeSlots[time] = [];
+                    }
+                    timeSlots[time].push(task);
+                });
+                
+                // Sort times
+                const sortedTimes = Object.keys(timeSlots).sort((a, b) => {
+                    if (a === 'No Time') return 1;
+                    if (b === 'No Time') return -1;
+                    return a.localeCompare(b);
+                });
+                
+                // Create time slots
+                let dayHTML = '';
+                sortedTimes.forEach(time => {
+                    const slotTasks = timeSlots[time];
+                    dayHTML += `
+                        <div class="time-slot">
+                            <div class="time-label">${time}</div>
+                            <div class="time-tasks">
+                                ${slotTasks.map(task => `
+                                    <div class="task-item" onclick="calendarManager.showTaskDetails(${task.id})">
+                                        <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="event.stopPropagation(); calendarManager.toggleTask(${task.id})"></div>
+                                        <div class="task-title ${task.completed ? 'completed' : ''}">${task.title}</div>
+                                        <span class="task-category" style="color: ${this.getCategoryColor(task.category)}">
+                                            ${this.getCategoryIcon(task.category)}
+                                        </span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('dayTasksList').innerHTML = dayHTML || `
+                    <div style="text-align: center; padding: 40px; color: var(--secondary-color);">
+                        No tasks for this day
+                    </div>
+                `;
+            }
+            
+            // Task Management
+            getTasksForDate(date) {
+                const dateStr = date.toISOString().split('T')[0];
+                return this.todos.filter(task => {
+                    if (!task.dueDate) return false;
+                    const taskDate = new Date(task.dueDate).toISOString().split('T')[0];
+                    return taskDate === dateStr;
+                });
+            }
+            
+            getCategoryColor(categoryId) {
+                const category = this.categories.find(c => c.id === categoryId);
+                return category ? category.color : '#94a3b8';
+            }
+            
+            getCategoryIcon(categoryId) {
+                const category = this.categories.find(c => c.id === categoryId);
+                return category ? category.icon : '📦';
+            }
+            
+            showTaskDetails(taskId) {
+                const task = this.todos.find(t => t.id === taskId);
+                if (!task) return;
+                
+                this.selectedTask = task;
+                
+                const category = this.categories.find(c => c.id === task.category);
+                const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+                
+                document.getElementById('taskModalTitle').textContent = task.title;
+                
+                const detailsHTML = `
+                    <div class="detail-item">
+                        <div class="detail-icon">📝</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Description</div>
+                            <div class="detail-value">${task.description || 'No description'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">🏷️</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Category</div>
+                            <div class="detail-value">
+                                <span style="color: ${category?.color || '#94a3b8'}">
+                                    ${category?.icon || '📦'} ${category?.name || 'Uncategorized'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">📅</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Due Date</div>
+                            <div class="detail-value">
+                                ${dueDate ? dueDate.toLocaleDateString('en-US', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                }) : 'No due date'}
+                                ${task.time ? ` at ${task.time}` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">⚡</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Priority</div>
+                            <div class="detail-value" style="color: ${this.getPriorityColor(task.priority)}">
+                                ${this.getPriorityIcon(task.priority)} ${task.priority}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">📋</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value">
+                                ${task.completed ? '✅ Completed' : '⏳ Pending'}
+                                ${task.completed && task.completedAt ? 
+                                    ` on ${new Date(task.completedAt).toLocaleDateString()}` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('taskDetails').innerHTML = detailsHTML;
+                
+                // Update button text
+                const completeBtn = document.querySelector('.task-action-btn.complete');
+                completeBtn.textContent = task.completed ? 'Mark Incomplete' : 'Mark Complete';
+                
+                document.getElementById('taskModal').classList.add('show');
+            }
+            
+            hideTaskModal() {
+                document.getElementById('taskModal').classList.remove('show');
+                this.selectedTask = null;
+            }
+            
+            toggleTaskComplete() {
+                if (!this.selectedTask) return;
+                
+                const index = this.todos.findIndex(t => t.id === this.selectedTask.id);
+                if (index !== -1) {
+                    this.todos[index].completed = !this.todos[index].completed;
+                    this.todos[index].completedAt = this.todos[index].completed ? new Date().toISOString() : null;
+                    localStorage.setItem('todos', JSON.stringify(this.todos));
+                    
+                    this.hideTaskModal();
+                    this.renderCalendar();
+                    this.renderDayView();
+                }
+            }
+            
+            toggleTask(taskId) {
+                const index = this.todos.findIndex(t => t.id === taskId);
+                if (index !== -1) {
+                    this.todos[index].completed = !this.todos[index].completed;
+                    this.todos[index].completedAt = this.todos[index].completed ? new Date().toISOString() : null;
+                    localStorage.setItem('todos', JSON.stringify(this.todos));
+                    
+                    this.renderCalendar();
+                    this.renderDayView();
+                }
+            }
+            
+            editTask() {
+                if (!this.selectedTask) return;
+                
+                // Redirect to todo page with edit mode
+                window.location.href = `todo.html?edit=${this.selectedTask.id}`;
+            }
+            
+            getPriorityColor(priority) {
+                switch(priority) {
+                    case 'high': return '#ef4444';
+                    case 'medium': return '#f59e0b';
+                    case 'low': return '#10b981';
+                    default: return '#94a3b8';
+                }
+            }
+            
+            getPriorityIcon(priority) {
+                switch(priority) {
+                    case 'high': return '🔥';
+                    case 'medium': return '⚡';
+                    case 'low': return '🌱';
+                    default: return '📌';
+                }
+            }
+        }
+        
+        // Initialize Calendar Manager
+        const calendarManager = new CalendarManager();
+        
+        // View Toggle
+        document.querySelectorAll('.view-option').forEach(option => {
+            option.addEventListener('click', function() {
+                calendarManager.setView(this.dataset.view);
+            });
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            calendarManager.renderCalendar();
+            
+            // Set initial theme
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                const themeIcon = themeToggle.querySelector('.theme-icon');
+                const themeText = themeToggle.querySelector('span:last-child');
+                
+                themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+                themeText.textContent = savedTheme === 'light' ? 'Dark Mode' : 'Light Mode';
+            }
+            
+            // Initialize meta theme-color
+            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            metaThemeColor.content = savedTheme === 'light' ? '#6366f1' : '#0f172a';
+        });
+        
+        // Global functions for HTML onclick
+        function prevMonth() {
+            calendarManager.prevMonth();
+        }
+        
+        function nextMonth() {
+            calendarManager.nextMonth();
+        }
+        
+        function goToToday() {
+            calendarManager.goToToday();
+        }
+        
+        function hideTaskModal() {
+            calendarManager.hideTaskModal();
+        }
+        
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

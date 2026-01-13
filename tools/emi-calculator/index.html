@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Makes the page responsive and mobile-friendly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline EMI Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a2647 0%, #144272 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .calculator-container {
+            background-color: #1e3a5c;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2a4a7a;
+        }
+
+        h1 {
+            color: #6ab1f7;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #b8d4ff;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 2px solid #2a4a7a;
+            background-color: #0a2647;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4d8fdc;
+            box-shadow: 0 0 0 3px rgba(77, 143, 220, 0.2);
+        }
+
+        .slider-container {
+            margin-top: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #0a2647;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #4d8fdc;
+            cursor: pointer;
+            border: 3px solid #1e3a5c;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, #2a75bb, #4d8fdc);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .calculate-btn:hover {
+            background: linear-gradient(to right, #24619e, #4280cc);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            background-color: #0a2647;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid #2a4a7a;
+            display: none; /* Hidden until calculation */
+        }
+
+        .results h2 {
+            color: #6ab1f7;
+            margin-top: 0;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #2a4a7a;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            color: #b8d4ff;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 1.2rem;
+        }
+
+        .result-value.emi {
+            color: #6dd47c;
+            font-size: 1.8rem;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+                align-items: flex-start;
+                padding-top: 30px;
+            }
+            .calculator-container {
+                padding: 25px 20px;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Print-friendly styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .calculator-container {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+            }
+            .calculate-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>📱 Offline EMI Calculator</h1>
+
+        <div class="input-group">
+            <label for="loanAmount">Loan Amount (₹)</label>
+            <input type="number" id="loanAmount" min="1000" max="100000000" step="1000" value="500000" placeholder="E.g., 500000">
+            <div class="slider-container">
+                <input type="range" id="loanAmountSlider" min="1000" max="100000000" step="1000" value="500000">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="interestRate">Annual Interest Rate (%)</label>
+            <input type="number" id="interestRate" min="1" max="30" step="0.1" value="8.5" placeholder="E.g., 8.5">
+            <div class="slider-container">
+                <input type="range" id="interestRateSlider" min="1" max="30" step="0.1" value="8.5">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="loanTenure">Loan Tenure (Months)</label>
+            <input type="number" id="loanTenure" min="1" max="360" step="1" value="60" placeholder="E.g., 60 (5 years)">
+            <div class="slider-container">
+                <input type="range" id="loanTenureSlider" min="6" max="360" step="1" value="60">
+            </div>
+        </div>
+
+        <button class="calculate-btn" id="calculateBtn">Calculate EMI</button>
+
+        <div class="results" id="resultsSection">
+            <h2>Your Loan Breakdown</h2>
+            <div class="result-item">
+                <span class="result-label">Monthly EMI</span>
+                <span class="result-value emi" id="emiValue">₹0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Interest Payable</span>
+                <span class="result-value" id="totalInterest">₹0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Payment <br>(Principal + Interest)</span>
+                <span class="result-value" id="totalPayment">₹0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sync number inputs with their sliders
+        const loanAmountInput = document.getElementById('loanAmount');
+        const loanAmountSlider = document.getElementById('loanAmountSlider');
+        const interestRateInput = document.getElementById('interestRate');
+        const interestRateSlider = document.getElementById('interestRateSlider');
+        const loanTenureInput = document.getElementById('loanTenure');
+        const loanTenureSlider = document.getElementById('loanTenureSlider');
+
+        function syncInputAndSlider(input, slider) {
+            input.addEventListener('input', () => slider.value = input.value);
+            slider.addEventListener('input', () => input.value = slider.value);
+        }
+
+        syncInputAndSlider(loanAmountInput, loanAmountSlider);
+        syncInputAndSlider(interestRateInput, interestRateSlider);
+        syncInputAndSlider(loanTenureInput, loanTenureSlider);
+
+        // EMI Calculation Logic
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const P = parseFloat(loanAmountInput.value);
+            const r = parseFloat(interestRateInput.value) / 12 / 100; // Monthly interest rate
+            const n = parseFloat(loanTenureInput.value);
+
+            if (!P || !r || !n || P <= 0 || n <= 0) {
+                alert('Please enter valid positive numbers for all fields.');
+                return;
+            }
+
+            // Standard EMI formula[citation:9]
+            const emi = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+            const totalPayment = emi * n;
+            const totalInterest = totalPayment - P;
+
+            // Display results
+            document.getElementById('emiValue').textContent = '₹' + emi.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('totalInterest').textContent = '₹' + totalInterest.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('totalPayment').textContent = '₹' + totalPayment.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+
+            // Optional: Smooth scroll to results on mobile
+            if (window.innerWidth < 768) {
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        // Calculate on Enter key press in any input field
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    document.getElementById('calculateBtn').click();
+                }
+            });
+        });
+
+        // Perform an initial calculation when the page loads
+        window.addEventListener('load', function() {
+            document.getElementById('calculateBtn').click();
+        });
+    </script>
+</body>
+</html>

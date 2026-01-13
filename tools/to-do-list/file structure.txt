@@ -1,0 +1,6 @@
+todo-project/
+│
+├── index.html          # Main dashboard/Home page
+├── tasks.html          # Tasks management page
+├── completed.html      # Completed tasks page
+└── settings.html       # Settings/Theme page

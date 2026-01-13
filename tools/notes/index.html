@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #2196f3;
+            --primary-light: #64b5f6;
+            --primary-dark: #1976d2;
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --text-light: #b0b0b0;
+            --border: #333333;
+            --toolbar-bg: #2d2d2d;
+            --hover: #3d3d3d;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --danger: #f44336;
+            --success: #4caf50;
+            --warning: #ff9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        /* Selection Mode Header */
+        .selection-header {
+            display: none;
+            background: var(--primary-dark);
+            padding: 15px 20px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .selection-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .selection-count {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .selection-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .selection-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .selection-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .selection-btn.delete {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .selection-btn.edit {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .selection-btn.share {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Time Filters */
+        .time-filters {
+            display: flex;
+            overflow-x: auto;
+            padding: 15px 20px;
+            gap: 10px;
+            background: var(--toolbar-bg);
+            border-bottom: 1px solid var(--border);
+            scrollbar-width: none;
+        }
+
+        .time-filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-light);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Label Filters */
+        .label-filters {
+            display: flex;
+            overflow-x: auto;
+            padding: 15px 20px;
+            gap: 10px;
+            background: var(--toolbar-bg);
+            border-bottom: 1px solid var(--border);
+            scrollbar-width: none;
+        }
+
+        .label-filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .label-filter-btn {
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-light);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .label-filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .label-color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Notes Container */
+        .notes-container {
+            padding: 20px;
+        }
+
+        /* Notes Grid */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Note Card */
+        .note-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .note-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        /* Checkbox */
+        .note-checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .note-card.select-mode .note-checkbox {
+            display: block;
+        }
+
+        .note-checkbox:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .note-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Note Header */
+        .note-header {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+        }
+
+        .note-card.select-mode .note-header {
+            margin-left: 30px;
+        }
+
+        .note-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .note-date {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        /* Note Label */
+        .note-label {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        /* Note Preview */
+        .note-preview {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 10px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Note Footer */
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: var(--hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-light);
+        }
+
+        .action-icon:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .note-attachments {
+            display: flex;
+            gap: 5px;
+        }
+
+        .attachment-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+            display: none;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        /* Select All Button */
+        .select-all-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            padding: 12px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .select-all-btn:hover {
+            background: var(--hover);
+        }
+
+        .select-all-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .nav-tab span {
+                display: none;
+            }
+            
+            .nav-tab i {
+                font-size: 1.2rem;
+            }
+            
+            .selection-btn span {
+                display: none;
+            }
+            
+            .fab {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .select-all-btn {
+                bottom: 90px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .note-card {
+                padding: 15px;
+            }
+            
+            .time-filters,
+            .label-filters {
+                padding: 12px 15px;
+            }
+            
+            .filter-btn,
+            .label-filter-btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .selection-btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-sticky-note"></i> Notes Dashboard</h1>
+        <div style="display:flex; gap:10px;">
+            <button class="selection-btn" onclick="toggleSelectionMode()" style="background:transparent; border:1px solid var(--border); color:var(--text);">
+                <i class="fas fa-check-square"></i>
+                <span>Select</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Selection Mode Header -->
+    <div class="selection-header" id="selectionHeader">
+        <div class="selection-info">
+            <div class="selection-count" id="selectedCount">0 selected</div>
+            <button class="selection-btn" onclick="clearSelection()">
+                <i class="fas fa-times"></i>
+                <span>Clear</span>
+            </button>
+        </div>
+        <div class="selection-actions">
+            <button class="selection-btn edit" onclick="editSelectedNotes()">
+                <i class="fas fa-edit"></i>
+                <span>Edit</span>
+            </button>
+            <button class="selection-btn share" onclick="shareSelectedNotes()">
+                <i class="fas fa-share"></i>
+                <span>Share</span>
+            </button>
+            <button class="selection-btn delete" onclick="deleteSelectedNotes()">
+                <i class="fas fa-trash"></i>
+                <span>Delete</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-tabs">
+        <a href="index.html" class="nav-tab active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="labels.html" class="nav-tab">
+            <i class="fas fa-tags"></i>
+            <span>Labels</span>
+        </a>
+        <a href="notes.html" class="nav-tab">
+            <i class="fas fa-edit"></i>
+            <span>New Note</span>
+        </a>
+    </div>
+
+    <!-- Time Filters -->
+    <div class="time-filters">
+        <button class="filter-btn active" data-filter="all">All Notes</button>
+        <button class="filter-btn" data-filter="today">Today</button>
+        <button class="filter-btn" data-filter="week">This Week</button>
+        <button class="filter-btn" data-filter="month">This Month</button>
+        <button class="filter-btn" data-filter="year">This Year</button>
+    </div>
+
+    <!-- Label Filters -->
+    <div class="label-filters" id="labelFilters">
+        <button class="label-filter-btn active" data-label="all">
+            <i class="fas fa-tags"></i>
+            All Labels
+        </button>
+        <!-- Labels will be loaded here -->
+    </div>
+
+    <!-- Notes Container -->
+    <div class="notes-container">
+        <div class="notes-grid" id="notesGrid">
+            <!-- Notes will appear here -->
+        </div>
+        
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-sticky-note"></i>
+            <h3>No notes yet</h3>
+            <p>Create your first note by clicking the + button below</p>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab" onclick="window.location.href='notes.html'">
+        <i class="fas fa-plus"></i>
+    </div>
+    
+    <button class="select-all-btn" id="selectAllBtn" onclick="toggleSelectAll()">
+        <i class="fas fa-check-double"></i>
+        <span>Select All</span>
+    </button>
+
+    <script>
+        // Initialize Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        // Load data
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        let labels = JSON.parse(localStorage.getItem('labels')) || [];
+        
+        // Selection mode state
+        let isSelectionMode = false;
+        let selectedNotes = new Set();
+        let currentTimeFilter = 'all';
+        let currentLabelFilter = 'all';
+
+        // Initialize
+        renderNotes();
+        renderLabelFilters();
+
+        // Selection Mode Functions
+        function toggleSelectionMode() {
+            isSelectionMode = !isSelectionMode;
+            const selectionHeader = document.getElementById('selectionHeader');
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            
+            if (isSelectionMode) {
+                selectionHeader.style.display = 'flex';
+                selectAllBtn.style.display = 'flex';
+                
+                // Add select mode class to all note cards
+                document.querySelectorAll('.note-card').forEach(card => {
+                    card.classList.add('select-mode');
+                });
+                
+                // Clear any previous selection
+                selectedNotes.clear();
+                updateSelectedCount();
+            } else {
+                selectionHeader.style.display = 'none';
+                selectAllBtn.style.display = 'none';
+                
+                // Remove select mode class
+                document.querySelectorAll('.note-card').forEach(card => {
+                    card.classList.remove('select-mode');
+                    card.classList.remove('selected');
+                });
+                
+                // Clear selection
+                selectedNotes.clear();
+                updateSelectedCount();
+            }
+        }
+
+        function clearSelection() {
+            selectedNotes.clear();
+            document.querySelectorAll('.note-card').forEach(card => {
+                card.classList.remove('selected');
+                const checkbox = card.querySelector('.note-checkbox');
+                if (checkbox) checkbox.checked = false;
+            });
+            updateSelectedCount();
+        }
+
+        function toggleSelectAll() {
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const allCheckboxes = document.querySelectorAll('.note-checkbox');
+            const allCards = document.querySelectorAll('.note-card');
+            
+            if (selectAllBtn.classList.contains('active')) {
+                // Deselect all
+                selectedNotes.clear();
+                allCheckboxes.forEach(cb => cb.checked = false);
+                allCards.forEach(card => card.classList.remove('selected'));
+                selectAllBtn.classList.remove('active');
+                selectAllBtn.innerHTML = '<i class="fas fa-check-double"></i><span>Select All</span>';
+            } else {
+                // Select all visible notes
+                const visibleNotes = getFilteredNotes();
+                selectedNotes.clear();
+                visibleNotes.forEach(note => selectedNotes.add(note.id));
+                
+                allCheckboxes.forEach(cb => {
+                    const noteId = parseInt(cb.dataset.noteId);
+                    if (selectedNotes.has(noteId)) {
+                        cb.checked = true;
+                        cb.closest('.note-card').classList.add('selected');
+                    }
+                });
+                
+                selectAllBtn.classList.add('active');
+                selectAllBtn.innerHTML = '<i class="fas fa-times"></i><span>Deselect All</span>';
+            }
+            
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selectedCount').textContent = `${selectedNotes.size} selected`;
+        }
+
+        function toggleNoteSelection(noteId, checkbox) {
+            const card = checkbox.closest('.note-card');
+            
+            if (checkbox.checked) {
+                selectedNotes.add(noteId);
+                card.classList.add('selected');
+            } else {
+                selectedNotes.delete(noteId);
+                card.classList.remove('selected');
+            }
+            
+            updateSelectedCount();
+            
+            // Update select all button state
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const visibleNotes = getFilteredNotes();
+            
+            if (selectedNotes.size === visibleNotes.length && visibleNotes.length > 0) {
+                selectAllBtn.classList.add('active');
+                selectAllBtn.innerHTML = '<i class="fas fa-times"></i><span>Deselect All</span>';
+            } else {
+                selectAllBtn.classList.remove('active');
+                selectAllBtn.innerHTML = '<i class="fas fa-check-double"></i><span>Select All</span>';
+            }
+        }
+
+        // Note Actions
+        function editSelectedNotes() {
+            if (selectedNotes.size === 1) {
+                const noteId = Array.from(selectedNotes)[0];
+                editNote(noteId);
+            } else if (selectedNotes.size > 1) {
+                alert('Please select only one note to edit');
+            } else {
+                alert('Please select a note to edit');
+            }
+        }
+
+        function shareSelectedNotes() {
+            if (selectedNotes.size === 0) {
+                alert('Please select notes to share');
+                return;
+            }
+            
+            const selectedNotesData = notes.filter(note => selectedNotes.has(note.id));
+            const shareText = selectedNotesData.map(note => 
+                `${note.title}\n${note.content.replace(/<[^>]*>/g, '').substring(0, 200)}...\n\n`
+            ).join('\n---\n\n');
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Notes',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(shareText)
+                    .then(() => alert('Notes copied to clipboard!'))
+                    .catch(() => {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = shareText;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        alert('Notes copied to clipboard!');
+                    });
+            }
+        }
+
+        function deleteSelectedNotes() {
+            if (selectedNotes.size === 0) {
+                alert('Please select notes to delete');
+                return;
+            }
+            
+            if (confirm(`Delete ${selectedNotes.size} note(s)? This action cannot be undone.`)) {
+                notes = notes.filter(note => !selectedNotes.has(note.id));
+                localStorage.setItem('notes', JSON.stringify(notes));
+                selectedNotes.clear();
+                renderNotes();
+                toggleSelectionMode(); // Exit selection mode
+            }
+        }
+
+        function editNote(noteId) {
+            localStorage.setItem('editNoteId', noteId);
+            window.location.href = 'notes.html';
+        }
+
+        function deleteNote(noteId) {
+            if (confirm('Delete this note? This action cannot be undone.')) {
+                notes = notes.filter(note => note.id !== noteId);
+                localStorage.setItem('notes', JSON.stringify(notes));
+                renderNotes();
+            }
+        }
+
+        function shareNote(noteId) {
+            const note = notes.find(n => n.id === noteId);
+            if (!note) return;
+            
+            const shareText = `${note.title}\n\n${note.content.replace(/<[^>]*>/g, '').substring(0, 500)}...`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: note.title,
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(shareText)
+                    .then(() => alert('Note copied to clipboard!'))
+                    .catch(() => {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = shareText;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        alert('Note copied to clipboard!');
+                    });
+            }
+        }
+
+        // Filter Functions
+        function getFilteredNotes() {
+            let filteredNotes = [...notes];
+            
+            // Apply time filter
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            switch(currentTimeFilter) {
+                case 'today':
+                    filteredNotes = notes.filter(note => 
+                        new Date(note.createdDate).toDateString() === now.toDateString()
+                    );
+                    break;
+                case 'week':
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    filteredNotes = notes.filter(note => {
+                        const noteDate = new Date(note.createdDate);
+                        return noteDate >= weekAgo;
+                    });
+                    break;
+                case 'month':
+                    const monthAgo = new Date(today);
+                    monthAgo.setMonth(monthAgo.getMonth() - 1);
+                    filteredNotes = notes.filter(note => {
+                        const noteDate = new Date(note.createdDate);
+                        return noteDate >= monthAgo;
+                    });
+                    break;
+                case 'year':
+                    const yearAgo = new Date(today);
+                    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+                    filteredNotes = notes.filter(note => {
+                        const noteDate = new Date(note.createdDate);
+                        return noteDate >= yearAgo;
+                    });
+                    break;
+            }
+            
+            // Apply label filter
+            if (currentLabelFilter !== 'all') {
+                const labelId = parseInt(currentLabelFilter);
+                filteredNotes = filteredNotes.filter(note => note.label === labelId);
+            }
+            
+            return filteredNotes;
+        }
+
+        // Render Functions
+        function renderNotes() {
+            const grid = document.getElementById('notesGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            const filteredNotes = getFilteredNotes();
+            
+            if (filteredNotes.length === 0) {
+                emptyState.style.display = 'block';
+                grid.innerHTML = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            grid.innerHTML = '';
+
+            filteredNotes.forEach(note => {
+                const card = document.createElement('div');
+                card.className = 'note-card';
+                card.dataset.noteId = note.id;
+                
+                // Find label info
+                const label = labels.find(l => l.id === note.label);
+                const labelColor = label ? label.color : '#666';
+                const labelName = label ? label.name : 'No Label';
+                
+                // Format date
+                const date = new Date(note.createdDate || note.date || Date.now());
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                // Check attachments
+                const hasAttachments = note.attachments && note.attachments.length > 0;
+                
+                card.innerHTML = `
+                    <input type="checkbox" class="note-checkbox" data-note-id="${note.id}"
+                           onchange="toggleNoteSelection(${note.id}, this)">
+                    
+                    <div class="note-header">
+                        <div class="note-label" style="background:${labelColor}">
+                            ${labelName}
+                        </div>
+                        <div class="note-title">${note.title || 'Untitled'}</div>
+                        <div class="note-date">${formattedDate}</div>
+                    </div>
+                    
+                    <div class="note-preview">
+                        ${(note.content || '').replace(/<[^>]*>/g, '').substring(0, 200)}...
+                    </div>
+                    
+                    <div class="note-footer">
+                        <div class="note-actions">
+                            <div class="action-icon" onclick="event.stopPropagation(); editNote(${note.id})" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="action-icon" onclick="event.stopPropagation(); deleteNote(${note.id})" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                            <div class="action-icon" onclick="event.stopPropagation(); shareNote(${note.id})" title="Share">
+                                <i class="fas fa-share"></i>
+                            </div>
+                        </div>
+                        
+                        ${hasAttachments ? `
+                            <div class="note-attachments">
+                                <div class="attachment-icon">
+                                    <i class="fas fa-paperclip"></i>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                // Click to view note (only when not in selection mode)
+                card.addEventListener('click', function(e) {
+                    if (!isSelectionMode && !e.target.closest('.note-actions')) {
+                        editNote(note.id);
+                    }
+                });
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function renderLabelFilters() {
+            const container = document.getElementById('labelFilters');
+            
+            // Add label buttons
+            labels.forEach(label => {
+                const btn = document.createElement('button');
+                btn.className = 'label-filter-btn';
+                btn.dataset.label = label.id;
+                btn.innerHTML = `
+                    <span class="label-color-dot" style="background:${label.color}"></span>
+                    ${label.name} (${notes.filter(n => n.label === label.id).length})
+                `;
+                btn.onclick = () => filterByLabel(label.id);
+                container.appendChild(btn);
+            });
+        }
+
+        function filterByLabel(labelId) {
+            currentLabelFilter = labelId;
+            
+            // Update active states
+            document.querySelectorAll('.label-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === 'all') btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            
+            // Update time filter to "all" when filtering by label
+            currentTimeFilter = 'all';
+            document.querySelector('[data-filter="all"]').classList.add('active');
+            
+            // Add active class to selected label
+            if (labelId === 'all') {
+                document.querySelector('[data-label="all"]').classList.add('active');
+            } else {
+                document.querySelector(`[data-label="${labelId}"]`).classList.add('active');
+            }
+            
+            renderNotes();
+        }
+
+        // Time filter event listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.label-filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelector('[data-label="all"]').classList.add('active');
+                currentTimeFilter = this.dataset.filter;
+                currentLabelFilter = 'all';
+                renderNotes();
+            });
+        });
+
+        // Label filter click for "All Labels"
+        document.querySelector('[data-label="all"]').addEventListener('click', function() {
+            filterByLabel('all');
+        });
+
+        // Auto-refresh labels
+        setInterval(() => {
+            const newLabels = JSON.parse(localStorage.getItem('labels')) || [];
+            if (JSON.stringify(newLabels) !== JSON.stringify(labels)) {
+                labels = newLabels;
+                document.getElementById('labelFilters').innerHTML = `
+                    <button class="label-filter-btn active" data-label="all">
+                        <i class="fas fa-tags"></i> All Labels
+                    </button>
+                `;
+                renderLabelFilters();
+            }
+        }, 2000);
+
+        // Initialize
+        renderNotes();
+    </script>
+</body>
+</html>

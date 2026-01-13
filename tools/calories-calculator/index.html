@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7209b7">
+    <meta name="description" content="Calculate your body fat percentage - Works offline">
+    <title>Body Fat Calculator - Offline</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #7209b7;
+            --primary-dark: #560bad;
+            --primary-light: #b5179e;
+            --secondary: #4361ee;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e2d3f8 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-dark);
+            transform: translateX(-3px);
+        }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+
+        /* Offline Indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ff6b6b;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            z-index: 1001;
+            display: none;
+            font-weight: 600;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+        }
+
+        .offline-indicator.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* Calculator Card */
+        .calculator-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: clamp(20px, 4vw, 40px);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        /* Input Section */
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        input, select {
+            padding: 16px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            transition: var(--transition);
+            background: white;
+            min-height: 44px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(114, 9, 183, 0.2);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .calculate-btn, .clear-btn {
+            padding: 16px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 44px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(114, 9, 183, 0.3);
+        }
+
+        .calculate-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, var(--gray), #adb5bd);
+            color: white;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #5a6268, var(--gray));
+            transform: translateY(-2px);
+        }
+
+        /* Results */
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f8f0ff, #e6f7ff);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-title {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: clamp(1.8rem, 4vw, 2.2rem);
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .result-category {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Body Fat Categories */
+        .category-essential {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .category-athlete {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .category-fitness {
+            background-color: #cce7ff;
+            color: #004085;
+        }
+
+        .category-average {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .category-obese {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: clamp(15px, 3vw, 25px);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            min-width: 300px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+        }
+
+        th {
+            background: #f8f0ff;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--gray);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            width: 100%;
+            padding: 20px;
+        }
+
+        .offline-status {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .back-btn {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 100;
+            }
+            
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        <i class="fas fa-wifi-slash"></i> You are offline. Calculator works in offline mode.
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" id="backButton" aria-label="Go back">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            
+            <div class="header-content">
+                <h1>Body Fat Calculator</h1>
+                <p class="subtitle">Estimate your body fat percentage - Works Offline</p>
+            </div>
+            
+            <div style="width: 50px;"></div>
+        </div>
+
+        <!-- Calculator Card -->
+        <div class="calculator-card">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="age">Age (years)</label>
+                    <input type="number" id="age" placeholder="Enter age" min="1" max="120" value="30">
+                </div>
+
+                <div class="input-group">
+                    <label for="weight">Weight (kg)</label>
+                    <input type="number" id="weight" placeholder="Enter weight" value="70" min="10" max="300">
+                </div>
+
+                <div class="input-group">
+                    <label for="height">Height (cm)</label>
+                    <input type="number" id="height" placeholder="Enter height" value="170" min="50" max="300">
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="calculate-btn" id="calculateBtn">
+                    <i class="fas fa-percentage"></i> Calculate Body Fat
+                </button>
+                <button class="clear-btn" id="clearBtn">
+                    <i class="fas fa-broom"></i> Clear
+                </button>
+            </div>
+
+            <div class="results-container" id="resultsContainer">
+                <!-- Results will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Body Fat Table -->
+        <div class="table-container">
+            <h3>Body Fat Percentage Categories</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Women</th>
+                        <th>Men</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="category-essential">Essential Fat</td>
+                        <td>10-13%</td>
+                        <td>2-5%</td>
+                    </tr>
+                    <tr>
+                        <td class="category-athlete">Athletes</td>
+                        <td>14-20%</td>
+                        <td>6-13%</td>
+                    </tr>
+                    <tr>
+                        <td class="category-fitness">Fitness</td>
+                        <td>21-24%</td>
+                        <td>14-17%</td>
+                    </tr>
+                    <tr>
+                        <td class="category-average">Average</td>
+                        <td>25-31%</td>
+                        <td>18-24%</td>
+                    </tr>
+                    <tr>
+                        <td class="category-obese">Obese</td>
+                        <td>32%+</td>
+                        <td>25%+</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>© <span id="currentYear"></span> Body Fat Calculator | Works completely offline</p>
+            <p class="offline-status" id="offlineStatus"></p>
+            <p style="font-size: 0.8rem; margin-top: 10px; color: var(--gray);">
+                Note: This is an estimate. For precise measurement, consult a healthcare professional.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const backButton = document.getElementById('backButton');
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        const offlineStatus = document.getElementById('offlineStatus');
+        const currentYear = document.getElementById('currentYear');
+        
+        // Initialize
+        function initApp() {
+            currentYear.textContent = new Date().getFullYear();
+            setDefaultValues();
+            updateOnlineStatus();
+            setupEventListeners();
+            calculateBodyFat();
+            registerServiceWorker();
+        }
+
+        function setDefaultValues() {
+            if (!localStorage.getItem('bodyFatWeight')) {
+                localStorage.setItem('bodyFatWeight', '70');
+                localStorage.setItem('bodyFatHeight', '170');
+                localStorage.setItem('bodyFatAge', '30');
+            }
+            
+            document.getElementById('weight').value = localStorage.getItem('bodyFatWeight') || '70';
+            document.getElementById('height').value = localStorage.getItem('bodyFatHeight') || '170';
+            document.getElementById('age').value = localStorage.getItem('bodyFatAge') || '30';
+        }
+
+        function saveValues() {
+            localStorage.setItem('bodyFatWeight', document.getElementById('weight').value);
+            localStorage.setItem('bodyFatHeight', document.getElementById('height').value);
+            localStorage.setItem('bodyFatAge', document.getElementById('age').value);
+        }
+
+        function setupEventListeners() {
+            calculateBtn.addEventListener('click', calculateBodyFat);
+            clearBtn.addEventListener('click', clearAll);
+            backButton.addEventListener('click', goBack);
+            
+            document.querySelectorAll('input, select').forEach(input => {
+                input.addEventListener('change', calculateBodyFat);
+                input.addEventListener('input', debounce(calculateBodyFat, 300));
+            });
+            
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') calculateBodyFat();
+                if (e.key === 'Escape') clearAll();
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function calculateBodyFat() {
+            const gender = document.getElementById('gender').value;
+            const age = parseInt(document.getElementById('age').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+
+            if (isNaN(weight) || isNaN(height) || isNaN(age)) {
+                displayError("Please enter valid values for all fields");
+                return;
+            }
+
+            saveValues();
+            
+            // Calculate BMI first
+            const heightInMeters = height / 100;
+            const bmi = weight / (heightInMeters * heightInMeters);
+            
+            // Body fat calculation using BMI method
+            let bodyFatPercentage;
+            if (gender === 'male') {
+                bodyFatPercentage = (1.20 * bmi) + (0.23 * age) - 16.2;
+            } else {
+                bodyFatPercentage = (1.20 * bmi) + (0.23 * age) - 5.4;
+            }
+            
+            // Ensure reasonable limits
+            bodyFatPercentage = Math.max(3, Math.min(50, bodyFatPercentage));
+            
+            displayBodyFatResult(bodyFatPercentage, gender);
+        }
+
+        function displayBodyFatResult(bodyFat, gender) {
+            let category, categoryClass, description;
+
+            if (gender === 'male') {
+                if (bodyFat < 6) {
+                    category = "Essential Fat";
+                    categoryClass = "category-essential";
+                    description = "Minimum fat required for basic physiological functions.";
+                } else if (bodyFat < 14) {
+                    category = "Athlete";
+                    categoryClass = "category-athlete";
+                    description = "Excellent fitness level. Common among athletes.";
+                } else if (bodyFat < 18) {
+                    category = "Fitness";
+                    categoryClass = "category-fitness";
+                    description = "Good fitness level. Healthy range for most men.";
+                } else if (bodyFat < 25) {
+                    category = "Average";
+                    categoryClass = "category-average";
+                    description = "Average body fat percentage.";
+                } else {
+                    category = "Obese";
+                    categoryClass = "category-obese";
+                    description = "Consider weight loss for better health.";
+                }
+            } else {
+                if (bodyFat < 14) {
+                    category = "Essential Fat";
+                    categoryClass = "category-essential";
+                    description = "Minimum fat required for basic physiological functions.";
+                } else if (bodyFat < 21) {
+                    category = "Athlete";
+                    categoryClass = "category-athlete";
+                    description = "Excellent fitness level. Common among athletes.";
+                } else if (bodyFat < 25) {
+                    category = "Fitness";
+                    categoryClass = "category-fitness";
+                    description = "Good fitness level. Healthy range for most women.";
+                } else if (bodyFat < 32) {
+                    category = "Average";
+                    categoryClass = "category-average";
+                    description = "Average body fat percentage.";
+                } else {
+                    category = "Obese";
+                    categoryClass = "category-obese";
+                    description = "Consider weight loss for better health.";
+                }
+            }
+
+            resultsContainer.innerHTML = `
+                <div class="result-card fade-in">
+                    <div class="result-title">Body Fat Percentage</div>
+                    <div class="result-value">${bodyFat.toFixed(1)}%</div>
+                    <div class="result-category ${categoryClass}">${category}</div>
+                    <p style="margin-top: 10px; color: var(--gray); font-size: 0.9rem;">${description}</p>
+                </div>
+            `;
+            
+            resultsContainer.classList.remove('fade-in');
+            void resultsContainer.offsetWidth;
+            resultsContainer.classList.add('fade-in');
+        }
+
+        function displayError(message) {
+            resultsContainer.innerHTML = `
+                <div class="result-card" style="border-left-color: #dc3545;">
+                    <div class="result-title" style="color: #dc3545;">Error</div>
+                    <p style="color: var(--gray);">${message}</p>
+                </div>
+            `;
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.value = '';
+            });
+            
+            document.getElementById('age').value = '30';
+            document.getElementById('weight').value = '70';
+            document.getElementById('height').value = '170';
+            
+            resultsContainer.innerHTML = '';
+            
+            localStorage.removeItem('bodyFatWeight');
+            localStorage.removeItem('bodyFatHeight');
+            localStorage.removeItem('bodyFatAge');
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function updateOnlineStatus() {
+            const isOnline = navigator.onLine;
+            
+            if (isOnline) {
+                offlineIndicator.classList.remove('show');
+                offlineStatus.textContent = 'Online';
+                offlineStatus.style.color = '#4cc9f0';
+            } else {
+                offlineIndicator.classList.add('show');
+                offlineStatus.textContent = 'Offline - Working in offline mode';
+                offlineStatus.style.color = '#ff6b6b';
+            }
+        }
+
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'bodyfat-calculator-v1';
+                    const urlsToCache = [
+                        '/',
+                        'bodyfat-calculator.html',
+                        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+                    ];
+
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                        );
+                    });
+
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => response || fetch(event.request))
+                        );
+                    });
+                `;
+
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swURL = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swURL)
+                    .then(registration => {
+                        console.log('Service Worker registered');
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            }
+        }
+
+        initApp();
+    </script>
+</body>
+</html>

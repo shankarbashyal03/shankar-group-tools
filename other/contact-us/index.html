@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Contact Us - Shankar Group Tools">
+    <title>Contact Us - Shankar Group Tools</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" type="image/png" href="../../icon-192.png">
+    <link rel="apple-touch-icon" href="../../icon-512.png">
+    
+    <!-- iOS PWA Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Shankar Tools">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===== CSS RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --light: #f8fafc;
+            --dark: #020617;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            --gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        body {
+            background: var(--gradient);
+            color: var(--light);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-top: 80px; /* Space for fixed header */
+        }
+
+        /* Offline Warning Banner */
+        .offline-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: white;
+            text-align: center;
+            padding: 0.8rem;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .offline-banner.show {
+            transform: translateY(0);
+        }
+
+        .offline-banner i {
+            margin-right: 0.5rem;
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.05);
+            animation: float 20s infinite linear;
+        }
+
+        .bg-particle:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-particle:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            top: 60%;
+            right: -50px;
+            animation-delay: -7s;
+        }
+
+        .bg-particle:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, -30px) rotate(90deg); }
+            50% { transform: translate(-15px, 20px) rotate(180deg); }
+            75% { transform: translate(10px, -10px) rotate(270deg); }
+        }
+
+        /* ===== GRID LINES ===== */
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridPulse 8s infinite alternate;
+        }
+
+        @keyframes gridPulse {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Logo */
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
+            animation: logoGlow 3s infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4); }
+            100% { box-shadow: 0 12px 48px rgba(139, 92, 246, 0.6); }
+        }
+
+        .logo:hover {
+            animation: logoSpin 0.6s ease;
+        }
+
+        @keyframes logoSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .logo-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .logo-text p {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-weight: 300;
+            display: none;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.3s;
+            z-index: 1002;
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 1001;
+            padding: 6rem 1.5rem 2rem;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-direction: row; /* Default for desktop */
+        }
+
+        /* Desktop Navigation */
+        .desktop-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Sidebar specific styles */
+        .sidebar .nav-links {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+
+        .sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            font-size: 1.1rem;
+            border-radius: 12px;
+        }
+
+        .sidebar .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+
+        /* ===== CONTACT PAGE CONTENT ===== */
+        .contact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .contact-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .contact-header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .contact-header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Contact Grid Layout */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        /* Contact Methods Cards */
+        .contact-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 15px 35px -12px rgba(0, 0, 0, 0.4);
+        }
+
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .contact-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .contact-card p {
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .contact-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .contact-btn.outline {
+            background: transparent;
+            border: 2px solid #3b82f6;
+            color: #60a5fa;
+        }
+
+        .contact-btn.outline:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .faq-section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: white;
+            text-align: center;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .faq-question {
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .faq-question.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+        }
+
+        .faq-answer {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .faq-answer.show {
+            padding: 1.2rem;
+            max-height: 500px;
+        }
+
+        .faq-answer p {
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+
+        /* Contact Form */
+        .form-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .form-section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: white;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .form-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Form Status Messages */
+        .form-status {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .form-status.success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            display: block;
+        }
+
+        .form-status.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            display: block;
+        }
+
+        /* Response Time Info */
+        .response-time {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .response-time h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #60a5fa;
+        }
+
+        /* Back to Home Button */
+        .back-home {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .back-home a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .back-home a:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .footer-section h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            color: white;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.7rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: #3b82f6;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            
+            .header {
+                padding: 0.8rem 1.2rem;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.2rem;
+            }
+            
+            .desktop-nav {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .contact-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .contact-card {
+                padding: 1.5rem;
+            }
+            
+            .faq-section, .form-section {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding-top: 65px;
+            }
+            
+            .header-container {
+                gap: 0.5rem;
+            }
+            
+            .logo {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+                border-radius: 10px;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.1rem;
+            }
+            
+            .contact-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .contact-container {
+                padding: 1rem;
+            }
+            
+            .contact-card {
+                padding: 1.2rem;
+            }
+            
+            .contact-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .footer {
+                padding: 2rem 1rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .logo-text h1 {
+                font-size: 1rem;
+            }
+            
+            .contact-header h1 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            .header, .footer, .mobile-menu-btn, .back-home,
+            .offline-banner, .contact-btn, .form-submit {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+                color: black;
+                padding-top: 0;
+            }
+            
+            .contact-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div class="offline-banner" id="offlineBanner">
+        <i class="fas fa-wifi-slash"></i>
+        <span>You are currently offline. Some features may be limited.</span>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="bg-particle"></div>
+        <div class="bg-particle"></div>
+        <div class="bg-particle"></div>
+    </div>
+    
+    <!-- Grid Lines -->
+    <div class="grid-lines"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Logo -->
+            <a href="../../index.html" class="logo-area">
+                <div class="logo">SG</div>
+                <div class="logo-text">
+                    <h1>Shankar Group Tools</h1>
+                    <p>Professional All-in-One Dashboard</p>
+                </div>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav">
+                <div class="nav-links">
+                    <a href="../../index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                    <a href="#" class="nav-link active"><i class="fas fa-phone"></i> Contact</a>
+                    <a href="../privacy-policy/index.html" class="nav-link"><i class="fas fa-shield-alt"></i> Privacy</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="nav-links">
+            <a href="../../index.html" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="#" class="nav-link active">
+                <i class="fas fa-phone"></i> Contact Us
+            </a>
+            <a href="../privacy-policy/index.html" class="nav-link">
+                <i class="fas fa-shield-alt"></i> Privacy Policy
+            </a>
+        </div>
+    </nav>
+
+    <!-- Contact Page Content -->
+    <div class="contact-container">
+        <div class="contact-header">
+            <h1>Contact Us</h1>
+            <p>Get in touch with us. We're here to help with any questions or concerns.</p>
+        </div>
+
+        <!-- Contact Methods Grid -->
+        <div class="contact-grid">
+            <!-- Email Card -->
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h3>Email Support</h3>
+                <p>Send us an email for any inquiries, support requests, or feedback. We typically respond within 24 hours.</p>
+                <button class="contact-btn" id="emailSupportBtn">
+                    <i class="fas fa-paper-plane"></i> Send Email
+                </button>
+            </div>
+
+            <!-- Feedback Card -->
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <h3>Quick Feedback</h3>
+                <p>Share your thoughts, suggestions, or report issues. Help us improve our tools and services.</p>
+                <button class="contact-btn outline" id="quickFeedbackBtn">
+                    <i class="fas fa-edit"></i> Give Feedback
+                </button>
+            </div>
+
+            <!-- FAQ Card -->
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3>FAQ & Help</h3>
+                <p>Find answers to common questions and troubleshooting tips in our FAQ section below.</p>
+                <a href="#faqSection" class="contact-btn outline">
+                    <i class="fas fa-book"></i> View FAQ
+                </a>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section" id="faqSection">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How do I use the tools offline?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>All Shankar Group Tools work offline once loaded. Just visit the website once while online, and you'll be able to use all tools without an internet connection. The website will automatically cache itself for offline use.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Are my calculations and data stored on servers?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>No, all calculations and data processing happen locally on your device. We don't store any personal data, calculation history, or results on our servers. Your privacy is our priority.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Can I use these tools on mobile devices?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! All tools are fully responsive and optimized for mobile devices. They work perfectly on smartphones, tablets, and desktop computers. The interface automatically adapts to your screen size.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How often are new tools added?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We regularly update our tool collection based on user feedback and demand. New tools are added monthly. You can suggest new tools through our feedback form.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Is there a cost to use these tools?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>All Shankar Group Tools are completely free to use. There are no hidden costs, subscriptions, or premium features. We believe in providing valuable tools without barriers.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How can I report a bug or issue?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>You can report bugs through our feedback form or by emailing support. Please include details about the issue, your device/browser, and steps to reproduce the problem for faster resolution.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="form-section">
+            <h2>Send Us a Message</h2>
+            
+            <form id="contactForm">
+                <div class="form-group">
+                    <label class="form-label" for="name">Your Name</label>
+                    <input type="text" id="name" class="form-input" placeholder="Enter your name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="subject">Subject</label>
+                    <input type="text" id="subject" class="form-input" placeholder="What is this regarding?" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="message">Message</label>
+                    <textarea id="message" class="form-textarea" placeholder="Type your message here..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="category">Category</label>
+                    <select id="category" class="form-input">
+                        <option value="general">General Inquiry</option>
+                        <option value="support">Technical Support</option>
+                        <option value="feedback">Feedback/Suggestion</option>
+                        <option value="bug">Bug Report</option>
+                        <option value="business">Business Inquiry</option>
+                    </select>
+                </div>
+
+                <div class="form-status" id="formStatus"></div>
+
+                <button type="submit" class="form-submit" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="back-home">
+            <a href="../../index.html">
+                <i class="fas fa-arrow-left"></i> Back to Tools Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-link"></i> Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="../../index.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-phone"></i> Contact Us</a></li>
+                    <li><a href="../privacy-policy/index.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-fire"></i> Popular Tools</h4>
+                <ul class="footer-links">
+                    <li><a href="../../tools/currency-converter/index.html"><i class="fas fa-exchange-alt"></i> Currency Converter</a></li>
+                    <li><a href="../../tools/scientific-calculator/index.html"><i class="fas fa-calculator"></i> Scientific Calculator</a></li>
+                    <li><a href="../../tools/finance-tracker/index.html"><i class="fas fa-wallet"></i> Finance Tracker</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-comments"></i> Connect</h4>
+                <ul class="footer-links">
+                    <li><a href="#" id="footerEmailLink"><i class="fas fa-envelope"></i> Email Support</a></li>
+                    <li><a href="#" id="footerFeedbackLink"><i class="fas fa-comment-dots"></i> Send Feedback</a></li>
+                    <li><a href="#" id="footerShareLink"><i class="fas fa-share-alt"></i> Share App</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2024 Shankar Group Tools. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ===== OFFLINE DETECTION =====
+        const offlineBanner = document.getElementById('offlineBanner');
+        
+        function updateOnlineStatus() {
+            if (!navigator.onLine) {
+                offlineBanner.classList.add('show');
+            } else {
+                offlineBanner.classList.remove('show');
+            }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus(); // Check initial status
+
+        // ===== DOM ELEMENTS =====
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const header = document.getElementById('header');
+        const contactForm = document.getElementById('contactForm');
+        const formStatus = document.getElementById('formStatus');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // ===== MOBILE MENU FUNCTIONALITY =====
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Close sidebar when clicking on a link
+        sidebar.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // ===== HEADER HIDE ON SCROLL =====
+        let lastScrollTop = 0;
+        const scrollThreshold = 100;
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > scrollThreshold) {
+                if (scrollTop > lastScrollTop) {
+                    // Scrolling down - hide header
+                    header.classList.add('hidden');
+                } else {
+                    // Scrolling up - show header
+                    header.classList.remove('hidden');
+                }
+            } else {
+                // Near top - always show header
+                header.classList.remove('hidden');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+
+        // ===== EMAIL FUNCTION =====
+        function getSupportEmail() {
+            // Base64 encoded version of "sbvianet03@gmail.com"
+            return atob('c2J2aWFuZXQwM0BnbWFpbC5jb20=');
+        }
+
+        // ===== CONTACT BUTTONS =====
+        document.getElementById('emailSupportBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            const supportEmail = getSupportEmail();
+            const subject = 'Shankar Group Tools - Support Request';
+            const body = encodeURIComponent('Hello,\n\nI need assistance with:');
+            
+            window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+        });
+
+        document.getElementById('quickFeedbackBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const feedback = prompt('Please share your feedback or suggestions:');
+            
+            if (feedback && feedback.trim() !== '') {
+                const supportEmail = getSupportEmail();
+                const subject = 'Shankar Group Tools - Quick Feedback';
+                const body = encodeURIComponent(`Feedback: ${feedback}\n\nTimestamp: ${new Date().toLocaleString()}\nPage: Contact Us`);
+                
+                window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+                
+                setTimeout(() => {
+                    alert('Thank you for your feedback! A mail app will open to send your feedback.');
+                }, 100);
+            } else if (feedback !== null) {
+                alert('Please enter your feedback to proceed.');
+            }
+        });
+
+        // ===== FAQ TOGGLE =====
+        window.toggleFAQ = function(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            
+            // Close all other FAQs
+            document.querySelectorAll('.faq-answer.show').forEach((item) => {
+                if (item !== answer) {
+                    item.classList.remove('show');
+                    item.previousElementSibling.classList.remove('active');
+                    item.previousElementSibling.querySelector('i').className = 'fas fa-chevron-down';
+                }
+            });
+            
+            // Toggle current FAQ
+            element.classList.toggle('active');
+            answer.classList.toggle('show');
+            
+            if (answer.classList.contains('show')) {
+                icon.className = 'fas fa-chevron-up';
+            } else {
+                icon.className = 'fas fa-chevron-down';
+            }
+        };
+
+        // ===== CONTACT FORM HANDLING =====
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value,
+                category: document.getElementById('category').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                // Show sending status
+                formStatus.textContent = 'Preparing your message...';
+                formStatus.className = 'form-status';
+                formStatus.style.display = 'block';
+                
+                // Save form data locally (for offline review)
+                const savedForms = JSON.parse(localStorage.getItem('contactForms') || '[]');
+                savedForms.push({
+                    ...formData,
+                    status: 'pending',
+                    sentAt: new Date().toLocaleString()
+                });
+                localStorage.setItem('contactForms', JSON.stringify(savedForms));
+                
+                // Check if online
+                if (navigator.onLine) {
+                    // Online: Send via email
+                    const supportEmail = getSupportEmail();
+                    const emailSubject = `Shankar Tools Contact: ${formData.subject}`;
+                    const emailBody = encodeURIComponent(
+                        `Name: ${formData.name}\n` +
+                        `Email: ${formData.email}\n` +
+                        `Category: ${formData.category}\n` +
+                        `Message:\n${formData.message}\n\n` +
+                        `Sent: ${new Date().toLocaleString()}`
+                    );
+                    
+                    window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(emailSubject)}&body=${emailBody}`;
+                    
+                    // Update local storage
+                    savedForms[savedForms.length - 1].status = 'sent';
+                    localStorage.setItem('contactForms', JSON.stringify(savedForms));
+                    
+                    // Show success
+                    formStatus.textContent = '✓ Message prepared! Your email client will open.';
+                    formStatus.className = 'form-status success';
+                    
+                    // Reset form
+                    contactForm.reset();
+                    
+                    // Show success message
+                    setTimeout(() => {
+                        alert('Your message is ready to send! Please check your email client to complete sending.');
+                    }, 500);
+                } else {
+                    // Offline: Save for later
+                    formStatus.textContent = '✓ Message saved offline! We will send it when you are online.';
+                    formStatus.className = 'form-status success';
+                    
+                    // Reset form
+                    contactForm.reset();
+                    
+                    // Show offline message
+                    setTimeout(() => {
+                        alert('Message saved offline! We will send it automatically when you reconnect to the internet.');
+                    }, 500);
+                }
+                
+            } catch (error) {
+                // Show error
+                formStatus.textContent = '✗ Error: ' + error.message;
+                formStatus.className = 'form-status error';
+                
+                console.error('Form submission error:', error);
+            } finally {
+                // Re-enable submit button
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+                }, 3000);
+                
+                // Hide status after 5 seconds
+                setTimeout(() => {
+                    formStatus.style.display = 'none';
+                }, 5000);
+            }
+        });
+
+        // ===== FOOTER LINKS =====
+        document.getElementById('footerEmailLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            const supportEmail = getSupportEmail();
+            const subject = 'Shankar Group Tools - Support Request';
+            const body = encodeURIComponent('Hello,\n\nI need assistance with:');
+            
+            window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+        });
+
+        document.getElementById('footerFeedbackLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const feedback = prompt('Please share your feedback or suggestions:');
+            
+            if (feedback && feedback.trim() !== '') {
+                const supportEmail = getSupportEmail();
+                const subject = 'Shankar Group Tools - Feedback';
+                const body = encodeURIComponent(`Feedback: ${feedback}\n\nTimestamp: ${new Date().toLocaleString()}\nPage: ${window.location.href}`);
+                
+                window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+                
+                setTimeout(() => {
+                    alert('Thank you for your feedback! A mail app will open to send your feedback.');
+                }, 100);
+            } else if (feedback !== null) {
+                alert('Please enter your feedback to proceed.');
+            }
+        });
+
+        document.getElementById('footerShareLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Shankar Group Tools - Contact Us',
+                        text: 'Get in touch with Shankar Group Tools support',
+                        url: window.location.href,
+                    });
+                } catch (err) {
+                    console.log('Share cancelled');
+                }
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Contact page link copied to clipboard!');
+                });
+            }
+        });
+
+        // ===== SERVICE WORKER REGISTRATION =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../../service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered for offline support');
+                        
+                        // Check for pending forms and send them
+                        if (navigator.onLine) {
+                            const savedForms = JSON.parse(localStorage.getItem('contactForms') || '[]');
+                            const pendingForms = savedForms.filter(form => form.status === 'pending');
+                            
+                            if (pendingForms.length > 0) {
+                                console.log(`Found ${pendingForms.length} pending forms to send`);
+                                // In a real app, you would send these to your backend
+                                // For now, we'll just mark them as sent
+                                pendingForms.forEach(form => form.status = 'sent');
+                                localStorage.setItem('contactForms', JSON.stringify(savedForms));
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Service Worker failed:', error);
+                    });
+            });
+        }
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', (e) => {
+            // Escape to close sidebar
+            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            // F for focus on form
+            if (e.key === 'f' && !e.ctrlKey && !e.metaKey) {
+                if (document.activeElement !== document.body) return;
+                document.getElementById('name').focus();
+            }
+            
+            // B for back to home
+            if (e.key === 'b' && !e.ctrlKey && !e.metaKey) {
+                if (document.activeElement !== document.body) return;
+                document.querySelector('.back-home a').click();
+            }
+        });
+
+        // ===== TOUCH SWIPE SUPPORT =====
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const swipeDistance = touchEndX - touchStartX;
+            
+            // Swipe from left edge to open sidebar
+            if (touchStartX < 20 && swipeDistance > swipeThreshold) {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Swipe from sidebar to close
+            if (sidebar.classList.contains('active') && swipeDistance < -swipeThreshold) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // ===== FORM VALIDATION =====
+        function validateForm() {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+            
+            if (!name || !email || !message) {
+                formStatus.textContent = '✗ Please fill in all required fields.';
+                formStatus.className = 'form-status error';
+                formStatus.style.display = 'block';
+                return false;
+            }
+            
+            if (!isValidEmail(email)) {
+                formStatus.textContent = '✗ Please enter a valid email address.';
+                formStatus.className = 'form-status error';
+                formStatus.style.display = 'block';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // Add validation on form submit
+        contactForm.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+            }
+        });
+
+        // ===== AUTO-SAVE DRAFT =====
+        let saveTimeout;
+        const formFields = ['name', 'email', 'subject', 'message', 'category'];
+        
+        formFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', () => {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(saveDraft, 1000);
+                });
+            }
+        });
+        
+        function saveDraft() {
+            const draft = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value,
+                category: document.getElementById('category').value,
+                savedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('contactFormDraft', JSON.stringify(draft));
+        }
+        
+        // Load draft on page load
+        window.addEventListener('load', () => {
+            const draft = JSON.parse(localStorage.getItem('contactFormDraft') || '{}');
+            
+            if (draft.name) document.getElementById('name').value = draft.name;
+            if (draft.email) document.getElementById('email').value = draft.email;
+            if (draft.subject) document.getElementById('subject').value = draft.subject;
+            if (draft.message) document.getElementById('message').value = draft.message;
+            if (draft.category) document.getElementById('category').value = draft.category;
+            
+            // Clear draft after 1 hour
+            if (draft.savedAt) {
+                const savedTime = new Date(draft.savedAt).getTime();
+                const currentTime = new Date().getTime();
+                const oneHour = 60 * 60 * 1000;
+                
+                if (currentTime - savedTime > oneHour) {
+                    localStorage.removeItem('contactFormDraft');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

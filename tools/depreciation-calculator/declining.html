@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Declining Balance Depreciation Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --primary-color: #9d4edd;
+            --secondary-color: #7b2cbf;
+            --accent-color: #4cc9f0;
+            --border-color: #333333;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .light-mode {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #9d4edd;
+            --secondary-color: #7b2cbf;
+            --accent-color: #4cc9f0;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--border-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(-3px);
+        }
+
+        .title-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 i {
+            color: var(--accent-color);
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            color: var(--accent-color);
+        }
+
+        .method-info {
+            padding: 20px;
+            background-color: rgba(157, 78, 221, 0.1);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .method-info h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .formula {
+            background-color: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 15px 0;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label i {
+            color: var(--primary-color);
+            width: 20px;
+        }
+
+        input {
+            padding: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .unit-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            right: 15px;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .percent-symbol {
+            position: absolute;
+            right: 15px;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .calculate-btn {
+            background-color: var(--primary-color);
+            color: white;
+            flex: 2;
+        }
+
+        .calculate-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .reset-btn {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            flex: 1;
+        }
+
+        .reset-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background-color: rgba(157, 78, 221, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .summary-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 10px 0;
+            color: var(--primary-color);
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .depreciation-table-container {
+            overflow-x: auto;
+            margin-top: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .depreciation-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        .depreciation-table th {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-weight: 600;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .depreciation-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .depreciation-table tr:hover {
+            background-color: rgba(157, 78, 221, 0.05);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 40px;
+            padding: 25px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: flex-end;
+            height: 250px;
+            gap: 40px;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 0 20px;
+        }
+
+        .chart-bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+        }
+
+        .chart-bar-fill {
+            width: 50px;
+            background: linear-gradient(to top, var(--primary-color), #9d4edd);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        .chart-bar-label {
+            margin-top: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .chart-bar-value {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .info-box {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #888;
+            border-left: 3px solid var(--accent-color);
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: #888;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .header-controls {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .back-button {
+                align-self: flex-start;
+                width: auto;
+            }
+            
+            .theme-toggle {
+                align-self: flex-end;
+                margin-top: -60px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .input-group {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .calculate-btn, .reset-btn {
+                width: 100%;
+            }
+            
+            .chart-bar {
+                gap: 20px;
+            }
+            
+            .chart-bar-item {
+                width: 60px;
+            }
+            
+            .chart-bar-fill {
+                width: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.4rem;
+            }
+            
+            input {
+                padding: 12px;
+            }
+            
+            .theme-toggle {
+                margin-top: -55px;
+            }
+            
+            .summary-value {
+                font-size: 1.8rem;
+            }
+            
+            .chart-bar {
+                gap: 10px;
+            }
+            
+            .chart-bar-item {
+                width: 50px;
+            }
+            
+            .chart-bar-fill {
+                width: 30px;
+            }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <div class="header-controls">
+            <button class="back-button" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i> Back to Main
+            </button>
+            
+            <div class="title-area">
+                <h1><i class="fas fa-chart-line"></i> Declining Balance Depreciation</h1>
+                <div class="subtitle">Accelerated Depreciation Calculator</div>
+            </div>
+            
+            <div class="theme-toggle">
+                <span>Dark</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span>Light</span>
+            </div>
+        </div>
+
+        <main>
+            <div class="card">
+                <div class="method-info">
+                    <h3><i class="fas fa-info-circle"></i> About Declining Balance Depreciation</h3>
+                    <p>The declining balance method applies a constant depreciation rate to the declining book value each year. This results in higher depreciation expenses in the early years and lower expenses in later years.</p>
+                    <div class="formula">
+                        Annual Depreciation = Beginning Book Value × Depreciation Rate
+                    </div>
+                </div>
+                
+                <h2><i class="fas fa-calculator"></i> Asset Details</h2>
+                
+                <div class="input-group">
+                    <div class="input-container">
+                        <label for="asset-cost"><i class="fas fa-dollar-sign"></i> Asset Cost</label>
+                        <div class="unit-container">
+                            <input type="number" id="asset-cost" placeholder="0" min="0" step="100" value="10000">
+                            <span class="currency-symbol">$</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-container">
+                        <label for="salvage-value"><i class="fas fa-recycle"></i> Salvage Value</label>
+                        <div class="unit-container">
+                            <input type="number" id="salvage-value" placeholder="0" min="0" step="100" value="1000">
+                            <span class="currency-symbol">$</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-container">
+                        <label for="useful-life"><i class="fas fa-calendar-alt"></i> Useful Life</label>
+                        <input type="number" id="useful-life" placeholder="0" min="1" step="1" value="5">
+                        <span style="margin-top: 5px; font-size: 0.9rem; color: #888;">(in years)</span>
+                    </div>
+                    
+                    <div class="input-container">
+                        <label for="depreciation-rate"><i class="fas fa-percentage"></i> Depreciation Rate</label>
+                        <div class="unit-container">
+                            <input type="number" id="depreciation-rate" placeholder="0" min="1" max="100" step="1" value="40">
+                            <span class="percent-symbol">%</span>
+                        </div>
+                        <span style="margin-top: 5px; font-size: 0.9rem; color: #888;">(Typical rates: 20% for 5 years, 40% for double-declining)</span>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="calculate-btn" id="calculate-btn">
+                        <i class="fas fa-calculator"></i> Calculate Depreciation
+                    </button>
+                    <button class="reset-btn" id="reset-btn">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+                
+                <div class="results-section" id="results-section">
+                    <h2><i class="fas fa-chart-line"></i> Depreciation Schedule</h2>
+                    
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="summary-label">First Year Depreciation</div>
+                            <div class="summary-value" id="first-year-depreciation">$0</div>
+                            <div class="summary-label">Highest depreciation in Year 1</div>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <div class="summary-label">Total Depreciation</div>
+                            <div class="summary-value" id="total-depreciation">$0</div>
+                            <div class="summary-label">Over asset's useful life</div>
+                        </div>
+                    </div>
+                    
+                    <div class="depreciation-table-container">
+                        <table class="depreciation-table">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Beginning Value</th>
+                                    <th>Depreciation Rate</th>
+                                    <th>Depreciation Amount</th>
+                                    <th>Ending Value</th>
+                                    <th>Accumulated Depreciation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="depreciation-table-body">
+                                <!-- Table rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-line"></i> Annual Depreciation Chart</h3>
+                        <p>Visual representation of accelerated depreciation</p>
+                        
+                        <div class="chart-bar" id="chart-bar">
+                            <!-- Chart bars will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i> This calculator works completely offline. All calculations are performed locally in your browser.
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Declining Balance Depreciation Calculator &copy; <span id="current-year"></span> | Works Offline</p>
+        </footer>
+    </div>
+
+    <script>
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // Start with dark mode by default
+        themeToggle.checked = false;
+        
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('depreciation-theme') || 'dark';
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            themeToggle.checked = true;
+        }
+        
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                body.classList.add('light-mode');
+                localStorage.setItem('depreciation-theme', 'light');
+            } else {
+                body.classList.remove('light-mode');
+                localStorage.setItem('depreciation-theme', 'dark');
+            }
+        });
+        
+        // Format currency
+        function formatCurrency(amount) {
+            return '$' + amount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        // Calculate declining balance depreciation
+        function calculateDepreciation() {
+            // Get input values
+            const cost = parseFloat(document.getElementById('asset-cost').value) || 0;
+            const salvage = parseFloat(document.getElementById('salvage-value').value) || 0;
+            const life = parseInt(document.getElementById('useful-life').value) || 1;
+            const rate = parseFloat(document.getElementById('depreciation-rate').value) || 40;
+            
+            // Validate inputs
+            if (cost <= 0) {
+                alert('Please enter a valid asset cost greater than 0.');
+                return;
+            }
+            
+            if (salvage < 0) {
+                alert('Salvage value cannot be negative.');
+                return;
+            }
+            
+            if (salvage >= cost) {
+                alert('Salvage value must be less than asset cost.');
+                return;
+            }
+            
+            if (life <= 0) {
+                alert('Useful life must be greater than 0.');
+                return;
+            }
+            
+            if (rate <= 0 || rate > 100) {
+                alert('Depreciation rate must be between 1% and 100%.');
+                return;
+            }
+            
+            // Calculate depreciation schedule
+            const depreciationRate = rate / 100;
+            const schedule = [];
+            let beginningValue = cost;
+            let accumulatedDepreciation = 0;
+            
+            for (let year = 1; year <= life; year++) {
+                // Calculate depreciation for the year
+                let depreciation = beginningValue * depreciationRate;
+                
+                // Ensure we don't depreciate below salvage value
+                const minEndingValue = Math.max(salvage, 0);
+                if (beginningValue - depreciation < minEndingValue) {
+                    depreciation = beginningValue - minEndingValue;
+                }
+                
+                // For the last year, depreciate to exactly salvage value
+                if (year === life) {
+                    depreciation = beginningValue - minEndingValue;
+                }
+                
+                const endingValue = beginningValue - depreciation;
+                accumulatedDepreciation += depreciation;
+                
+                schedule.push({
+                    year: year,
+                    beginningValue: beginningValue,
+                    depreciationRate: rate,
+                    depreciation: depreciation,
+                    endingValue: endingValue,
+                    accumulatedDepreciation: accumulatedDepreciation
+                });
+                
+                beginningValue = endingValue;
+            }
+            
+            const totalDepreciation = schedule.reduce((sum, year) => sum + year.depreciation, 0);
+            const firstYearDepreciation = schedule[0]?.depreciation || 0;
+            
+            // Update summary cards
+            document.getElementById('first-year-depreciation').textContent = formatCurrency(firstYearDepreciation);
+            document.getElementById('total-depreciation').textContent = formatCurrency(totalDepreciation);
+            
+            // Generate depreciation table
+            const tableBody = document.getElementById('depreciation-table-body');
+            tableBody.innerHTML = '';
+            
+            schedule.forEach(yearData => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${yearData.year}</td>
+                    <td>${formatCurrency(yearData.beginningValue)}</td>
+                    <td>${yearData.depreciationRate}%</td>
+                    <td>${formatCurrency(yearData.depreciation)}</td>
+                    <td>${formatCurrency(yearData.endingValue)}</td>
+                    <td>${formatCurrency(yearData.accumulatedDepreciation)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Update chart
+            updateChart(schedule);
+            
+            // Show results section
+            document.getElementById('results-section').classList.add('active');
+            
+            // Scroll to results
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Update chart
+        function updateChart(schedule) {
+            const chartBar = document.getElementById('chart-bar');
+            chartBar.innerHTML = '';
+            
+            const chartHeight = 250;
+            const maxDepreciation = Math.max(...schedule.map(item => item.depreciation));
+            
+            schedule.forEach(yearData => {
+                const barHeight = (yearData.depreciation / maxDepreciation) * 200;
+                
+                const chartItem = document.createElement('div');
+                chartItem.className = 'chart-bar-item';
+                chartItem.innerHTML = `
+                    <div class="chart-bar-fill" style="height: ${barHeight}px;"></div>
+                    <div class="chart-bar-label">Year ${yearData.year}</div>
+                    <div class="chart-bar-value">${formatCurrency(yearData.depreciation)}</div>
+                `;
+                chartBar.appendChild(chartItem);
+            });
+        }
+        
+        // Reset form function
+        function resetForm() {
+            document.getElementById('asset-cost').value = '10000';
+            document.getElementById('salvage-value').value = '1000';
+            document.getElementById('useful-life').value = '5';
+            document.getElementById('depreciation-rate').value = '40';
+            
+            // Hide results section
+            document.getElementById('results-section').classList.remove('active');
+            
+            // Focus on first input
+            document.getElementById('asset-cost').focus();
+        }
+        
+        // Event listeners
+        document.getElementById('calculate-btn').addEventListener('click', calculateDepreciation);
+        document.getElementById('reset-btn').addEventListener('click', resetForm);
+        
+        // Allow Enter key to trigger calculation
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    calculateDepreciation();
+                }
+            });
+        });
+        
+        // Initialize with example calculation
+        window.addEventListener('DOMContentLoaded', function() {
+            // Calculate with example values
+            setTimeout(calculateDepreciation, 100);
+        });
+    </script>
+</body>
+</html>

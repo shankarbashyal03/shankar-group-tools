@@ -1,0 +1,111 @@
+shankar-group-tools/
+│
+├── index.html (main file - the one I'll modify)
+├── manifest.json
+├── sw.js
+├── icons/
+│   ├── icon-72x72.png
+│   ├── icon-96x96.png
+│   ├── icon-128x128.png
+│   ├── icon-144x144.png
+│   ├── icon-152x152.png
+│   ├── icon-192x192.png
+│   ├── icon-384x384.png
+│   └── icon-512x512.png
+│
+├── other/
+│   ├── contact-us/
+│   │   └── index.html
+│   └── privacy-policy/
+│       └── index.html
+│
+└── tools/
+    ├── age-calculator/
+    │   └── index.html
+    ├── area-converter/
+    │   └── index.html
+    ├── assignment-tracker/
+    │   └── index.html
+    ├── barcode-generator/
+    │   └── index.html
+    ├── bmi-calculator/
+    │   └── index.html
+    ├── budget-planner/
+    │   └── index.html
+    ├── calculator/
+    │   └── index.html
+    ├── calendar/
+    │   └── index.html
+    ├── currency-converter/
+    │   └── index.html
+    ├── daily-planner/
+    │   └── index.html
+    ├── emi-calculator/
+    │   └── index.html
+    ├── habit-tracker/
+    │   └── index.html
+    ├── image-compressor/
+    │   └── index.html
+    ├── length-converter/
+    │   └── index.html
+    ├── loan-calculator/
+    │   └── index.html
+    ├── notes/
+    │   └── index.html
+    ├── password-tester/
+    │   └── index.html
+    ├── pomodoro-timer/
+    │   └── index.html
+    ├── qr-code-generator/
+    │   └── index.html
+    ├── stopwatch/
+    │   └── index.html
+    ├── temperature-converter/
+    │   └── index.html
+    ├── to-do-list/
+    │   └── index.html
+    ├── weight-converter/
+    │   └── index.html
+    ├── world-clock/
+    │   └── index.html
+    │
+    ├── random-text-generator/
+    │   └── index.html
+    ├── random-data-generator/
+    │   └── index.html
+    ├── roi-calculator/
+    │   └── index.html
+    ├── text-cleanup/
+    │   └── index.html
+    ├── volume-converter/
+    │   └── index.html
+    ├── calories-calculator/
+    │   └── index.html
+    ├── charts-generator/
+    │   └── index.html
+    ├── coin-flip-simulator/
+    │   └── index.html
+    ├── countdown-timer/
+    │   └── index.html
+    ├── data-converter/
+    │   └── index.html
+    ├── date-converter-ad-to-bs/
+    │   └── index.html
+    ├── depreciation-calculator/
+    │   └── index.html
+    ├── emergencies-contacts-world/
+    │   └── index.html
+    ├── expenses-tracker/
+    │   └── index.html
+    ├── fat-calculator/
+    │   └── index.html
+    ├── image-compressor/
+    │   └── index.html
+    ├── image-converter/
+    │   └── index.html
+    ├── file-resizer/
+    │   └── index.html
+    ├── jewellery-converter/
+    │   └── index.html
+    └── speed-converter/
+        └── index.html

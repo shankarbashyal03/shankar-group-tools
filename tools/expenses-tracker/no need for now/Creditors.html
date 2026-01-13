@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creditors - Income & Expenses Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clock, .calendar {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        /* Creditors Summary */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border-top: 4px solid var(--warning);
+            transition: transform 0.3s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .summary-card h3 {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .summary-amount {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .summary-count {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Creditors Management */
+        .creditors-management {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f1f1;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-export {
+            background: #9b59b6;
+        }
+
+        .btn-export:hover {
+            background: #8e44ad;
+        }
+
+        /* Creditors List */
+        .creditors-list {
+            display: grid;
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .creditor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--warning);
+            transition: all 0.3s;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .creditor-item:hover {
+            background: #e9ecef;
+        }
+
+        .creditor-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .creditor-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+            flex-shrink: 0;
+        }
+
+        .creditor-details h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .creditor-details p {
+            font-size: 14px;
+            color: #7f8c8d;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .creditor-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--warning);
+            margin-right: 10px;
+        }
+
+        .creditor-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .settle-btn {
+            color: var(--success);
+        }
+
+        .settle-btn:hover {
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .edit-btn {
+            color: var(--info);
+        }
+
+        .edit-btn:hover {
+            background: rgba(23, 162, 184, 0.1);
+        }
+
+        .delete-btn {
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .statement-btn {
+            color: var(--secondary);
+        }
+
+        .statement-btn:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .small {
+            font-size: 14px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .status-partial {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .status-settled {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        /* Payment History */
+        .payment-history {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .payment-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Statement Modal */
+        .statement-modal {
+            max-width: 800px;
+        }
+
+        .statement-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .statement-body {
+            padding: 20px;
+        }
+
+        .statement-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .statement-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .statement-item h4 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .statement-item .amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5ee;
+        }
+
+        .transactions-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .transactions-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #e1e5ee;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .summary-cards {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .header-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .clock, .calendar {
+                flex: 1;
+                text-align: center;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .section-header h2 {
+                min-width: auto;
+            }
+
+            .creditor-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .creditor-info {
+                width: 100%;
+            }
+
+            .creditor-amount {
+                margin-right: 0;
+                align-self: flex-start;
+            }
+
+            .creditor-actions {
+                align-self: flex-end;
+                margin-top: 10px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 10px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .transactions-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .payment-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .summary-card, .creditors-management {
+                padding: 15px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .form-control, .form-select {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .creditor-item {
+                padding: 12px;
+            }
+
+            .creditor-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .action-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .statement-item {
+                padding: 12px;
+            }
+
+            .statement-item h4 {
+                font-size: 12px;
+            }
+
+            .statement-item .amount {
+                font-size: 16px;
+            }
+
+            .transactions-table th,
+            .transactions-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) {
+            .btn:hover, .summary-card:hover {
+                transform: none;
+                background: inherit;
+            }
+
+            .creditor-item:hover {
+                background: #f8f9fa;
+            }
+
+            .action-btn:hover {
+                background: none;
+            }
+        }
+
+        /* High contrast for better accessibility */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid currentColor;
+            }
+
+            .form-control, .form-select {
+                border-width: 2px;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="wallet-icon">💰</div>
+                <h2>Income & Expenses Tracker</h2>
+                <p id="userVoucher">Voucher: Loading...</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i>📊</i> Dashboard</a></li>
+                    <li><a href="categories.html"><i>📂</i> Categories</a></li>
+                    <li><a href="balance.html"><i>💰</i> Balance</a></li>
+                    <li><a href="entries.html"><i>➕</i> Entries</a></li>
+                    <li><a href="creditors.html" class="active"><i>👥</i> Creditors</a></li>
+                    <li><a href="debtors.html"><i>👤</i> Debtors</a></li>
+                    <li><a href="rectify.html"><i>✏️</i> Rectify</a></li>
+                    <li><a href="reports.html"><i>📈</i> Reports</a></li>
+                    <li><a href="admin.html"><i>⚙️</i> Admin</a></li>
+                    <li><a href="settings.html"><i>🔧</i> Settings</a></li>
+                    <li><a href="#" id="logoutBtn"><i>🚪</i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>Creditors Management</h1>
+                <div class="header-info">
+                    <div class="calendar" id="currentDate">Loading...</div>
+                    <div class="clock" id="currentTime">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Creditors Summary -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon">👥</div>
+                    <h3>TOTAL CREDITORS</h3>
+                    <div class="summary-amount" id="totalCreditorsAmount">₹0</div>
+                    <div class="summary-count" id="totalCreditorsCount">0 People</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">⏰</div>
+                    <h3>PENDING PAYMENTS</h3>
+                    <div class="summary-amount" id="pendingAmount">₹0</div>
+                    <div class="summary-count" id="pendingCount">0 Payments</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">✅</div>
+                    <h3>SETTLED AMOUNT</h3>
+                    <div class="summary-amount" id="settledAmount">₹0</div>
+                    <div class="summary-count" id="settledCount">0 Settled</div>
+                </div>
+            </div>
+
+            <!-- Creditors Management -->
+            <div class="creditors-management">
+                <div class="section-header">
+                    <h2><span>👥</span> Creditors List</h2>
+                    <button class="btn btn-success" id="addCreditor">
+                        <span>➕</span> Add Creditor
+                    </button>
+                </div>
+                
+                <div class="creditors-list" id="creditorsList">
+                    <!-- Creditors will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Creditor Modal -->
+    <div class="modal" id="creditorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Creditor</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="creditorForm">
+                    <div class="form-group">
+                        <label for="creditorName">Full Name *</label>
+                        <input type="text" class="form-control" id="creditorName" placeholder="Enter creditor's full name" required>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="creditorContact">Contact Number</label>
+                            <input type="tel" class="form-control" id="creditorContact" placeholder="Phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="creditorEmail">Email Address</label>
+                            <input type="email" class="form-control" id="creditorEmail" placeholder="Email address">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="creditorAmount">Amount Owed *</label>
+                        <input type="number" class="form-control" id="creditorAmount" placeholder="Enter amount" required step="0.01" min="0.01">
+                    </div>
+
+                    <!-- Received Through Options -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="receivedMethod">Received Through *</label>
+                            <select class="form-select" id="receivedMethod" required>
+                                <option value="">Select Method</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank Transfer</option>
+                                <option value="Wallet">Digital Wallet</option>
+                                <option value="Voucher">Voucher</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="receivedBalance">Select Balance Account *</label>
+                            <select class="form-select" id="receivedBalance" required>
+                                <option value="">Select Balance Account</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receivedTransactionNumber">Transaction Number</label>
+                        <input type="text" class="form-control" id="receivedTransactionNumber" placeholder="Auto-generated after save" readonly>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fromDate">From Date</label>
+                            <input type="date" class="form-control" id="fromDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="toDate">Due Date</label>
+                            <input type="date" class="form-control" id="toDate">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="creditorNotes">Notes (Optional)</label>
+                        <textarea class="form-control" id="creditorNotes" placeholder="Add any additional notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelCreditor">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveCreditor">Save Creditor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settle Payment Modal -->
+    <div class="modal" id="settleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settle Payment</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="settleForm">
+                    <div class="form-group">
+                        <label for="settleAmount">Payment Amount *</label>
+                        <input type="number" class="form-control" id="settleAmount" placeholder="Enter payment amount" required step="0.01" min="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentDate">Payment Date *</label>
+                        <input type="date" class="form-control" id="paymentDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method *</label>
+                        <select class="form-select" id="paymentMethod" required>
+                            <option value="">Select Method</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank">Bank Transfer</option>
+                            <option value="Wallet">Digital Wallet</option>
+                            <option value="Voucher">Voucher</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentBalance">Select Balance Account *</label>
+                        <select class="form-select" id="paymentBalance" required>
+                            <option value="">Select Balance Account</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="settlementType">Settlement Type *</label>
+                        <select class="form-select" id="settlementType" required>
+                            <option value="full">Full Settlement</option>
+                            <option value="partial">Partial Payment</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transactionNumber">Transaction Number</label>
+                        <input type="text" class="form-control" id="transactionNumber" placeholder="Auto-generated after save" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentNotes">Payment Notes</label>
+                        <textarea class="form-control" id="paymentNotes" placeholder="Add payment notes" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="payment-history" id="paymentHistory">
+                        <h4>Payment History</h4>
+                        <div id="historyList">
+                            <!-- Payment history will be shown here -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelSettle">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveSettlement">Record Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statement Modal -->
+    <div class="modal" id="statementModal">
+        <div class="modal-content statement-modal">
+            <div class="modal-header">
+                <h3 id="statementTitle">Creditor Statement</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="statement-summary" id="statementSummary">
+                    <!-- Statement summary will be loaded here -->
+                </div>
+                
+                <div class="transactions-table-container">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Transaction #</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statementTransactions">
+                            <!-- Statement transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="closeStatement">Close</button>
+                <button type="button" class="btn btn-export" id="exportExcel">📊 Export to Excel</button>
+                <button type="button" class="btn btn-export" id="exportCSV">📄 Export to CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentEditingCreditor = null;
+        let currentSettlingCreditor = null;
+        let currentStatementCreditor = null;
+        let transactionCounter = 1;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.voucherCode) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user voucher
+            document.getElementById('userVoucher').textContent = `Voucher: ${currentUser.voucherCode}`;
+            
+            // Set current date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fromDate').value = today;
+            document.getElementById('paymentDate').value = today;
+            
+            // Load creditors data
+            loadCreditorsData(currentUser.voucherCode);
+            
+            // Update clock and calendar
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Setup mobile menu
+            setupMobileMenu();
+        });
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside (mobile)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(event.target) &&
+                    !mobileMenuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Load creditors data
+        function loadCreditorsData(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            if (userData) {
+                // Update summary cards
+                updateSummaryCards(userData);
+                
+                // Load creditors list
+                loadCreditorsList(userData);
+                
+                // Load balance accounts for payment
+                loadBalanceAccounts(userData);
+                
+                // Initialize transaction counter
+                initializeTransactionCounter(userData);
+            }
+        }
+
+        // Initialize transaction counter
+        function initializeTransactionCounter(userData) {
+            let maxTransactionNumber = 0;
+            
+            // Check creditors transactions
+            if (userData.creditors) {
+                userData.creditors.forEach(creditor => {
+                    // Check received transaction
+                    if (creditor.receivedTransactionNumber) {
+                        const num = parseInt(creditor.receivedTransactionNumber.replace('CR', ''));
+                        if (num > maxTransactionNumber) maxTransactionNumber = num;
+                    }
+                    
+                    // Check payment transactions
+                    if (creditor.payments) {
+                        creditor.payments.forEach(payment => {
+                            if (payment.transactionNumber) {
+                                const num = parseInt(payment.transactionNumber.replace('CR', ''));
+                                if (num > maxTransactionNumber) maxTransactionNumber = num;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Check debtors transactions
+            if (userData.debtors) {
+                userData.debtors.forEach(debtor => {
+                    // Check given transaction
+                    if (debtor.givenTransactionNumber) {
+                        const num = parseInt(debtor.givenTransactionNumber.replace('DT', ''));
+                        if (num > maxTransactionNumber) maxTransactionNumber = num;
+                    }
+                    
+                    // Check payment transactions
+                    if (debtor.payments) {
+                        debtor.payments.forEach(payment => {
+                            if (payment.transactionNumber) {
+                                const num = parseInt(payment.transactionNumber.replace('DT', ''));
+                                if (num > maxTransactionNumber) maxTransactionNumber = num;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Check general transactions
+            if (userData.transactions) {
+                userData.transactions.forEach(transaction => {
+                    if (transaction.id && transaction.id.startsWith('CR')) {
+                        const num = parseInt(transaction.id.replace('CR', ''));
+                        if (num > maxTransactionNumber) maxTransactionNumber = num;
+                    }
+                });
+            }
+            
+            transactionCounter = maxTransactionNumber + 1;
+        }
+
+        // Generate systematic transaction number
+        function generateTransactionNumber() {
+            const number = transactionCounter.toString().padStart(6, '0');
+            transactionCounter++;
+            return `CR${number}`;
+        }
+
+        // Update summary cards
+        function updateSummaryCards(userData) {
+            const creditors = userData.creditors || [];
+            
+            const totalAmount = creditors.reduce((sum, creditor) => sum + parseFloat(creditor.amount), 0);
+            const pendingAmount = creditors.reduce((sum, creditor) => {
+                if (creditor.status !== 'settled') {
+                    return sum + (parseFloat(creditor.amount) - (creditor.paidAmount || 0));
+                }
+                return sum;
+            }, 0);
+            
+            const settledAmount = creditors.reduce((sum, creditor) => sum + (creditor.paidAmount || 0), 0);
+            const pendingCount = creditors.filter(creditor => creditor.status !== 'settled').length;
+            const settledCount = creditors.filter(creditor => creditor.status === 'settled').length;
+            
+            document.getElementById('totalCreditorsAmount').textContent = formatCurrency(totalAmount, userData.settings.currency);
+            document.getElementById('totalCreditorsCount').textContent = `${creditors.length} People`;
+            document.getElementById('pendingAmount').textContent = formatCurrency(pendingAmount, userData.settings.currency);
+            document.getElementById('pendingCount').textContent = `${pendingCount} Payments`;
+            document.getElementById('settledAmount').textContent = formatCurrency(settledAmount, userData.settings.currency);
+            document.getElementById('settledCount').textContent = `${settledCount} Settled`;
+        }
+
+        // Load creditors list
+        function loadCreditorsList(userData) {
+            const container = document.getElementById('creditorsList');
+            container.innerHTML = '';
+            
+            const creditors = userData.creditors || [];
+            
+            if (creditors.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>👥</div>
+                        <p>No creditors yet</p>
+                        <p class="small">Add your first creditor to track money you owe</p>
+                        <button class="btn btn-success" style="margin-top: 15px;" onclick="document.getElementById('addCreditor').click()">
+                            <span>➕</span> Add Your First Creditor
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            creditors.forEach((creditor, index) => {
+                const creditorItem = createCreditorItem(creditor, index, userData.settings.currency);
+                container.appendChild(creditorItem);
+            });
+        }
+
+        // Create creditor list item
+        function createCreditorItem(creditor, index, currency) {
+            const div = document.createElement('div');
+            div.className = 'creditor-item';
+            
+            const paidAmount = creditor.paidAmount || 0;
+            const remainingAmount = parseFloat(creditor.amount) - paidAmount;
+            const status = creditor.status || 'pending';
+            
+            let statusBadge = '';
+            if (status === 'settled') {
+                statusBadge = '<span class="status-badge status-settled">Settled</span>';
+            } else if (paidAmount > 0) {
+                statusBadge = '<span class="status-badge status-partial">Partial</span>';
+            } else {
+                statusBadge = '<span class="status-badge status-pending">Pending</span>';
+            }
+            
+            div.innerHTML = `
+                <div class="creditor-info">
+                    <div class="creditor-icon">👤</div>
+                    <div class="creditor-details">
+                        <h4>${creditor.name} ${statusBadge}</h4>
+                        <p>
+                            ${creditor.contact ? `<span>📞 ${creditor.contact}</span>` : ''}
+                            ${creditor.email ? `<span>📧 ${creditor.email}</span>` : ''}
+                            <span>Remaining: ${formatCurrency(remainingAmount, currency)}</span>
+                        </p>
+                        ${creditor.notes ? `<p style="margin-top: 5px;">${creditor.notes}</p>` : ''}
+                        ${creditor.receivedMethod ? `<p style="margin-top: 5px; font-size: 12px;">Received Through: ${creditor.receivedMethod} - ${creditor.receivedBalance}</p>` : ''}
+                    </div>
+                </div>
+                <div class="creditor-amount">
+                    ${formatCurrency(creditor.amount, currency)}
+                </div>
+                <div class="creditor-actions">
+                    <button class="action-btn statement-btn" data-index="${index}" title="View Statement">📊</button>
+                    <button class="action-btn settle-btn" data-index="${index}" title="Settle Payment">💰</button>
+                    <button class="action-btn edit-btn" data-index="${index}" title="Edit Creditor">✏️</button>
+                    <button class="action-btn delete-btn" data-index="${index}" title="Delete Creditor">🗑️</button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Load balance accounts for payment
+        function loadBalanceAccounts(userData) {
+            const balanceSelect = document.getElementById('paymentBalance');
+            const receivedBalanceSelect = document.getElementById('receivedBalance');
+            
+            balanceSelect.innerHTML = '<option value="">Select Balance Account</option>';
+            receivedBalanceSelect.innerHTML = '<option value="">Select Balance Account</option>';
+            
+            if (userData.balanceCategories && userData.balanceCategories.length > 0) {
+                userData.balanceCategories.forEach(category => {
+                    const option1 = document.createElement('option');
+                    option1.value = category.name;
+                    option1.textContent = `${category.name} (${category.type})`;
+                    balanceSelect.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = category.name;
+                    option2.textContent = `${category.name} (${category.type})`;
+                    receivedBalanceSelect.appendChild(option2);
+                });
+            }
+        }
+
+        // Format currency
+        function formatCurrency(amount, currency) {
+            return `${currency}${parseFloat(amount).toLocaleString('en-IN')}`;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add creditor
+            document.getElementById('addCreditor').addEventListener('click', function() {
+                openCreditorModal();
+            });
+            
+            // Save creditor
+            document.getElementById('saveCreditor').addEventListener('click', saveCreditor);
+            
+            // Cancel creditor
+            document.getElementById('cancelCreditor').addEventListener('click', closeCreditorModal);
+            
+            // Save settlement
+            document.getElementById('saveSettlement').addEventListener('click', saveSettlement);
+            
+            // Cancel settlement
+            document.getElementById('cancelSettle').addEventListener('click', closeSettleModal);
+            
+            // Close statement
+            document.getElementById('closeStatement').addEventListener('click', closeStatementModal);
+            
+            // Export to Excel
+            document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+            
+            // Export to CSV
+            document.getElementById('exportCSV').addEventListener('click', exportToCSV);
+            
+            // Payment method change
+            document.getElementById('paymentMethod').addEventListener('change', function() {
+                updateBalanceOptions(this.value, 'paymentBalance');
+            });
+            
+            // Received method change
+            document.getElementById('receivedMethod').addEventListener('change', function() {
+                updateBalanceOptions(this.value, 'receivedBalance');
+            });
+            
+            // Close modals
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            // Close modals when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+            
+            // Action buttons (delegated)
+            document.addEventListener('click', function(e) {
+                // View statement
+                if (e.target.classList.contains('statement-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    openStatementModal(index);
+                }
+                
+                // Settle creditor
+                if (e.target.classList.contains('settle-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    openSettleModal(index);
+                }
+                
+                // Edit creditor
+                if (e.target.classList.contains('edit-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    editCreditor(index);
+                }
+                
+                // Delete creditor
+                if (e.target.classList.contains('delete-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    deleteCreditor(index);
+                }
+            });
+        }
+
+        // Update balance options based on payment method
+        function updateBalanceOptions(method, selectId) {
+            const balanceSelect = document.getElementById(selectId);
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            balanceSelect.innerHTML = '<option value="">Select Balance Account</option>';
+            
+            if (userData.balanceCategories && userData.balanceCategories.length > 0) {
+                userData.balanceCategories.forEach(category => {
+                    // Filter based on payment method
+                    if ((method === 'Cash' && category.type === 'Cash') ||
+                        (method === 'Bank' && category.type === 'Bank') ||
+                        (method === 'Wallet' && category.type === 'Wallet') ||
+                        (method === 'Voucher' && category.type === 'Voucher') ||
+                        (method === 'Other' || method === '')) {
+                        
+                        const option = document.createElement('option');
+                        option.value = category.name;
+                        option.textContent = `${category.name} (${category.type})`;
+                        balanceSelect.appendChild(option);
+                    }
+                });
+            }
+        }
+
+        // Open creditor modal
+        function openCreditorModal(creditor = null, index = null) {
+            const modal = document.getElementById('creditorModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('creditorForm');
+            
+            if (creditor && index !== null) {
+                // Editing existing creditor
+                title.textContent = 'Edit Creditor';
+                document.getElementById('creditorName').value = creditor.name;
+                document.getElementById('creditorContact').value = creditor.contact || '';
+                document.getElementById('creditorEmail').value = creditor.email || '';
+                document.getElementById('creditorAmount').value = creditor.amount;
+                document.getElementById('receivedMethod').value = creditor.receivedMethod || '';
+                document.getElementById('receivedBalance').value = creditor.receivedBalance || '';
+                document.getElementById('receivedTransactionNumber').value = creditor.receivedTransactionNumber || '';
+                document.getElementById('fromDate').value = creditor.fromDate || '';
+                document.getElementById('toDate').value = creditor.toDate || '';
+                document.getElementById('creditorNotes').value = creditor.notes || '';
+                
+                currentEditingCreditor = index;
+            } else {
+                // Adding new creditor
+                title.textContent = 'Add Creditor';
+                form.reset();
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fromDate').value = today;
+                document.getElementById('receivedTransactionNumber').value = 'Auto-generated after save';
+                currentEditingCreditor = null;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Close creditor modal
+        function closeCreditorModal() {
+            document.getElementById('creditorModal').style.display = 'none';
+            document.getElementById('creditorForm').reset();
+            currentEditingCreditor = null;
+        }
+
+        // Save creditor
+        function saveCreditor() {
+            const name = document.getElementById('creditorName').value.trim();
+            const contact = document.getElementById('creditorContact').value.trim();
+            const email = document.getElementById('creditorEmail').value.trim();
+            const amount = parseFloat(document.getElementById('creditorAmount').value);
+            const receivedMethod = document.getElementById('receivedMethod').value;
+            const receivedBalance = document.getElementById('receivedBalance').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const notes = document.getElementById('creditorNotes').value.trim();
+            
+            if (!name || !amount || !receivedMethod || !receivedBalance) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            if (!userData.creditors) {
+                userData.creditors = [];
+            }
+            
+            // Generate transaction number
+            const transactionNumber = generateTransactionNumber();
+            
+            const creditorData = {
+                name: name,
+                contact: contact,
+                email: email,
+                amount: amount,
+                receivedMethod: receivedMethod,
+                receivedBalance: receivedBalance,
+                receivedTransactionNumber: transactionNumber,
+                status: 'pending', // Always start as pending
+                paidAmount: 0, // No initial payment
+                fromDate: fromDate,
+                toDate: toDate,
+                notes: notes,
+                payments: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            // Create income transaction for the received money
+            const transactionId = transactionNumber;
+            const transaction = {
+                id: transactionId,
+                date: fromDate || new Date().toISOString().split('T')[0],
+                amount: amount,
+                type: 'income',
+                category: 'Creditor Money Received',
+                balanceCategory: receivedBalance,
+                description: `Money received from ${name} - Creditor`,
+                notes: `Creditor money received: ${notes} | Method: ${receivedMethod} | Transaction: ${transactionNumber}`,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (!userData.transactions) {
+                userData.transactions = [];
+            }
+            userData.transactions.push(transaction);
+            
+            if (currentEditingCreditor !== null) {
+                // Update existing creditor
+                userData.creditors[currentEditingCreditor] = {
+                    ...userData.creditors[currentEditingCreditor],
+                    ...creditorData
+                };
+            } else {
+                // Add new creditor
+                userData.creditors.push(creditorData);
+            }
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload creditors data
+            loadCreditorsData(currentUser.voucherCode);
+            
+            // Close modal
+            closeCreditorModal();
+            
+            // Show success message
+            alert(`Creditor "${name}" ${currentEditingCreditor !== null ? 'updated' : 'added'} successfully! Money received has been added to ${receivedBalance}. Transaction ID: ${transactionNumber}`);
+        }
+
+        // Edit creditor
+        function editCreditor(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const creditor = userData.creditors[index];
+            openCreditorModal(creditor, index);
+        }
+
+        // Delete creditor
+        function deleteCreditor(index) {
+            if (!confirm('Are you sure you want to delete this creditor? This action cannot be undone.')) {
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const creditorName = userData.creditors[index].name;
+            
+            // Remove creditor
+            userData.creditors.splice(index, 1);
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload creditors data
+            loadCreditorsData(currentUser.voucherCode);
+            
+            // Show success message
+            alert(`Creditor "${creditorName}" deleted successfully!`);
+        }
+
+        // Open settle modal
+        function openSettleModal(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const creditor = userData.creditors[index];
+            const remainingAmount = parseFloat(creditor.amount) - (creditor.paidAmount || 0);
+            
+            document.getElementById('settleAmount').value = remainingAmount;
+            document.getElementById('settleAmount').max = remainingAmount;
+            document.getElementById('transactionNumber').value = 'Auto-generated after save';
+            
+            // Load payment history
+            loadPaymentHistory(creditor, userData.settings.currency);
+            
+            currentSettlingCreditor = index;
+            document.getElementById('settleModal').style.display = 'flex';
+        }
+
+        // Close settle modal
+        function closeSettleModal() {
+            document.getElementById('settleModal').style.display = 'none';
+            document.getElementById('settleForm').reset();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('paymentDate').value = today;
+            currentSettlingCreditor = null;
+        }
+
+        // Load payment history
+        function loadPaymentHistory(creditor, currency) {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (!creditor.payments || creditor.payments.length === 0) {
+                historyList.innerHTML = '<p>No payments recorded yet</p>';
+                return;
+            }
+            
+            creditor.payments.forEach(payment => {
+                const paymentItem = document.createElement('div');
+                paymentItem.className = 'payment-item';
+                paymentItem.innerHTML = `
+                    <div>
+                        <strong>${formatCurrency(payment.amount, currency)}</strong>
+                        <div style="font-size: 12px; color: #7f8c8d;">
+                            ${new Date(payment.date).toLocaleDateString()} • ${payment.method} • ${payment.balanceAccount}
+                            ${payment.settlementType === 'full' ? '• Full Settlement' : '• Partial Payment'}
+                            ${payment.transactionNumber ? `• ${payment.transactionNumber}` : ''}
+                        </div>
+                    </div>
+                    <div>${payment.notes || ''}</div>
+                `;
+                historyList.appendChild(paymentItem);
+            });
+        }
+
+        // Save settlement
+        function saveSettlement() {
+            const paymentAmount = parseFloat(document.getElementById('settleAmount').value);
+            const paymentDate = document.getElementById('paymentDate').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const paymentBalance = document.getElementById('paymentBalance').value;
+            const settlementType = document.getElementById('settlementType').value;
+            const paymentNotes = document.getElementById('paymentNotes').value.trim();
+            
+            if (!paymentAmount || !paymentDate || !paymentMethod || !paymentBalance) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const creditor = userData.creditors[currentSettlingCreditor];
+            const remainingAmount = parseFloat(creditor.amount) - (creditor.paidAmount || 0);
+            
+            if (paymentAmount > remainingAmount) {
+                alert('Payment amount cannot exceed remaining amount');
+                return;
+            }
+            
+            // Generate transaction number
+            const transactionNumber = generateTransactionNumber();
+            
+            // Create payment record
+            const payment = {
+                amount: paymentAmount,
+                date: paymentDate,
+                method: paymentMethod,
+                balanceAccount: paymentBalance,
+                settlementType: settlementType,
+                transactionNumber: transactionNumber,
+                notes: paymentNotes,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Update creditor payment history
+            if (!creditor.payments) {
+                creditor.payments = [];
+            }
+            creditor.payments.push(payment);
+            
+            // Update paid amount
+            creditor.paidAmount = (creditor.paidAmount || 0) + paymentAmount;
+            
+            // Update status
+            if (creditor.paidAmount >= parseFloat(creditor.amount)) {
+                creditor.status = 'settled';
+            } else if (creditor.paidAmount > 0) {
+                creditor.status = 'partial';
+            }
+            
+            // Create expense transaction for the payment
+            const transactionId = transactionNumber;
+            const transaction = {
+                id: transactionId,
+                date: paymentDate,
+                amount: paymentAmount,
+                type: 'expense',
+                category: 'Creditor Payment',
+                balanceCategory: paymentBalance,
+                description: `Payment to ${creditor.name} - ${settlementType === 'full' ? 'Full Settlement' : 'Partial Payment'}`,
+                notes: `Creditor settlement: ${paymentNotes} | Method: ${paymentMethod} | Transaction: ${transactionNumber}`,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (!userData.transactions) {
+                userData.transactions = [];
+            }
+            userData.transactions.push(transaction);
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload creditors data
+            loadCreditorsData(currentUser.voucherCode);
+            
+            // Close modal
+            closeSettleModal();
+            
+            // Show success message
+            alert(`${settlementType === 'full' ? 'Full settlement' : 'Partial payment'} of ${formatCurrency(paymentAmount, userData.settings.currency)} recorded successfully! Amount deducted from ${paymentBalance}. Transaction ID: ${transactionNumber}`);
+        }
+
+        // Open statement modal
+        function openStatementModal(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const creditor = userData.creditors[index];
+            
+            // Load statement data
+            loadStatementData(creditor, userData.settings.currency);
+            
+            currentStatementCreditor = index;
+            document.getElementById('statementModal').style.display = 'flex';
+        }
+
+        // Close statement modal
+        function closeStatementModal() {
+            document.getElementById('statementModal').style.display = 'none';
+            currentStatementCreditor = null;
+        }
+
+        // Load statement data
+        function loadStatementData(creditor, currency) {
+            document.getElementById('statementTitle').textContent = `Statement - ${creditor.name}`;
+            
+            // Update summary
+            const paidAmount = creditor.paidAmount || 0;
+            const remainingAmount = parseFloat(creditor.amount) - paidAmount;
+            
+            document.getElementById('statementSummary').innerHTML = `
+                <div class="statement-item">
+                    <h4>Total Amount</h4>
+                    <div class="amount">${formatCurrency(creditor.amount, currency)}</div>
+                </div>
+                <div class="statement-item">
+                    <h4>Paid Amount</h4>
+                    <div class="amount">${formatCurrency(paidAmount, currency)}</div>
+                </div>
+                <div class="statement-item">
+                    <h4>Remaining Amount</h4>
+                    <div class="amount">${formatCurrency(remainingAmount, currency)}</div>
+                </div>
+                <div class="statement-item">
+                    <h4>Status</h4>
+                    <div class="amount">${creditor.status || 'pending'}</div>
+                </div>
+            `;
+            
+            // Load transactions
+            const transactionsBody = document.getElementById('statementTransactions');
+            transactionsBody.innerHTML = '';
+            
+            // Add initial credit entry
+            const initialRow = document.createElement('tr');
+            initialRow.innerHTML = `
+                <td>${new Date(creditor.fromDate || creditor.createdAt).toLocaleDateString()}</td>
+                <td>${creditor.receivedTransactionNumber || '-'}</td>
+                <td>Initial Credit - ${creditor.receivedMethod || 'N/A'} - ${creditor.receivedBalance || 'N/A'}</td>
+                <td>${formatCurrency(creditor.amount, currency)}</td>
+                <td>Credit</td>
+                <td>${formatCurrency(creditor.amount, currency)}</td>
+            `;
+            transactionsBody.appendChild(initialRow);
+            
+            // Add payment entries
+            let runningBalance = parseFloat(creditor.amount);
+            
+            if (creditor.payments && creditor.payments.length > 0) {
+                creditor.payments.forEach(payment => {
+                    runningBalance -= parseFloat(payment.amount);
+                    
+                    const paymentRow = document.createElement('tr');
+                    paymentRow.innerHTML = `
+                        <td>${new Date(payment.date).toLocaleDateString()}</td>
+                        <td>${payment.transactionNumber || '-'}</td>
+                        <td>Payment - ${payment.method} - ${payment.balanceAccount} - ${payment.settlementType === 'full' ? 'Full Settlement' : 'Partial Payment'}</td>
+                        <td>${formatCurrency(payment.amount, currency)}</td>
+                        <td>Payment</td>
+                        <td>${formatCurrency(runningBalance, currency)}</td>
+                    `;
+                    transactionsBody.appendChild(paymentRow);
+                });
+            }
+        }
+
+        // Export to Excel - Fixed version
+        function exportToExcel() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            const creditor = userData.creditors[currentStatementCreditor];
+            
+            if (!creditor) return;
+            
+            // Create HTML table for proper Excel format
+            let htmlContent = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Creditor Statement - ${creditor.name}</title>
+                    <!--[if gte mso 9]>
+                    <xml>
+                        <x:ExcelWorkbook>
+                            <x:ExcelWorksheets>
+                                <x:ExcelWorksheet>
+                                    <x:Name>Creditor Statement</x:Name>
+                                    <x:WorksheetOptions>
+                                        <x:DisplayGridlines/>
+                                    </x:WorksheetOptions>
+                                </x:ExcelWorksheet>
+                            </x:ExcelWorksheets>
+                        </x:ExcelWorkbook>
+                    </xml>
+                    <![endif]-->
+                    <style>
+                        table { border-collapse: collapse; width: 100%; }
+                        th { background-color: #f2f2f2; font-weight: bold; text-align: left; padding: 8px; border: 1px solid #ddd; }
+                        td { padding: 8px; border: 1px solid #ddd; }
+                        .summary { margin-bottom: 20px; }
+                        .summary-item { margin: 5px 0; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Creditor Statement - ${creditor.name}</h1>
+                    <div class="summary">
+                        <div class="summary-item"><strong>Total Amount:</strong> ${formatCurrency(creditor.amount, userData.settings.currency)}</div>
+                        <div class="summary-item"><strong>Paid Amount:</strong> ${formatCurrency(creditor.paidAmount || 0, userData.settings.currency)}</div>
+                        <div class="summary-item"><strong>Remaining Amount:</strong> ${formatCurrency(parseFloat(creditor.amount) - (creditor.paidAmount || 0), userData.settings.currency)}</div>
+                        <div class="summary-item"><strong>Status:</strong> ${creditor.status || 'pending'}</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Transaction #</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            let runningBalance = parseFloat(creditor.amount);
+            htmlContent += `
+                <tr>
+                    <td>${new Date(creditor.fromDate || creditor.createdAt).toLocaleDateString()}</td>
+                    <td>${creditor.receivedTransactionNumber || '-'}</td>
+                    <td>Initial Credit - ${creditor.receivedMethod || 'N/A'} - ${creditor.receivedBalance || 'N/A'}</td>
+                    <td>${formatCurrency(creditor.amount, userData.settings.currency)}</td>
+                    <td>Credit</td>
+                    <td>${formatCurrency(runningBalance, userData.settings.currency)}</td>
+                </tr>
+            `;
+            
+            if (creditor.payments && creditor.payments.length > 0) {
+                creditor.payments.forEach(payment => {
+                    runningBalance -= parseFloat(payment.amount);
+                    htmlContent += `
+                        <tr>
+                            <td>${new Date(payment.date).toLocaleDateString()}</td>
+                            <td>${payment.transactionNumber || '-'}</td>
+                            <td>Payment - ${payment.method} - ${payment.balanceAccount} - ${payment.settlementType === 'full' ? 'Full Settlement' : 'Partial Payment'}</td>
+                            <td>${formatCurrency(payment.amount, userData.settings.currency)}</td>
+                            <td>Payment</td>
+                            <td>${formatCurrency(runningBalance, userData.settings.currency)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            htmlContent += `
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+            
+            // Create and download Excel file
+            const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Creditor_Statement_${creditor.name}_${new Date().toISOString().split('T')[0]}.xls`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Statement exported to Excel successfully!');
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            const creditor = userData.creditors[currentStatementCreditor];
+            
+            if (!creditor) return;
+            
+            // Create CSV content
+            let csvContent = "Date,Transaction #,Description,Amount,Type,Balance\n";
+            
+            let runningBalance = parseFloat(creditor.amount);
+            csvContent += `"${new Date(creditor.fromDate || creditor.createdAt).toLocaleDateString()}","${creditor.receivedTransactionNumber || '-'}","Initial Credit - ${creditor.receivedMethod || 'N/A'} - ${creditor.receivedBalance || 'N/A'}","${formatCurrency(creditor.amount, userData.settings.currency)}","Credit","${formatCurrency(runningBalance, userData.settings.currency)}"\n`;
+            
+            if (creditor.payments && creditor.payments.length > 0) {
+                creditor.payments.forEach(payment => {
+                    runningBalance -= parseFloat(payment.amount);
+                    csvContent += `"${new Date(payment.date).toLocaleDateString()}","${payment.transactionNumber || '-'}","Payment - ${payment.method} - ${payment.balanceAccount} - ${payment.settlementType === 'full' ? 'Full Settlement' : 'Partial Payment'}","${formatCurrency(payment.amount, userData.settings.currency)}","Payment","${formatCurrency(runningBalance, userData.settings.currency)}"\n`;
+                });
+            }
+            
+            // Create and download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Creditor_Statement_${creditor.name}_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Statement exported to CSV successfully!');
+        }
+    </script>
+</body>
+</html>

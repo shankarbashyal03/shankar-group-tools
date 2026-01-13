@@ -1,0 +1,113 @@
+shankar-tools/
+├── index.html                          # Main dashboard (homepage)
+├── manifest.json                       # PWA manifest file
+├── service-worker.js                   # Service Worker for offline
+├── icon-192.png                        # App icon 192x192
+├── icon-512.png                        # App icon 512x512
+├── tools/                              # ALL TOOLS GO HERE
+│   ├── to-do-list/
+│   │   └── index.html
+│   ├── habit-tracker/
+│   │   └── index.html
+│   ├── daily-planner/
+│   │   └── index.html
+│   ├── calendar/
+│   │   └── index.html
+│   ├── calendar-tasks/
+│   │   └── index.html
+│   ├── weather/
+│   │   └── index.html
+│   ├── expenses-tracker/
+│   │   └── index.html
+│   ├── budget-planner/
+│   │   └── index.html
+│   ├── countdown-timer/
+│   │   └── index.html
+│   ├── pomodoro-timer/
+│   │   └── index.html
+│   ├── stopwatch/
+│   │   └── index.html
+│   ├── time-converter/
+│   │   └── index.html
+│   ├── age-calculator/
+│   │   └── index.html
+│   ├── qr-code-generator/
+│   │   └── index.html
+│   ├── barcode-generator/
+│   │   └── index.html
+│   ├── qr-code-scanner/
+│   │   └── index.html
+│   ├── barcode-scanner/
+│   │   └── index.html
+│   ├── image-compressor/
+│   │   └── index.html
+│   ├── image-resizer/
+│   │   └── index.html
+│   ├── network-speed-test/
+│   │   └── index.html
+│   ├── file-converter/
+│   │   └── index.html
+│   ├── image-converter/
+│   │   └── index.html
+│   ├── password-strength-tester/
+│   │   └── index.html
+│   ├── calculator/
+│   │   └── index.html
+│   ├── length-converter/
+│   │   └── index.html
+│   ├── weight-converter/
+│   │   └── index.html
+│   ├── temperature-converter/
+│   │   └── index.html
+│   ├── currency-converter/
+│   │   └── index.html
+│   ├── data-converter/
+│   │   └── index.html
+│   ├── jewellery-converter/
+│   │   └── index.html
+│   ├── area-converter/
+│   │   └── index.html
+│   ├── fat-calculator/
+│   │   └── index.html
+│   ├── bmi-calculator/
+│   │   └── index.html
+│   ├── calories-calculator/
+│   │   └── index.html
+│   ├── notes/
+│   │   └── index.html
+│   ├── loan-calculator/
+│   │   └── index.html
+│   ├── emi-calculator/
+│   │   └── index.html
+│   ├── text-cleanup/
+│   │   └── index.html
+│   ├── random-text-generator/
+│   │   └── index.html
+│   ├── coin-flip-simulator/
+│   │   └── index.html
+│   ├── dice-roller/
+│   │   └── index.html
+│   ├── photo-collage/
+│   │   └── index.html
+│   ├── charts-generator/
+│   │   └── index.html
+│   ├── assignment-tracker/
+│   │   └── index.html
+│   ├── world-capitals-flags/
+│   │   └── index.html
+│   ├── typing-speed-tester/
+│   │   └── index.html
+│   ├── learn-typing/
+│   │   └── index.html
+│   ├── roi-calculator/
+│   │   └── index.html
+│   ├── profit-loss-calculator/
+│   │   └── index.html
+│   ├── skill-progression-tracker/
+│   │   └── index.html
+│   ├── notes-advanced/
+│   │   └── index.html
+│   ├── learning-goal-tracker/
+│   │   └── index.html
+│   └── emergency-contacts/
+│       └── index.html

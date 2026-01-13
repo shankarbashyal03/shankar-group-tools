@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Note Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2196f3;
+            --primary-light: #64b5f6;
+            --primary-dark: #1976d2;
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --text-light: #b0b0b0;
+            --border: #333333;
+            --toolbar-bg: #2d2d2d;
+            --hover: #3d3d3d;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --danger: #f44336;
+            --success: #4caf50;
+        }
+
+        .light-mode {
+            --primary: #2196f3;
+            --primary-light: #bbdefb;
+            --primary-dark: #1976d2;
+            --bg: #ffffff;
+            --card-bg: #f8f9fa;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --border: #e0e0e0;
+            --toolbar-bg: #f5f7fa;
+            --hover: #f0f4f8;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 10px 18px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--hover);
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--toolbar-bg);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-toggle:hover {
+            background: var(--hover);
+        }
+
+        .mode-icon {
+            font-size: 1.2rem;
+            color: var(--text);
+        }
+
+        /* Date Picker Section */
+        .date-picker-section {
+            background: var(--toolbar-bg);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .date-picker-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .date-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .date-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            padding-right: 40px;
+            color: var(--text);
+            font-size: 0.95rem;
+            min-width: 180px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .date-input:hover {
+            border-color: var(--primary);
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .date-icon {
+            position: absolute;
+            right: 12px;
+            color: var(--text-light);
+            pointer-events: none;
+        }
+
+        /* Main Editor Container */
+        .editor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        /* Title Input */
+        .title-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0 20px;
+            outline: none;
+            padding: 10px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .title-input::placeholder {
+            color: var(--text-light);
+        }
+
+        /* Enhanced Toolbar */
+        .toolbar {
+            background: var(--toolbar-bg);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            box-shadow: 0 2px 6px var(--shadow);
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 5px;
+            padding-right: 12px;
+            border-right: 1px solid var(--border);
+        }
+
+        .tool-group:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .tool-btn {
+            min-width: 38px;
+            height: 38px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .tool-btn:hover {
+            background: var(--hover);
+            border-color: var(--border);
+        }
+
+        .tool-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tool-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tool-btn:disabled:hover {
+            background: transparent;
+            border-color: transparent;
+        }
+
+        .tool-dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            min-width: 180px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .tool-dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 12px;
+            color: var(--text);
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: var(--hover);
+        }
+
+        .font-selector, .size-selector {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+            min-width: 130px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .font-selector:hover, .size-selector:hover {
+            border-color: var(--primary);
+        }
+
+        /* Table Grid */
+        .table-grid-container {
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 24px);
+            grid-template-rows: repeat(6, 24px);
+            gap: 2px;
+            margin: 10px 0;
+        }
+
+        .table-cell {
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .table-cell:hover {
+            background: var(--primary);
+            opacity: 0.7;
+        }
+
+        .table-cell.selected {
+            background: var(--primary);
+        }
+
+        .table-preview {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 10px;
+        }
+
+        /* Table Size Controls */
+        .table-size-controls {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 220px;
+            z-index: 1001;
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .table-size-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .table-size-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .table-size-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .table-size-input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .table-size-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .table-apply-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .table-apply-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Editor Area */
+        .editor-area {
+            min-height: 500px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            outline: none;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .editor-area[contenteditable="true"]:empty:before {
+            content: "Start writing your note here...";
+            color: var(--text-light);
+        }
+
+        /* Table Styling */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+            min-width: 200px;
+        }
+
+        table:hover {
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        table.selected {
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: left;
+            min-width: 80px;
+        }
+
+        th {
+            background: var(--toolbar-bg);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .sidebar-section h3 {
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Label Display Section */
+        .labels-display {
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .labels-display::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .labels-display::-webkit-scrollbar-track {
+            background: var(--hover);
+            border-radius: 2px;
+        }
+        
+        .labels-display::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .label-display-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .label-display-item:hover {
+            background: var(--hover);
+            transform: translateX(2px);
+        }
+        
+        .label-display-item.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .label-display-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .label-display-name {
+            flex: 1;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .no-labels-message {
+            text-align: center;
+            padding: 15px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px dashed var(--border);
+        }
+        
+        .no-labels-message a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .no-labels-message a:hover {
+            text-decoration: underline;
+        }
+
+        .label-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .label-option {
+            padding: 8px 14px;
+            background: var(--hover);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .label-option:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        .label-option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .media-upload {
+            padding: 25px 20px;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg);
+        }
+
+        .media-upload:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .media-upload i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .attachments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .attachment-item:hover {
+            background: var(--hover);
+        }
+
+        .attachment-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            
+            .sidebar {
+                position: static;
+                margin-top: 20px;
+            }
+            
+            .date-picker-section {
+                padding: 12px 15px;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .header-left {
+                flex: 1;
+            }
+            
+            .header h1 span {
+                display: none;
+            }
+            
+            .header-actions .action-btn span {
+                display: none;
+            }
+            
+            .date-picker-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            
+            .date-picker-group {
+                width: 100%;
+            }
+            
+            .date-input {
+                width: 100%;
+            }
+            
+            .toolbar {
+                overflow-x: auto;
+                padding: 10px;
+            }
+            
+            .tool-group {
+                flex-shrink: 0;
+            }
+            
+            .title-input {
+                font-size: 1.6rem;
+            }
+            
+            .editor-area {
+                padding: 20px;
+                min-height: 400px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-actions {
+                gap: 5px;
+            }
+            
+            .action-btn {
+                padding: 8px 12px;
+            }
+            
+            .tool-btn {
+                min-width: 36px;
+                height: 36px;
+            }
+            
+            .font-selector, .size-selector {
+                min-width: 100px;
+                padding: 6px 8px;
+                font-size: 0.9rem;
+            }
+            
+            .sidebar {
+                padding: 15px;
+            }
+            
+            .editor-container {
+                padding: 10px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        .tool-btn, .action-btn, .label-option, .date-input {
+            touch-action: manipulation;
+        }
+
+        .tool-btn, .action-btn {
+            min-height: 44px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <h1><i class="fas fa-edit"></i> <span>Note Editor</span></h1>
+            
+            <!-- Undo/Redo buttons -->
+            <div class="tool-group" style="border:none; padding:0;">
+                <button class="tool-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="tool-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <!-- Theme Toggle -->
+            <div class="mode-toggle" id="themeToggle" title="Toggle Light/Dark Mode">
+                <i class="fas fa-moon mode-icon" id="themeIcon"></i>
+            </div>
+
+            <button class="action-btn" onclick="window.location.href='index.html'">
+                <i class="fas fa-times"></i> <span>Cancel</span>
+            </button>
+            <button class="action-btn primary" onclick="saveNote()">
+                <i class="fas fa-save"></i> <span>Save</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Picker Section -->
+    <div class="date-picker-section">
+        <div class="date-picker-group">
+            <div class="date-label">Created Date</div>
+            <div class="date-input-container">
+                <input type="date" class="date-input" id="createdDate">
+                <i class="fas fa-calendar-alt date-icon"></i>
+            </div>
+        </div>
+        
+        <div class="date-picker-group">
+            <div class="date-label">Modified Date</div>
+            <div class="date-input-container">
+                <input type="date" class="date-input" id="modifiedDate">
+                <i class="fas fa-calendar-check date-icon"></i>
+            </div>
+        </div>
+        
+        <div class="date-picker-group">
+            <div class="date-label">Reminder</div>
+            <div class="date-input-container">
+                <input type="datetime-local" class="date-input" id="reminderDate">
+                <i class="fas fa-bell date-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Editor -->
+    <div class="editor-container">
+        <div class="editor-main">
+            <input type="text" class="title-input" id="noteTitle" placeholder="Note Title">
+
+            <!-- Enhanced Toolbar -->
+            <div class="toolbar">
+                <!-- Undo/Redo -->
+                <div class="tool-group">
+                    <button class="tool-btn" id="undoToolBtn" title="Undo (Ctrl+Z)" disabled>
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="tool-btn" id="redoToolBtn" title="Redo (Ctrl+Y)" disabled>
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+
+                <!-- Font Family -->
+                <div class="tool-group">
+                    <div class="tool-dropdown">
+                        <button class="tool-btn" title="Font Family">
+                            <i class="fas fa-font"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <div class="dropdown-item" onclick="changeFontFamily('Inter')">
+                                <i class="fas fa-check"></i> Inter
+                            </div>
+                            <div class="dropdown-item" onclick="changeFontFamily('Arial')">
+                                <i class="fas fa-check"></i> Arial
+                            </div>
+                            <div class="dropdown-item" onclick="changeFontFamily('Georgia')">
+                                <i class="fas fa-check"></i> Georgia
+                            </div>
+                            <div class="dropdown-item" onclick="changeFontFamily('Courier New')">
+                                <i class="fas fa-check"></i> Courier New
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <select class="font-selector" id="fontSelector" onchange="changeFontFamily(this.value)">
+                        <option value="Inter">Inter</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Courier New">Courier New</option>
+                    </select>
+                </div>
+
+                <!-- Font Size -->
+                <div class="tool-group">
+                    <div class="tool-dropdown">
+                        <button class="tool-btn" title="Font Size">
+                            <i class="fas fa-text-height"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <div class="dropdown-item" onclick="changeFontSize(12)">12px</div>
+                            <div class="dropdown-item" onclick="changeFontSize(14)">14px</div>
+                            <div class="dropdown-item" onclick="changeFontSize(16)">16px</div>
+                            <div class="dropdown-item" onclick="changeFontSize(18)">18px</div>
+                            <div class="dropdown-item" onclick="changeFontSize(20)">20px</div>
+                        </div>
+                    </div>
+                    
+                    <select class="size-selector" id="sizeSelector" onchange="changeFontSize(this.value)">
+                        <option value="12">12px</option>
+                        <option value="14">14px</option>
+                        <option value="16" selected>16px</option>
+                        <option value="18">18px</option>
+                        <option value="20">20px</option>
+                    </select>
+                </div>
+
+                <!-- Basic Formatting -->
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="formatText('bold')" title="Bold (Ctrl+B)">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="tool-btn" onclick="formatText('italic')" title="Italic (Ctrl+I)">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="tool-btn" onclick="formatText('underline')" title="Underline (Ctrl+U)">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                </div>
+
+                <!-- Color -->
+                <div class="tool-group">
+                    <input type="color" id="colorPicker" style="display:none">
+                    <button class="tool-btn" onclick="openColorPicker()" title="Text Color">
+                        <i class="fas fa-palette"></i>
+                    </button>
+                    
+                    <input type="color" id="highlightPicker" style="display:none" value="#FFFF00">
+                    <button class="tool-btn" onclick="openHighlightPicker()" title="Highlight">
+                        <i class="fas fa-highlighter"></i>
+                    </button>
+                </div>
+
+                <!-- Alignment -->
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="formatText('justifyLeft')" title="Align Left">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <button class="tool-btn" onclick="formatText('justifyCenter')" title="Center">
+                        <i class="fas fa-align-center"></i>
+                    </button>
+                    <button class="tool-btn" onclick="formatText('justifyRight')" title="Align Right">
+                        <i class="fas fa-align-right"></i>
+                    </button>
+                </div>
+
+                <!-- Lists -->
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="insertBulletList()" title="Bullet List">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="tool-btn" onclick="insertNumberList()" title="Numbered List">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <div class="tool-group">
+                    <div class="tool-dropdown">
+                        <button class="tool-btn" title="Insert Table">
+                            <i class="fas fa-table"></i>
+                        </button>
+                        <div class="dropdown-content table-grid-container">
+                            <div style="color:var(--text-light); font-size:0.85rem; margin-bottom:8px; font-weight:500;">
+                                Quick Insert
+                            </div>
+                            <div class="table-grid" id="tableGrid">
+                                <!-- Table cells will be generated by JavaScript -->
+                            </div>
+                            <div class="table-preview" id="tablePreview">
+                                Click to select
+                            </div>
+                            <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+                                <button class="table-apply-btn" onclick="showCustomTableSize()">
+                                    <i class="fas fa-ruler"></i> Custom Size
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Table Size Controls -->
+                    <div class="table-size-controls" id="tableSizeControls">
+                        <div class="table-size-group">
+                            <div class="table-size-label">Custom Table Size</div>
+                            <div class="table-size-inputs">
+                                <input type="number" class="table-size-input" id="tableRows" min="1" max="20" value="3" placeholder="Rows">
+                                <span style="color:var(--text-light)">×</span>
+                                <input type="number" class="table-size-input" id="tableCols" min="1" max="20" value="3" placeholder="Columns">
+                            </div>
+                        </div>
+                        <button class="table-apply-btn" onclick="insertCustomTable()">
+                            Insert Table
+                        </button>
+                    </div>
+                </div>
+
+                <!-- More Options -->
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="clearFormatting()" title="Clear Formatting">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                    <button class="tool-btn" onclick="insertLink()" title="Insert Link">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Area -->
+            <div class="editor-area" id="noteContent" contenteditable="true"></div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Label Selection Section -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-tag"></i> Select Label</h3>
+                <div class="label-selector" id="labelSelector">
+                    <div class="label-option" onclick="selectLabel(null)">
+                        <i class="fas fa-times-circle"></i> No Label
+                    </div>
+                </div>
+                
+                <!-- Labels Display -->
+                <div class="labels-display" id="labelsDisplay">
+                    <!-- Labels will be loaded here from localStorage -->
+                </div>
+                
+                <!-- No Labels Message -->
+                <div class="no-labels-message" id="noLabelsMessage" style="display: none;">
+                    <i class="fas fa-tags"></i>
+                    <p>No labels created yet</p>
+                    <a href="labels.html">Create Labels</a>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-paperclip"></i> Attachments</h3>
+                <div class="media-upload" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div style="font-size:0.9rem; color:var(--text-light);">Add files or images</div>
+                </div>
+                <input type="file" id="fileInput" multiple style="display:none" onchange="handleFiles(this.files)" accept="image/*,.pdf,.doc,.docx,.txt">
+                <div class="attachments-list" id="attachmentsList">
+                    <!-- Attachments will appear here -->
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-paint-brush"></i> Note Color</h3>
+                <div class="label-selector">
+                    <div class="label-option" style="background:#1e1e1e" onclick="setNoteColor('#1e1e1e')">Dark</div>
+                    <div class="label-option" style="background:#0d47a1" onclick="setNoteColor('#0d47a1')">Blue</div>
+                    <div class="label-option" style="background:#1b5e20" onclick="setNoteColor('#1b5e20')">Green</div>
+                    <div class="label-option" style="background:#4a148c" onclick="setNoteColor('#4a148c')">Purple</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let currentNoteId = null;
+        let attachments = [];
+        let selectedLabel = null;
+        let noteColor = '#1e1e1e';
+        let selectedTable = null;
+        let history = [];
+        let historyIndex = -1;
+        let isLightMode = false;
+
+        // Load labels from localStorage
+        let labels = JSON.parse(localStorage.getItem('labels')) || [];
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+        // Load and display labels in the editor
+        function loadLabels() {
+            const labelsDisplay = document.getElementById('labelsDisplay');
+            const noLabelsMessage = document.getElementById('noLabelsMessage');
+            const labelSelector = document.getElementById('labelSelector');
+            
+            // Clear existing labels except "No Label"
+            const noLabelOption = labelSelector.querySelector('.label-option');
+            labelSelector.innerHTML = '';
+            labelSelector.appendChild(noLabelOption);
+            
+            labelsDisplay.innerHTML = '';
+            
+            if (labels.length === 0) {
+                noLabelsMessage.style.display = 'block';
+                return;
+            }
+            
+            noLabelsMessage.style.display = 'none';
+            
+            // Create label options
+            labels.forEach(label => {
+                // Add to main selector
+                const option = document.createElement('div');
+                option.className = 'label-option';
+                option.style.background = label.color;
+                option.innerHTML = `
+                    <i class="fas fa-tag"></i> ${label.name}
+                `;
+                option.onclick = () => selectLabel(label.id);
+                labelSelector.appendChild(option);
+                
+                // Add to display list
+                const displayItem = document.createElement('div');
+                displayItem.className = 'label-display-item';
+                if (selectedLabel === label.id) {
+                    displayItem.classList.add('selected');
+                }
+                displayItem.innerHTML = `
+                    <div class="label-display-color" style="background:${label.color}"></div>
+                    <div class="label-display-name">${label.name}</div>
+                `;
+                displayItem.onclick = () => selectLabel(label.id);
+                labelsDisplay.appendChild(displayItem);
+            });
+            
+            // Mark selected label
+            if (selectedLabel !== null) {
+                const selectedOption = labelSelector.querySelector(`[onclick*="${selectedLabel}"]`);
+                if (selectedOption) {
+                    selectedOption.classList.add('selected');
+                }
+            } else {
+                // Select "No Label" by default
+                noLabelOption.classList.add('selected');
+            }
+        }
+
+        function selectLabel(labelId) {
+            selectedLabel = labelId;
+            
+            // Update visual selection
+            document.querySelectorAll('.label-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.label-display-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            if (labelId === null) {
+                // Select "No Label"
+                const noLabelOption = document.querySelector('.label-option[onclick*="selectLabel(null)"]');
+                if (noLabelOption) {
+                    noLabelOption.classList.add('selected');
+                }
+            } else {
+                // Select the chosen label
+                const selectedOption = document.querySelector(`.label-option[onclick*="${labelId}"]`);
+                const selectedDisplay = Array.from(document.querySelectorAll('.label-display-item'))
+                    .find(item => {
+                        const label = labels.find(l => l.id === labelId);
+                        return label && item.querySelector('.label-display-name').textContent === label.name;
+                    });
+                
+                if (selectedOption) selectedOption.classList.add('selected');
+                if (selectedDisplay) selectedDisplay.classList.add('selected');
+            }
+        }
+
+        // Check if editing existing note
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('edit') || localStorage.getItem('editNoteId');
+        
+        // Initialize date fields
+        document.getElementById('createdDate').value = '';
+        document.getElementById('modifiedDate').value = '';
+        document.getElementById('reminderDate').value = '';
+
+        if (editId) {
+            const note = notes.find(n => n.id == editId);
+            if (note) {
+                currentNoteId = note.id;
+                document.getElementById('noteTitle').value = note.title || '';
+                document.getElementById('noteContent').innerHTML = note.content || '';
+                document.getElementById('createdDate').value = note.createdDate || '';
+                document.getElementById('modifiedDate').value = note.modifiedDate || '';
+                document.getElementById('reminderDate').value = note.reminderDate || '';
+                selectedLabel = note.label;
+                noteColor = note.color || '#1e1e1e';
+                attachments = note.attachments || [];
+                
+                // Set note color
+                document.querySelector('.editor-area').style.background = noteColor;
+                
+                // Save initial state to history
+                saveToHistory();
+            }
+            localStorage.removeItem('editNoteId');
+        }
+
+        // History functions for Undo/Redo
+        function saveToHistory() {
+            const editor = document.getElementById('noteContent');
+            const content = editor.innerHTML;
+            
+            // Remove old future states if we're not at the end
+            history = history.slice(0, historyIndex + 1);
+            
+            // Save new state
+            history.push(content);
+            historyIndex++;
+            
+            // Limit history size
+            if (history.length > 50) {
+                history.shift();
+                historyIndex--;
+            }
+            
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                const editor = document.getElementById('noteContent');
+                editor.innerHTML = history[historyIndex];
+                updateUndoRedoButtons();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                const editor = document.getElementById('noteContent');
+                editor.innerHTML = history[historyIndex];
+                updateUndoRedoButtons();
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            const undoToolBtn = document.getElementById('undoToolBtn');
+            const redoToolBtn = document.getElementById('redoToolBtn');
+            
+            const canUndo = historyIndex > 0;
+            const canRedo = historyIndex < history.length - 1;
+            
+            undoBtn.disabled = !canUndo;
+            redoBtn.disabled = !canRedo;
+            undoToolBtn.disabled = !canUndo;
+            redoToolBtn.disabled = !canRedo;
+        }
+
+        // Table Functions
+        function initTableGrid() {
+            const grid = document.getElementById('tableGrid');
+            const preview = document.getElementById('tablePreview');
+            grid.innerHTML = '';
+            
+            // Create 6x6 grid
+            for (let row = 1; row <= 6; row++) {
+                for (let col = 1; col <= 6; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'table-cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    // Desktop mouse events
+                    cell.addEventListener('mouseenter', function() {
+                        const r = parseInt(this.dataset.row);
+                        const c = parseInt(this.dataset.col);
+                        highlightTableGrid(r, c);
+                    });
+                    
+                    cell.addEventListener('click', function() {
+                        const r = parseInt(this.dataset.row);
+                        const c = parseInt(this.dataset.col);
+                        insertTable(r, c);
+                    });
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function highlightTableGrid(rows, cols) {
+            const grid = document.getElementById('tableGrid');
+            const preview = document.getElementById('tablePreview');
+            const cells = grid.querySelectorAll('.table-cell');
+            
+            // Clear previous highlights
+            cells.forEach(cell => {
+                cell.classList.remove('selected');
+                cell.style.background = '';
+            });
+            
+            // Highlight selected area
+            cells.forEach(cell => {
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                if (r <= rows && c <= cols) {
+                    cell.classList.add('selected');
+                    cell.style.background = 'var(--primary)';
+                    cell.style.opacity = '0.7';
+                }
+            });
+            
+            // Update preview text
+            preview.textContent = `${rows} × ${cols} Table`;
+        }
+
+        function showCustomTableSize() {
+            const controls = document.getElementById('tableSizeControls');
+            const allDropdowns = document.querySelectorAll('.dropdown-content');
+            
+            // Hide other dropdowns
+            allDropdowns.forEach(dropdown => {
+                if (dropdown !== controls.parentElement) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // Toggle custom size controls
+            controls.style.display = controls.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function insertCustomTable() {
+            const rows = parseInt(document.getElementById('tableRows').value) || 3;
+            const cols = parseInt(document.getElementById('tableCols').value) || 3;
+            
+            if (rows > 0 && cols > 0) {
+                insertTable(rows, cols);
+                document.getElementById('tableSizeControls').style.display = 'none';
+            }
+        }
+
+        function insertTable(rows, cols) {
+            // Save state before modification
+            saveToHistory();
+            
+            // Create table HTML
+            let tableHTML = '<table>';
+            
+            for (let i = 0; i < rows; i++) {
+                tableHTML += '<tr>';
+                for (let j = 0; j < cols; j++) {
+                    tableHTML += `<td contenteditable="true" style="min-width:80px; height:40px;">&nbsp;</td>`;
+                }
+                tableHTML += '</tr>';
+            }
+            
+            tableHTML += '</table>';
+            
+            // Insert into editor
+            const editor = document.getElementById('noteContent');
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            
+            // Insert table
+            range.insertNode(document.createRange().createContextualFragment(tableHTML));
+            
+            // Focus editor
+            editor.focus();
+        }
+
+        // Text Formatting Functions
+        function formatText(command) {
+            saveToHistory();
+            document.execCommand(command, false, null);
+            document.getElementById('noteContent').focus();
+        }
+
+        function changeFontFamily(font) {
+            saveToHistory();
+            document.execCommand('fontName', false, font);
+        }
+
+        function changeFontSize(size) {
+            saveToHistory();
+            document.execCommand('fontSize', false, size);
+        }
+
+        function openColorPicker() {
+            saveToHistory();
+            const picker = document.getElementById('colorPicker');
+            picker.click();
+            picker.onchange = function() {
+                document.execCommand('foreColor', false, this.value);
+            };
+        }
+
+        function openHighlightPicker() {
+            saveToHistory();
+            const picker = document.getElementById('highlightPicker');
+            picker.click();
+            picker.onchange = function() {
+                document.execCommand('backColor', false, this.value);
+            };
+        }
+
+        function insertBulletList() {
+            saveToHistory();
+            document.execCommand('insertUnorderedList', false, null);
+        }
+
+        function insertNumberList() {
+            saveToHistory();
+            document.execCommand('insertOrderedList', false, null);
+        }
+
+        function clearFormatting() {
+            saveToHistory();
+            document.execCommand('removeFormat', false, null);
+        }
+
+        function insertLink() {
+            saveToHistory();
+            const url = prompt('Enter URL:', 'https://');
+            if (url) {
+                document.execCommand('createLink', false, url);
+            }
+        }
+
+        function setNoteColor(color) {
+            noteColor = color;
+            document.querySelector('.editor-area').style.background = color;
+        }
+
+        // Theme toggle function
+        function toggleTheme() {
+            isLightMode = !isLightMode;
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (isLightMode) {
+                body.classList.add('light-mode');
+                themeIcon.className = 'fas fa-sun mode-icon';
+                themeIcon.title = 'Switch to Dark Mode';
+            } else {
+                body.classList.remove('light-mode');
+                themeIcon.className = 'fas fa-moon mode-icon';
+                themeIcon.title = 'Switch to Light Mode';
+            }
+            
+            // Save theme preference
+            localStorage.setItem('themeMode', isLightMode ? 'light' : 'dark');
+        }
+
+        // Save note function
+        function saveNote() {
+            const title = document.getElementById('noteTitle').value.trim() || 'Untitled';
+            const content = document.getElementById('noteContent').innerHTML;
+            const createdDate = document.getElementById('createdDate').value;
+            const modifiedDate = document.getElementById('modifiedDate').value || new Date().toISOString().split('T')[0];
+            const reminderDate = document.getElementById('reminderDate').value;
+            
+            const noteData = {
+                id: currentNoteId || Date.now(),
+                title,
+                content,
+                createdDate: createdDate || new Date().toISOString().split('T')[0],
+                modifiedDate,
+                reminderDate,
+                label: selectedLabel, // Save the selected label
+                color: noteColor,
+                attachments,
+                created: currentNoteId ? undefined : new Date().toISOString(),
+                updated: new Date().toISOString()
+            };
+
+            let updatedNotes;
+            if (currentNoteId) {
+                updatedNotes = notes.map(note => 
+                    note.id === currentNoteId ? {...note, ...noteData} : note
+                );
+            } else {
+                updatedNotes = [...notes, noteData];
+            }
+
+            localStorage.setItem('notes', JSON.stringify(updatedNotes));
+            alert('Note saved successfully!');
+            window.location.href = 'index.html';
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Z for Undo
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            }
+            
+            // Ctrl+Y for Redo
+            if (e.ctrlKey && e.key === 'y') {
+                e.preventDefault();
+                redo();
+            }
+            
+            // Ctrl+B for Bold
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                formatText('bold');
+            }
+            
+            // Ctrl+I for Italic
+            if (e.ctrlKey && e.key === 'i') {
+                e.preventDefault();
+                formatText('italic');
+            }
+            
+            // Ctrl+U for Underline
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                formatText('underline');
+            }
+        });
+
+        // Initialize everything when DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize table grid
+            initTableGrid();
+            
+            // Load and display labels
+            loadLabels();
+            
+            // Set up undo/redo event listeners
+            document.getElementById('undoBtn').addEventListener('click', undo);
+            document.getElementById('redoBtn').addEventListener('click', redo);
+            document.getElementById('undoToolBtn').addEventListener('click', undo);
+            document.getElementById('redoToolBtn').addEventListener('click', redo);
+            
+            // Set up theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Load saved theme preference
+            const savedTheme = localStorage.getItem('themeMode');
+            if (savedTheme === 'light') {
+                isLightMode = true;
+                toggleTheme(); // This will apply light mode
+            }
+            
+            // If editing a note, select its label
+            if (selectedLabel !== null) {
+                selectLabel(selectedLabel);
+            }
+            
+            // Auto-refresh labels every 2 seconds (for when you create labels in another tab)
+            setInterval(() => {
+                const newLabels = JSON.parse(localStorage.getItem('labels')) || [];
+                if (JSON.stringify(newLabels) !== JSON.stringify(labels)) {
+                    labels = newLabels;
+                    loadLabels();
+                }
+            }, 2000);
+            
+            // Auto-save to history on input
+            const editor = document.getElementById('noteContent');
+            editor.addEventListener('input', function() {
+                // Debounce the history save
+                clearTimeout(this.historyTimer);
+                this.historyTimer = setTimeout(() => {
+                    saveToHistory();
+                }, 500);
+            });
+            
+            // Set focus to editor
+            setTimeout(() => {
+                editor.focus();
+                
+                // Move cursor to end if there's content
+                if (editor.textContent.trim()) {
+                    const range = document.createRange();
+                    const sel = window.getSelection();
+                    range.selectNodeContents(editor);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+                
+                // Save initial state
+                saveToHistory();
+            }, 300);
+        });
+    </script>
+</body>
+</html>

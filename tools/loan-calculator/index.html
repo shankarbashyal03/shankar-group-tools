@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Calculators</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --primary-color: #4CAF50;
+            --secondary-color: #2E7D32;
+            --accent-color: #8BC34A;
+            --border-color: #333333;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .light-mode {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #4CAF50;
+            --secondary-color: #2E7D32;
+            --accent-color: #8BC34A;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 60px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h1 i {
+            color: var(--accent-color);
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .calculator-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 40px;
+            width: 100%;
+        }
+
+        .calculator-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .calculator-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 50px var(--shadow-color);
+            border-color: var(--primary-color);
+        }
+
+        .calculator-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .calculator-card:hover .calculator-icon {
+            transform: scale(1.1);
+        }
+
+        .calculator-card h3 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .calculator-card p {
+            color: #888;
+            margin-bottom: 30px;
+            flex-grow: 1;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .card-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .card-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            color: #888;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .calculator-cards {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .calculator-card {
+                padding: 30px;
+            }
+            
+            .calculator-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+                margin-bottom: 25px;
+            }
+            
+            .calculator-card h3 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .calculator-card {
+                padding: 25px;
+            }
+            
+            .calculator-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+                margin-bottom: 20px;
+            }
+            
+            .calculator-card h3 {
+                font-size: 1.3rem;
+            }
+            
+            .calculator-card p {
+                font-size: 1rem;
+            }
+            
+            .card-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1><i class="fas fa-money-bill-wave"></i> Loan Calculators</h1>
+                <div class="subtitle">Simple & Compound Interest Calculations</div>
+            </div>
+            
+            <div class="theme-toggle">
+                <span>Dark</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span>Light</span>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="calculator-cards">
+                <a href="simple-interest.html" class="calculator-card">
+                    <div class="calculator-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3>Simple Interest Calculator</h3>
+                    <p>Calculate loan interest using simple interest formula. Perfect for short-term loans or when interest doesn't compound.</p>
+                    <button class="card-btn">
+                        <i class="fas fa-external-link-alt"></i> Open Calculator
+                    </button>
+                </a>
+                
+                <a href="compound-interest.html" class="calculator-card">
+                    <div class="calculator-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Compound Interest Calculator</h3>
+                    <p>Calculate loan interest with compounding effects. Ideal for long-term loans, investments, and savings accounts.</p>
+                    <button class="card-btn">
+                        <i class="fas fa-external-link-alt"></i> Open Calculator
+                    </button>
+                </a>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Loan Calculators &copy; <span id="current-year"></span> | All Calculators Work Offline</p>
+        </footer>
+    </div>
+
+    <script>
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // Start with dark mode by default
+        themeToggle.checked = false;
+        
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('loan-calculator-theme') || 'dark';
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            themeToggle.checked = true;
+        }
+        
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                body.classList.add('light-mode');
+                localStorage.setItem('loan-calculator-theme', 'light');
+            } else {
+                body.classList.remove('light-mode');
+                localStorage.setItem('loan-calculator-theme', 'dark');
+            }
+        });
+    </script>
+</body>
+</html>

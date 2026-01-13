@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        body.light-mode {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin-top: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-button {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .light-mode .back-button {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mode-toggle {
+            background: #1e293b;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .light-mode .mode-toggle {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .mode-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            text-align: center;
+            color: #3b82f6;
+            margin-bottom: 30px;
+        }
+        
+        .light-mode h1 {
+            color: #1d4ed8;
+        }
+        
+        .input-group {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .light-mode .input-group {
+            background: #ffffff;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        @media (min-width: 480px) {
+            .input-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .input-field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .light-mode .input-field label {
+            color: #475569;
+        }
+        
+        .input-field input {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            background: #0f172a;
+            color: #e2e8f0;
+            transition: all 0.2s;
+        }
+        
+        .light-mode .input-field input {
+            background: #f8fafc;
+            color: #1e293b;
+            border-color: #cbd5e1;
+        }
+        
+        .input-field input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .calculate-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+        
+        /* Results Animation Styles */
+        .results {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .light-mode .results {
+            background: #ffffff;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .results.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 600px) {
+            .result-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .result-item {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .light-mode .result-item {
+            background: #f8fafc;
+        }
+        
+        .result-item.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+        
+        .light-mode .result-value {
+            color: #1d4ed8;
+        }
+        
+        .result-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .light-mode .result-label {
+            color: #64748b;
+        }
+        
+        .next-birthday {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease 0.3s, transform 0.5s ease 0.3s;
+        }
+        
+        .light-mode .next-birthday {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+        
+        .next-birthday.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .next-birthday-title {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .next-birthday-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        /* Animation for numbers */
+        @keyframes countUp {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .counting {
+            animation: countUp 0.8s ease-out forwards;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .container {
+                margin-top: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .back-button, .mode-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .input-group {
+                padding: 20px;
+            }
+            
+            .result-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .result-item {
+                padding: 15px;
+            }
+            
+            .result-value {
+                font-size: 1.6rem;
+            }
+            
+            .next-birthday {
+                padding: 20px;
+            }
+            
+            .next-birthday-value {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .result-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .result-value {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-button">← Back</a>
+            <button class="mode-toggle" id="modeToggle">
+                <span>☀️ Light Mode</span>
+            </button>
+        </div>
+        
+        <h1>Age Calculator</h1>
+        
+        <div class="input-group">
+            <div class="input-row">
+                <div class="input-field">
+                    <label for="birthDate">Birth Date</label>
+                    <input type="date" id="birthDate">
+                </div>
+                <div class="input-field">
+                    <label for="currentDate">Current Date</label>
+                    <input type="date" id="currentDate">
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateAge()">
+                <span>Calculate Age</span>
+            </button>
+        </div>
+        
+        <div class="results" id="resultsSection">
+            <div class="result-grid" id="resultGrid">
+                <!-- Results will appear here -->
+            </div>
+            <div class="next-birthday" id="nextBirthday">
+                <!-- Next birthday will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with empty dates
+        const today = new Date();
+        const todayFormatted = today.toISOString().split('T')[0];
+        
+        // Set current date to today (no default birth date)
+        document.getElementById('currentDate').value = todayFormatted;
+        document.getElementById('birthDate').value = '';
+        
+        // Theme toggle
+        const modeToggle = document.getElementById('modeToggle');
+        const body = document.body;
+        
+        modeToggle.addEventListener('click', () => {
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                modeToggle.innerHTML = '<span>☀️ Light Mode</span>';
+                localStorage.setItem('ageCalculatorTheme', 'dark');
+            } else {
+                body.classList.add('light-mode');
+                modeToggle.innerHTML = '<span>🌙 Dark Mode</span>';
+                localStorage.setItem('ageCalculatorTheme', 'light');
+            }
+        });
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('ageCalculatorTheme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            modeToggle.innerHTML = '<span>🌙 Dark Mode</span>';
+        }
+        
+        // Calculate age
+        function calculateAge() {
+            const birthDateInput = document.getElementById('birthDate').value;
+            const currentDateInput = document.getElementById('currentDate').value;
+            
+            // Validate inputs
+            if (!birthDateInput) {
+                alert('Please enter your birth date');
+                return;
+            }
+            
+            if (!currentDateInput) {
+                alert('Please enter current date');
+                return;
+            }
+            
+            const birthDate = new Date(birthDateInput);
+            const currentDate = new Date(currentDateInput);
+            
+            // Validate dates
+            if (birthDate > currentDate) {
+                alert('Birth date cannot be in the future!');
+                return;
+            }
+            
+            // Calculate age in milliseconds
+            const ageInMs = currentDate - birthDate;
+            
+            // Calculate days
+            const days = Math.floor(ageInMs / (1000 * 60 * 60 * 24));
+            
+            // Calculate years, months, days
+            let years = currentDate.getFullYear() - birthDate.getFullYear();
+            let months = currentDate.getMonth() - birthDate.getMonth();
+            let daysRemaining = currentDate.getDate() - birthDate.getDate();
+            
+            // Adjust for negative months or days
+            if (daysRemaining < 0) {
+                months--;
+                // Get days in previous month
+                const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+                daysRemaining += prevMonth.getDate();
+            }
+            
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+            
+            // Calculate next birthday
+            const nextBirthday = getNextBirthday(birthDate, currentDate);
+            
+            // Update results with animation
+            updateResultsWithAnimation(years, months, daysRemaining, nextBirthday);
+        }
+        
+        // Calculate next birthday
+        function getNextBirthday(birthDate, currentDate) {
+            const currentYear = currentDate.getFullYear();
+            const birthMonth = birthDate.getMonth();
+            const birthDay = birthDate.getDate();
+            
+            // Create next birthday date for this year
+            let nextBirthday = new Date(currentYear, birthMonth, birthDay);
+            
+            // If birthday has already passed this year, use next year
+            if (nextBirthday < currentDate) {
+                nextBirthday.setFullYear(currentYear + 1);
+            }
+            
+            // Calculate days remaining
+            const diffTime = nextBirthday - currentDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            return {
+                date: nextBirthday,
+                daysRemaining: diffDays
+            };
+        }
+        
+        // Update results with animation
+        function updateResultsWithAnimation(years, months, days, nextBirthday) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultGrid = document.getElementById('resultGrid');
+            const nextBirthdayDiv = document.getElementById('nextBirthday');
+            
+            // Reset animations
+            resultsSection.classList.remove('show');
+            resultGrid.innerHTML = '';
+            nextBirthdayDiv.innerHTML = '';
+            nextBirthdayDiv.classList.remove('show');
+            
+            // Create results array (YEARS, MONTHS, DAYS only - NO WEEKS)
+            const results = [
+                { value: years, label: "Years" },
+                { value: months, label: "Months" },
+                { value: days, label: "Days" }
+            ];
+            
+            // Create result items
+            results.forEach((result, index) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="result-value" id="value${index}">0</div>
+                    <div class="result-label">${result.label}</div>
+                `;
+                resultGrid.appendChild(resultItem);
+            });
+            
+            // Create next birthday content
+            nextBirthdayDiv.innerHTML = `
+                <div class="next-birthday-title">Days Until Next Birthday</div>
+                <div class="next-birthday-value" id="nextBirthdayValue">0</div>
+            `;
+            
+            // Show results section
+            setTimeout(() => {
+                resultsSection.classList.add('show');
+                
+                // Animate result items one by one
+                const resultItems = document.querySelectorAll('.result-item');
+                resultItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('show');
+                        // Animate number counting
+                        animateValue(`value${index}`, 0, results[index].value, 800);
+                    }, index * 200);
+                });
+                
+                // Animate next birthday
+                setTimeout(() => {
+                    nextBirthdayDiv.classList.add('show');
+                    animateValue('nextBirthdayValue', 0, nextBirthday.daysRemaining, 800);
+                }, 1000);
+                
+            }, 100);
+            
+            // Scroll to results
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest' 
+                });
+            }, 300);
+        }
+        
+        // Animate number counting
+        function animateValue(elementId, start, end, duration) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = value.toLocaleString();
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+    </script>
+</body>
+</html>

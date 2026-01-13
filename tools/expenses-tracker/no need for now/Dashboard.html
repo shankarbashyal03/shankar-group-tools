@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Income & Expenses Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --purple: #9b59b6;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clock, .calendar {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        /* Dashboard Summary - UPDATED */
+        .dashboard-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border-top: 4px solid;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card.income {
+            border-top-color: var(--success);
+        }
+
+        .summary-card.expense {
+            border-top-color: var(--danger);
+        }
+
+        .summary-card.creditors {
+            border-top-color: var(--warning);
+        }
+
+        .summary-card.debtors {
+            border-top-color: var(--info);
+        }
+
+        .summary-card.net {
+            border-top-color: var(--purple);
+        }
+
+        .summary-card.balance {
+            border-top-color: var(--secondary);
+        }
+
+        .summary-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .summary-card h3 {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .summary-amount {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .summary-trend {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e1e5ee;
+        }
+
+        .chart-box h4 {
+            font-size: 14px;
+            color: var(--dark);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 14px;
+            padding: 20px;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 150px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .bar {
+            width: 30px;
+            background: linear-gradient(to top, var(--success), #2ecc71);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+
+        .bar.expense {
+            background: linear-gradient(to top, var(--danger), #e74c3c);
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #7f8c8d;
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Pie Chart */
+        .pie-chart-container {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pie-segment {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 50%);
+            transform-origin: 50% 50%;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-left: 20px;
+        }
+
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .pie-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Recent Transactions */
+        .transactions-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+
+        .transaction-item:hover {
+            background: #e9ecef;
+        }
+
+        .transaction-item.income {
+            border-left-color: var(--success);
+        }
+
+        .transaction-item.expense {
+            border-left-color: var(--danger);
+        }
+
+        .transaction-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .income .transaction-icon {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .expense .transaction-icon {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .transaction-details h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .transaction-details p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .transaction-amount {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .income .transaction-amount {
+            color: var(--success);
+        }
+
+        .expense .transaction-amount {
+            color: var(--danger);
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            gap: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .stat-item:hover {
+            background: #e9ecef;
+            border-color: rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .stat-info h4 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .stat-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .stat-income .stat-icon {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .stat-expense .stat-icon {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-creditors .stat-icon {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-debtors .stat-icon {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        /* Pending Items */
+        .pending-items {
+            margin-top: 25px;
+        }
+
+        .pending-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pending-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .pending-item.creditor {
+            border-left-color: var(--warning);
+        }
+
+        .pending-item.debtor {
+            border-left-color: var(--info);
+        }
+
+        .pending-info h4 {
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: var(--dark);
+        }
+
+        .pending-info p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .pending-amount {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .pending-item.creditor .pending-amount {
+            color: var(--warning);
+        }
+
+        .pending-item.debtor .pending-amount {
+            color: var(--info);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .small {
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #e1e5ee;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .header-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .clock, .calendar {
+                flex: 1;
+                text-align: center;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .dashboard-summary {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+
+            .summary-card {
+                padding: 15px;
+            }
+
+            .summary-amount {
+                font-size: 20px;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-box {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 10px;
+            }
+            
+            .dashboard-section {
+                padding: 15px;
+            }
+            
+            .chart-placeholder {
+                height: 180px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) {
+            .summary-card:hover,
+            .stat-item:hover,
+            .pending-item:hover,
+            .transaction-item:hover {
+                transform: none;
+                background: inherit;
+            }
+            
+            .btn:hover {
+                transform: none;
+            }
+        }
+
+        /* High contrast for better accessibility */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid currentColor;
+            }
+            
+            .summary-card {
+                border: 2px solid currentColor;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="wallet-icon">💰</div>
+                <h2>Income & Expenses Tracker</h2>
+                <p id="userVoucher">Voucher: Loading...</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html" class="active"><i>📊</i> Dashboard</a></li>
+                    <li><a href="categories.html"><i>📂</i> Categories</a></li>
+                    <li><a href="balance.html"><i>💰</i> Balance</a></li>
+                    <li><a href="entries.html"><i>➕</i> Entries</a></li>
+                    <li><a href="creditors.html"><i>👥</i> Creditors</a></li>
+                    <li><a href="debtors.html"><i>👤</i> Debtors</a></li>
+                    <li><a href="notes.html"><i>📝</i> Notes</a></li>
+                    <li><a href="rectify.html"><i>✏️</i> Rectify</a></li>
+                    <li><a href="reports.html"><i>📈</i> Reports</a></li>
+                    <li><a href="admin.html"><i>⚙️</i> Admin</a></li>
+                    <li><a href="settings.html"><i>🔧</i> Settings</a></li>
+                    <li><a href="#" id="logoutBtn"><i>🚪</i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>Dashboard</h1>
+                <div class="header-info">
+                    <div class="calendar" id="currentDate">Loading...</div>
+                    <div class="clock" id="currentTime">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Summary -->
+            <div class="dashboard-summary">
+                <div class="summary-card income" onclick="showMTDTransactions('income')">
+                    <div class="summary-icon">📥</div>
+                    <h3>MTD INCOME</h3>
+                    <div class="summary-amount" id="totalIncome">₹0</div>
+                    <div class="summary-trend" id="incomeTrend">From entries only</div>
+                </div>
+                <div class="summary-card expense" onclick="showMTDTransactions('expense')">
+                    <div class="summary-icon">📤</div>
+                    <h3>MTD EXPENSES</h3>
+                    <div class="summary-amount" id="totalExpenses">₹0</div>
+                    <div class="summary-trend" id="expenseTrend">From entries only</div>
+                </div>
+                <div class="summary-card creditors" onclick="window.location.href='creditors.html'">
+                    <div class="summary-icon">👥</div>
+                    <h3>NEED TO PAY</h3>
+                    <div class="summary-amount" id="needToPay">₹0</div>
+                    <div class="summary-trend" id="payTrend">To creditors</div>
+                </div>
+                <div class="summary-card debtors" onclick="window.location.href='debtors.html'">
+                    <div class="summary-icon">👤</div>
+                    <h3>NEED TO RECEIVE</h3>
+                    <div class="summary-amount" id="needToReceive">₹0</div>
+                    <div class="summary-trend" id="receiveTrend">From debtors</div>
+                </div>
+                <div class="summary-card net" onclick="showMTDTransactions('all')">
+                    <div class="summary-icon">💰</div>
+                    <h3>NET INCOME</h3>
+                    <div class="summary-amount" id="netIncome">₹0</div>
+                    <div class="summary-trend" id="netTrend">MTD Income - MTD Expenses</div>
+                </div>
+                <div class="summary-card balance" onclick="window.location.href='balance.html'">
+                    <div class="summary-icon">🏦</div>
+                    <h3>TOTAL BALANCE</h3>
+                    <div class="summary-amount" id="totalBalance">₹0</div>
+                    <div class="summary-trend" id="balanceTrend">All accounts (Same as Balance page)</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Main Content -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h2><span>📈</span> Financial Overview</h2>
+                        <button class="btn" id="viewReports">
+                            <span>📊</span> View Reports
+                        </button>
+                    </div>
+                    
+                    <!-- Charts Container -->
+                    <div class="charts-container">
+                        <!-- Income vs Expenses Chart -->
+                        <div class="chart-box">
+                            <h4>Income vs Expenses (MTD)</h4>
+                            <div class="chart-placeholder" id="incomeExpenseChart">
+                                <div class="chart-bar" id="incomeExpenseBars">
+                                    <!-- Bars will be generated by JavaScript -->
+                                </div>
+                                <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+                                    <div style="text-align: center;">
+                                        <div style="width: 12px; height: 12px; background: var(--success); border-radius: 50%; margin: 0 auto 5px;"></div>
+                                        <div style="font-size: 12px; color: #7f8c8d;">Income</div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <div style="width: 12px; height: 12px; background: var(--danger); border-radius: 50%; margin: 0 auto 5px;"></div>
+                                        <div style="font-size: 12px; color: #7f8c8d;">Expenses</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Expense Categories Chart -->
+                        <div class="chart-box">
+                            <h4>Expense Categories (MTD)</h4>
+                            <div class="chart-placeholder" id="expenseCategoriesChart">
+                                <div class="pie-chart-container">
+                                    <div class="pie-chart" id="expensePieChart">
+                                        <!-- Pie chart segments will be generated by JavaScript -->
+                                    </div>
+                                    <div class="pie-legend" id="expenseLegend">
+                                        <!-- Legend will be generated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-header">
+                        <h2><span>🔄</span> Recent Transactions</h2>
+                        <button class="btn" id="viewAllTransactions">
+                            <span>📋</span> View All
+                        </button>
+                    </div>
+                    
+                    <div class="transactions-list" id="recentTransactions">
+                        <!-- Recent transactions will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h2><span>📊</span> Quick Stats</h2>
+                    </div>
+                    
+                    <div class="quick-stats">
+                        <div class="stat-item stat-income" onclick="showMTDTransactions('income')">
+                            <div class="stat-info">
+                                <h4>MTD Income</h4>
+                                <div class="stat-amount" id="monthIncome">₹0</div>
+                                <small style="color: #7f8c8d;">From entries only</small>
+                            </div>
+                            <div class="stat-icon">📥</div>
+                        </div>
+                        
+                        <div class="stat-item stat-expense" onclick="showMTDTransactions('expense')">
+                            <div class="stat-info">
+                                <h4>MTD Expenses</h4>
+                                <div class="stat-amount" id="monthExpenses">₹0</div>
+                                <small style="color: #7f8c8d;">From entries only</small>
+                            </div>
+                            <div class="stat-icon">📤</div>
+                        </div>
+                        
+                        <div class="stat-item stat-creditors" onclick="window.location.href='creditors.html'">
+                            <div class="stat-info">
+                                <h4>Pending Payments</h4>
+                                <div class="stat-amount" id="pendingPayments">₹0</div>
+                                <small style="color: #7f8c8d;">To creditors</small>
+                            </div>
+                            <div class="stat-icon">👥</div>
+                        </div>
+                        
+                        <div class="stat-item stat-debtors" onclick="window.location.href='debtors.html'">
+                            <div class="stat-info">
+                                <h4>Pending Receivables</h4>
+                                <div class="stat-amount" id="pendingReceivables">₹0</div>
+                                <small style="color: #7f8c8d;">From debtors</small>
+                            </div>
+                            <div class="stat-icon">👤</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-header" style="margin-top: 25px;">
+                        <h2><span>⏰</span> Pending Items</h2>
+                    </div>
+                    
+                    <div class="pending-items">
+                        <div id="pendingCreditorsList">
+                            <!-- Pending creditors will be loaded here -->
+                        </div>
+                        
+                        <div id="pendingDebtorsList">
+                            <!-- Pending debtors will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let dashboardData = null;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.voucherCode) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user voucher
+            document.getElementById('userVoucher').textContent = `Voucher: ${currentUser.voucherCode}`;
+            
+            // Load dashboard data
+            loadDashboardData(currentUser.voucherCode);
+            
+            // Update clock and calendar
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Setup mobile menu
+            setupMobileMenu();
+        });
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside (mobile)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(event.target) &&
+                    !mobileMenuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Load dashboard data
+        function loadDashboardData(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            if (userData) {
+                // Calculate dashboard metrics
+                dashboardData = calculateDashboardData(userData);
+                
+                // Update dashboard UI
+                updateDashboardUI(dashboardData, userData.settings.currency);
+                
+                // Generate charts
+                generateCharts(dashboardData, userData.settings.currency);
+                
+                // Load recent transactions
+                loadRecentTransactions(userData);
+                
+                // Load pending items
+                loadPendingItems(userData);
+            }
+        }
+
+        // Calculate dashboard data - FIXED VERSION
+        function calculateDashboardData(userData) {
+            const transactions = userData.transactions || [];
+            const balanceCategories = userData.balanceCategories || [];
+            const creditors = userData.creditors || [];
+            const debtors = userData.debtors || [];
+            
+            // Get current month and year
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            // Calculate MTD income and expenses from entries ONLY
+            // EXCLUDE transactions that are from creditors/debtors settlements
+            let mtdIncome = 0;
+            let mtdExpenses = 0;
+            let totalIncome = 0;
+            let totalExpenses = 0;
+            
+            // For charts
+            let incomeByDay = {};
+            let expenseByCategory = {};
+            
+            transactions.forEach(transaction => {
+                // Skip transactions that are from creditors/debtors settlements
+                if (isCreditorDebtorTransaction(transaction)) {
+                    return; // Skip this transaction
+                }
+                
+                const transactionDate = new Date(transaction.date);
+                const amount = parseFloat(transaction.amount);
+                const day = transactionDate.getDate();
+                const month = transactionDate.getMonth();
+                const year = transactionDate.getFullYear();
+                
+                if (transaction.type === 'income') {
+                    totalIncome += amount;
+                    
+                    // Check if transaction is from current month
+                    if (month === currentMonth && year === currentYear) {
+                        mtdIncome += amount;
+                        
+                        // Group by day for chart
+                        if (!incomeByDay[day]) {
+                            incomeByDay[day] = 0;
+                        }
+                        incomeByDay[day] += amount;
+                    }
+                } else if (transaction.type === 'expense') {
+                    totalExpenses += amount;
+                    
+                    // Check if transaction is from current month
+                    if (month === currentMonth && year === currentYear) {
+                        mtdExpenses += amount;
+                        
+                        // Group by category for pie chart
+                        if (!expenseByCategory[transaction.category]) {
+                            expenseByCategory[transaction.category] = 0;
+                        }
+                        expenseByCategory[transaction.category] += amount;
+                    }
+                }
+            });
+            
+            // Calculate "Need to Pay" from creditors (remaining amount to pay)
+            const needToPay = creditors.reduce((sum, creditor) => {
+                const paidAmount = parseFloat(creditor.paidAmount || 0);
+                const totalAmount = parseFloat(creditor.amount);
+                return sum + (totalAmount - paidAmount);
+            }, 0);
+            
+            // Calculate "Need to Receive" from debtors (remaining amount to receive)
+            const needToReceive = debtors.reduce((sum, debtor) => {
+                const receivedAmount = parseFloat(debtor.receivedAmount || 0);
+                const totalAmount = parseFloat(debtor.amount);
+                return sum + (totalAmount - receivedAmount);
+            }, 0);
+            
+            // Calculate net income (MTD Income - MTD Expenses)
+            const netIncome = mtdIncome - mtdExpenses;
+            
+            // Calculate total balance from balance categories (Same as Balance page)
+            const totalBalance = balanceCategories.reduce((sum, category) => {
+                let balance = parseFloat(category.amount || 0);
+                
+                // Add income transactions
+                if (userData.transactions) {
+                    userData.transactions
+                        .filter(t => t.balanceCategory === category.name && t.type === 'income')
+                        .forEach(t => balance += parseFloat(t.amount));
+                    
+                    // Subtract expense transactions
+                    userData.transactions
+                        .filter(t => t.balanceCategory === category.name && t.type === 'expense')
+                        .forEach(t => balance -= parseFloat(t.amount));
+                }
+                
+                return sum + balance;
+            }, 0);
+            
+            // Count pending creditors and debtors
+            const pendingPayments = creditors.filter(creditor => {
+                const paidAmount = parseFloat(creditor.paidAmount || 0);
+                const totalAmount = parseFloat(creditor.amount);
+                return paidAmount < totalAmount;
+            }).length;
+            
+            const pendingReceivables = debtors.filter(debtor => {
+                const receivedAmount = parseFloat(debtor.receivedAmount || 0);
+                const totalAmount = parseFloat(debtor.amount);
+                return receivedAmount < totalAmount;
+            }).length;
+            
+            return {
+                mtdIncome,
+                mtdExpenses,
+                needToPay,
+                needToReceive,
+                netIncome,
+                totalBalance,
+                totalIncome,
+                totalExpenses,
+                pendingPayments,
+                pendingReceivables,
+                creditors,
+                debtors,
+                transactions,
+                incomeByDay,
+                expenseByCategory
+            };
+        }
+
+        // Check if transaction is from creditors/debtors settlements
+        function isCreditorDebtorTransaction(transaction) {
+            const creditorCategories = [
+                'Creditor Money Received',
+                'Creditor Payment',
+                'Creditor Payment Received'
+            ];
+            
+            const debtorCategories = [
+                'Money Given to Debtor',
+                'Debtor Payment Received',
+                'Debtor Settlement'
+            ];
+            
+            const description = transaction.description || '';
+            const category = transaction.category || '';
+            
+            // Check if transaction is related to creditors or debtors
+            return creditorCategories.includes(category) || 
+                   debtorCategories.includes(category) ||
+                   description.includes('Creditor') ||
+                   description.includes('Debtor') ||
+                   description.includes('creditor') ||
+                   description.includes('debtor');
+        }
+
+        // Update dashboard UI
+        function updateDashboardUI(dashboardData, currency) {
+            // Update summary cards
+            document.getElementById('totalIncome').textContent = formatCurrency(dashboardData.mtdIncome, currency);
+            document.getElementById('totalExpenses').textContent = formatCurrency(dashboardData.mtdExpenses, currency);
+            document.getElementById('needToPay').textContent = formatCurrency(dashboardData.needToPay, currency);
+            document.getElementById('needToReceive').textContent = formatCurrency(dashboardData.needToReceive, currency);
+            document.getElementById('netIncome').textContent = formatCurrency(dashboardData.netIncome, currency);
+            document.getElementById('totalBalance').textContent = formatCurrency(dashboardData.totalBalance, currency);
+            
+            // Update quick stats
+            document.getElementById('monthIncome').textContent = formatCurrency(dashboardData.mtdIncome, currency);
+            document.getElementById('monthExpenses').textContent = formatCurrency(dashboardData.mtdExpenses, currency);
+            document.getElementById('pendingPayments').textContent = formatCurrency(dashboardData.needToPay, currency);
+            document.getElementById('pendingReceivables').textContent = formatCurrency(dashboardData.needToReceive, currency);
+            
+            // Update trends with real information
+            document.getElementById('incomeTrend').textContent = 'From entries only (MTD)';
+            document.getElementById('expenseTrend').textContent = 'From entries only (MTD)';
+            document.getElementById('payTrend').textContent = `${dashboardData.creditors.length} creditors`;
+            document.getElementById('receiveTrend').textContent = `${dashboardData.debtors.length} debtors`;
+            document.getElementById('netTrend').textContent = 'MTD Income - MTD Expenses';
+            document.getElementById('balanceTrend').textContent = 'All accounts (Same as Balance page)';
+        }
+
+        // Generate charts
+        function generateCharts(dashboardData, currency) {
+            generateIncomeExpenseChart(dashboardData, currency);
+            generateExpensePieChart(dashboardData);
+        }
+
+        // Generate income vs expense chart
+        function generateIncomeExpenseChart(dashboardData, currency) {
+            const chartContainer = document.getElementById('incomeExpenseBars');
+            chartContainer.innerHTML = '';
+            
+            // Get current month days
+            const now = new Date();
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            
+            // Prepare data for last 7 days
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(now.getDate() - i);
+                last7Days.push({
+                    day: date.getDate(),
+                    month: date.getMonth(),
+                    year: date.getFullYear(),
+                    label: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    income: 0,
+                    expense: 0
+                });
+            }
+            
+            // Populate with actual data
+            Object.entries(dashboardData.incomeByDay).forEach(([day, amount]) => {
+                const dayInt = parseInt(day);
+                const chartDay = last7Days.find(d => d.day === dayInt && d.month === now.getMonth() && d.year === now.getFullYear());
+                if (chartDay) {
+                    chartDay.income = amount;
+                }
+            });
+            
+            // Find max value for scaling
+            const maxValue = Math.max(
+                ...last7Days.map(d => d.income),
+                ...last7Days.map(d => d.expense),
+                1000 // Minimum max value
+            );
+            
+            // Create bars
+            last7Days.forEach(dayData => {
+                const incomeHeight = (dayData.income / maxValue) * 100;
+                const expenseHeight = (dayData.expense / maxValue) * 100;
+                
+                // Create bar container
+                const barContainer = document.createElement('div');
+                barContainer.style.position = 'relative';
+                barContainer.style.display = 'flex';
+                barContainer.style.flexDirection = 'column';
+                barContainer.style.alignItems = 'center';
+                
+                // Income bar
+                const incomeBar = document.createElement('div');
+                incomeBar.className = 'bar';
+                incomeBar.style.height = `${Math.max(incomeHeight, 5)}%`;
+                incomeBar.style.marginBottom = '5px';
+                incomeBar.title = `Income: ${formatCurrency(dayData.income, currency)}`;
+                
+                const incomeValue = document.createElement('div');
+                incomeValue.className = 'bar-value';
+                incomeValue.textContent = dayData.income > 0 ? formatCurrencyShort(dayData.income, currency) : '';
+                
+                // Expense bar
+                const expenseBar = document.createElement('div');
+                expenseBar.className = 'bar expense';
+                expenseBar.style.height = `${Math.max(expenseHeight, 5)}%`;
+                expenseBar.title = `Expense: ${formatCurrency(dayData.expense, currency)}`;
+                
+                const expenseValue = document.createElement('div');
+                expenseValue.className = 'bar-value';
+                expenseValue.textContent = dayData.expense > 0 ? formatCurrencyShort(dayData.expense, currency) : '';
+                
+                // Day label
+                const dayLabel = document.createElement('div');
+                dayLabel.className = 'bar-label';
+                dayLabel.textContent = dayData.label;
+                
+                // Assemble bar
+                incomeBar.appendChild(incomeValue);
+                expenseBar.appendChild(expenseValue);
+                barContainer.appendChild(incomeBar);
+                barContainer.appendChild(expenseBar);
+                barContainer.appendChild(dayLabel);
+                
+                chartContainer.appendChild(barContainer);
+            });
+        }
+
+        // Generate expense pie chart
+        function generateExpensePieChart(dashboardData) {
+            const pieChart = document.getElementById('expensePieChart');
+            const legend = document.getElementById('expenseLegend');
+            
+            pieChart.innerHTML = '';
+            legend.innerHTML = '';
+            
+            const categories = dashboardData.expenseByCategory;
+            const totalExpenses = dashboardData.mtdExpenses;
+            
+            if (totalExpenses === 0) {
+                pieChart.innerHTML = '<div style="text-align: center; padding-top: 60px;">No expenses this month</div>';
+                return;
+            }
+            
+            // Color palette for categories
+            const colors = [
+                '#e74c3c', '#f39c12', '#3498db', '#2ecc71', 
+                '#9b59b6', '#1abc9c', '#d35400', '#c0392b',
+                '#16a085', '#8e44ad', '#2c3e50', '#7f8c8d'
+            ];
+            
+            let accumulatedAngle = 0;
+            let colorIndex = 0;
+            
+            Object.entries(categories).forEach(([category, amount]) => {
+                const percentage = (amount / totalExpenses) * 100;
+                const angle = (percentage / 100) * 360;
+                
+                // Create pie segment
+                const segment = document.createElement('div');
+                segment.className = 'pie-segment';
+                segment.style.backgroundColor = colors[colorIndex % colors.length];
+                segment.style.transform = `rotate(${accumulatedAngle}deg)`;
+                segment.style.clipPath = `polygon(50% 50%, 50% 0%, ${accumulatedAngle + angle >= 360 ? '100% 0%, 100% 100%, 0% 100%, 0% 0%' : '50% 50%'})`;
+                segment.title = `${category}: ${formatCurrency(amount, '₹')} (${percentage.toFixed(1)}%)`;
+                
+                pieChart.appendChild(segment);
+                
+                // Create legend item
+                const legendItem = document.createElement('div');
+                legendItem.className = 'pie-legend-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'pie-color';
+                colorBox.style.backgroundColor = colors[colorIndex % colors.length];
+                
+                const label = document.createElement('span');
+                label.textContent = `${category}: ${formatCurrencyShort(amount, '₹')}`;
+                label.title = `${percentage.toFixed(1)}%`;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legend.appendChild(legendItem);
+                
+                accumulatedAngle += angle;
+                colorIndex++;
+            });
+        }
+
+        // Load recent transactions (excluding creditor/debtor settlements)
+        function loadRecentTransactions(userData) {
+            const container = document.getElementById('recentTransactions');
+            const transactions = userData.transactions || [];
+            
+            // Filter out creditor/debtor transactions
+            const filteredTransactions = transactions.filter(transaction => 
+                !isCreditorDebtorTransaction(transaction)
+            );
+            
+            if (filteredTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>📋</div>
+                        <p>No transactions yet</p>
+                        <p class="small">Add your first transaction to get started</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort by date (newest first) and take latest 5
+            const recentTransactions = [...filteredTransactions]
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+            
+            container.innerHTML = '';
+            
+            recentTransactions.forEach(transaction => {
+                const transactionItem = createTransactionItem(transaction, userData.settings.currency);
+                container.appendChild(transactionItem);
+            });
+        }
+
+        // Load pending items
+        function loadPendingItems(userData) {
+            const creditorsContainer = document.getElementById('pendingCreditorsList');
+            const debtorsContainer = document.getElementById('pendingDebtorsList');
+            
+            const creditors = userData.creditors || [];
+            const debtors = userData.debtors || [];
+            
+            // Load pending creditors
+            const pendingCreditors = creditors.filter(creditor => {
+                const paidAmount = parseFloat(creditor.paidAmount || 0);
+                const totalAmount = parseFloat(creditor.amount);
+                return paidAmount < totalAmount;
+            }).slice(0, 3); // Show only top 3
+            
+            if (pendingCreditors.length === 0) {
+                creditorsContainer.innerHTML = `
+                    <div class="empty-state" style="padding: 15px;">
+                        <p>No pending payments</p>
+                    </div>
+                `;
+            } else {
+                creditorsContainer.innerHTML = '';
+                pendingCreditors.forEach(creditor => {
+                    const pendingItem = createPendingCreditorItem(creditor, userData.settings.currency);
+                    creditorsContainer.appendChild(pendingItem);
+                });
+            }
+            
+            // Load pending debtors
+            const pendingDebtors = debtors.filter(debtor => {
+                const receivedAmount = parseFloat(debtor.receivedAmount || 0);
+                const totalAmount = parseFloat(debtor.amount);
+                return receivedAmount < totalAmount;
+            }).slice(0, 3); // Show only top 3
+            
+            if (pendingDebtors.length === 0) {
+                debtorsContainer.innerHTML = `
+                    <div class="empty-state" style="padding: 15px;">
+                        <p>No pending receivables</p>
+                    </div>
+                `;
+            } else {
+                debtorsContainer.innerHTML = '';
+                pendingDebtors.forEach(debtor => {
+                    const pendingItem = createPendingDebtorItem(debtor, userData.settings.currency);
+                    debtorsContainer.appendChild(pendingItem);
+                });
+            }
+        }
+
+        // Create transaction list item
+        function createTransactionItem(transaction, currency) {
+            const div = document.createElement('div');
+            div.className = `transaction-item ${transaction.type}`;
+            
+            const isIncome = transaction.type === 'income';
+            const icon = isIncome ? '📥' : '📤';
+            const sign = isIncome ? '+' : '-';
+            
+            div.innerHTML = `
+                <div class="transaction-info">
+                    <div class="transaction-icon">${icon}</div>
+                    <div class="transaction-details">
+                        <h4>${transaction.description || 'No description'}</h4>
+                        <p>${transaction.category} • ${new Date(transaction.date).toLocaleDateString()}</p>
+                    </div>
+                </div>
+                <div class="transaction-amount">
+                    ${sign}${formatCurrency(transaction.amount, currency)}
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Create pending creditor item
+        function createPendingCreditorItem(creditor, currency) {
+            const div = document.createElement('div');
+            div.className = 'pending-item creditor';
+            div.onclick = () => window.location.href = 'creditors.html';
+            
+            const paidAmount = parseFloat(creditor.paidAmount || 0);
+            const totalAmount = parseFloat(creditor.amount);
+            const remainingAmount = totalAmount - paidAmount;
+            
+            div.innerHTML = `
+                <div class="pending-info">
+                    <h4>${creditor.name}</h4>
+                    <p>Due: ${creditor.toDate ? new Date(creditor.toDate).toLocaleDateString() : 'Not set'}</p>
+                </div>
+                <div class="pending-amount">
+                    ${formatCurrency(remainingAmount, currency)}
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Create pending debtor item
+        function createPendingDebtorItem(debtor, currency) {
+            const div = document.createElement('div');
+            div.className = 'pending-item debtor';
+            div.onclick = () => window.location.href = 'debtors.html';
+            
+            const receivedAmount = parseFloat(debtor.receivedAmount || 0);
+            const totalAmount = parseFloat(debtor.amount);
+            const remainingAmount = totalAmount - receivedAmount;
+            
+            div.innerHTML = `
+                <div class="pending-info">
+                    <h4>${debtor.name}</h4>
+                    <p>Due: ${debtor.toDate ? new Date(debtor.toDate).toLocaleDateString() : 'Not set'}</p>
+                </div>
+                <div class="pending-amount">
+                    ${formatCurrency(remainingAmount, currency)}
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Show MTD transactions
+        function showMTDTransactions(type) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            // Get current month
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            // Filter transactions for current month
+            const mtdTransactions = (userData.transactions || []).filter(transaction => {
+                if (isCreditorDebtorTransaction(transaction)) {
+                    return false;
+                }
+                
+                const transactionDate = new Date(transaction.date);
+                return transactionDate.getMonth() === currentMonth && 
+                       transactionDate.getFullYear() === currentYear &&
+                       (type === 'all' || transaction.type === type);
+            });
+            
+            if (mtdTransactions.length === 0) {
+                alert(`No ${type === 'all' ? '' : type} transactions for this month`);
+                return;
+            }
+            
+            // Create modal to show transactions
+            showTransactionsModal(mtdTransactions, type, userData.settings.currency);
+        }
+
+        // Show transactions modal
+        function showTransactionsModal(transactions, type, currency) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+            
+            const title = type === 'income' ? 'MTD Income Transactions' : 
+                         type === 'expense' ? 'MTD Expense Transactions' : 
+                         'MTD All Transactions';
+            
+            const total = transactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 10px; width: 90%; max-width: 600px; max-height: 80vh; overflow: hidden;">
+                    <div style="padding: 20px; border-bottom: 1px solid #e1e5ee; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; color: var(--dark);">${title}</h3>
+                        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #7f8c8d;">&times;</button>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 12px; color: #7f8c8d;">Total Amount</div>
+                                    <div style="font-size: 20px; font-weight: 700; color: var(--dark);">${formatCurrency(total, currency)}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 12px; color: #7f8c8d;">Total Transactions</div>
+                                    <div style="font-size: 20px; font-weight: 700; color: var(--dark);">${transactions.length}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            ${transactions.map(transaction => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid ${transaction.type === 'income' ? 'var(--success)' : 'var(--danger)'};">
+                                    <div>
+                                        <div style="font-weight: 600; color: var(--dark);">${transaction.description || 'No description'}</div>
+                                        <div style="font-size: 12px; color: #7f8c8d;">
+                                            ${transaction.category} • ${new Date(transaction.date).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                    <div style="font-weight: 700; color: ${transaction.type === 'income' ? 'var(--success)' : 'var(--danger)'};">
+                                        ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount, currency)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div style="padding: 20px; border-top: 1px solid #e1e5ee; text-align: right;">
+                        <button onclick="this.closest('.modal').remove()" style="background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.remove();
+                }
+            });
+        }
+
+        // Format currency
+        function formatCurrency(amount, currency) {
+            return `${currency}${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        // Format currency short (for charts)
+        function formatCurrencyShort(amount, currency) {
+            if (amount >= 100000) {
+                return `${currency}${(amount/100000).toFixed(1)}L`;
+            } else if (amount >= 1000) {
+                return `${currency}${(amount/1000).toFixed(1)}K`;
+            }
+            return `${currency}${parseFloat(amount).toLocaleString('en-IN')}`;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // View reports
+            document.getElementById('viewReports').addEventListener('click', function() {
+                window.location.href = 'reports.html';
+            });
+            
+            // View all transactions
+            document.getElementById('viewAllTransactions').addEventListener('click', function() {
+                window.location.href = 'entries.html';
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+            
+            // Refresh dashboard every 30 seconds
+            setInterval(() => {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (currentUser) {
+                    loadDashboardData(currentUser.voucherCode);
+                }
+            }, 30000);
+        }
+    </script>
+</body>
+</html>

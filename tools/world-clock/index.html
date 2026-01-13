@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Clock Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark-bg: #0f172a;
+            --dark-card: #1e293b;
+            --dark-border: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .search-section, .converter-section {
+            background: var(--dark-card);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid var(--dark-border);
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 16px 20px;
+            padding-right: 50px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid var(--dark-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--dark-border);
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .country-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .country-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .country-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .flag {
+            font-size: 1.8rem;
+        }
+
+        .country-name {
+            font-weight: 600;
+        }
+
+        .country-capital {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .add-btn.added {
+            background: var(--success);
+        }
+
+        .clocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .clock-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--dark-border);
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .clock-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 24px var(--shadow);
+        }
+
+        .clock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .clock-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .clock-flag {
+            font-size: 1.8rem;
+        }
+
+        .clock-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .clock-info .capital {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .remove-clock {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .remove-clock:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: scale(1.1);
+        }
+
+        .clock-display {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .time {
+            font-size: 2.2rem;
+            font-weight: 300;
+            font-family: 'SF Mono', 'Cascadia Code', monospace;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .date {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .timezone {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .converter-container {
+            background: var(--dark-card);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid var(--dark-border);
+        }
+
+        .converter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        select, input[type="datetime-local"] {
+            padding: 14px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid var(--dark-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        select:focus, input[type="datetime-local"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .convert-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 25px;
+            border: 1px solid var(--dark-border);
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .result-box {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--dark-border);
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .result-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .time-difference {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--dark-border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                gap: 20px;
+            }
+            
+            .search-section, .converter-section {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .clocks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .time {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .clock-card {
+                padding: 15px;
+            }
+            
+            .time {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 World Clock & Time Converter</h1>
+            <p class="subtitle">Add clocks and convert time between countries</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Left Section: Search and Clocks -->
+            <div class="search-section">
+                <h2 class="section-title">
+                    <span>🔍</span> Search & Add Clocks
+                </h2>
+                
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Type country name or capital...">
+                    <div class="search-icon">🔍</div>
+                </div>
+                
+                <div id="searchResults" class="search-results">
+                    <!-- Search results will appear here -->
+                </div>
+                
+                <div id="clocksContainer" class="clocks-grid">
+                    <div class="empty-state" id="emptyState">
+                        <div>⏰</div>
+                        <h3>No clocks added yet</h3>
+                        <p>Search and add countries to see their current time</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section: Time Converter -->
+            <div class="converter-section">
+                <h2 class="section-title">
+                    <span>🔄</span> Time Converter
+                </h2>
+                
+                <div class="converter-container">
+                    <form id="converterForm" class="converter-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fromCountry">From Country</label>
+                                <select id="fromCountry" required>
+                                    <option value="">Select a country</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="toCountry">To Country</label>
+                                <select id="toCountry" required>
+                                    <option value="">Select a country</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fromTime">Date & Time</label>
+                                <input type="datetime-local" id="fromTime" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="convert-btn">
+                            <span>🔄</span> Convert Time
+                        </button>
+                    </form>
+                    
+                    <div id="resultSection" class="result-section">
+                        <h3 class="result-title">Conversion Result</h3>
+                        <div class="result-box">
+                            <div class="result-row">
+                                <span class="result-label">From:</span>
+                                <span id="resultFrom" class="result-value"></span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">To:</span>
+                                <span id="resultTo" class="result-value"></span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">Time Difference:</span>
+                                <span id="timeDifference" class="result-value time-difference"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>World Clock Converter • All times are in local time zones • Data stored locally on your device</p>
+        </footer>
+    </div>
+
+    <script>
+        // Country data with timezone information
+        const countries = [
+            {name: "Afghanistan", capital: "Kabul", timezone: "Asia/Kabul", flag: "🇦🇫"},
+            {name: "Albania", capital: "Tirana", timezone: "Europe/Tirane", flag: "🇦🇱"},
+            {name: "Algeria", capital: "Algiers", timezone: "Africa/Algiers", flag: "🇩🇿"},
+            {name: "Andorra", capital: "Andorra la Vella", timezone: "Europe/Andorra", flag: "🇦🇩"},
+            {name: "Angola", capital: "Luanda", timezone: "Africa/Luanda", flag: "🇦🇴"},
+            {name: "Antigua and Barbuda", capital: "St. John's", timezone: "America/Antigua", flag: "🇦🇬"},
+            {name: "Argentina", capital: "Buenos Aires", timezone: "America/Argentina/Buenos_Aires", flag: "🇦🇷"},
+            {name: "Armenia", capital: "Yerevan", timezone: "Asia/Yerevan", flag: "🇦🇲"},
+            {name: "Australia", capital: "Canberra", timezone: "Australia/Sydney", flag: "🇦🇺"},
+            {name: "Austria", capital: "Vienna", timezone: "Europe/Vienna", flag: "🇦🇹"},
+            {name: "Azerbaijan", capital: "Baku", timezone: "Asia/Baku", flag: "🇦🇿"},
+            {name: "Bahamas", capital: "Nassau", timezone: "America/Nassau", flag: "🇧🇸"},
+            {name: "Bahrain", capital: "Manama", timezone: "Asia/Bahrain", flag: "🇧🇭"},
+            {name: "Bangladesh", capital: "Dhaka", timezone: "Asia/Dhaka", flag: "🇧🇩"},
+            {name: "Barbados", capital: "Bridgetown", timezone: "America/Barbados", flag: "🇧🇧"},
+            {name: "Belarus", capital: "Minsk", timezone: "Europe/Minsk", flag: "🇧🇾"},
+            {name: "Belgium", capital: "Brussels", timezone: "Europe/Brussels", flag: "🇧🇪"},
+            {name: "Belize", capital: "Belmopan", timezone: "America/Belize", flag: "🇧🇿"},
+            {name: "Benin", capital: "Porto-Novo", timezone: "Africa/Porto-Novo", flag: "🇧🇯"},
+            {name: "Bhutan", capital: "Thimphu", timezone: "Asia/Thimphu", flag: "🇧🇹"},
+            {name: "Bolivia", capital: "Sucre", timezone: "America/La_Paz", flag: "🇧🇴"},
+            {name: "Bosnia and Herzegovina", capital: "Sarajevo", timezone: "Europe/Sarajevo", flag: "🇧🇦"},
+            {name: "Botswana", capital: "Gaborone", timezone: "Africa/Gaborone", flag: "🇧🇼"},
+            {name: "Brazil", capital: "Brasília", timezone: "America/Sao_Paulo", flag: "🇧🇷"},
+            {name: "Brunei", capital: "Bandar Seri Begawan", timezone: "Asia/Brunei", flag: "🇧🇳"},
+            {name: "Bulgaria", capital: "Sofia", timezone: "Europe/Sofia", flag: "🇧🇬"},
+            {name: "Burkina Faso", capital: "Ouagadougou", timezone: "Africa/Ouagadougou", flag: "🇧🇫"},
+            {name: "Burundi", capital: "Gitega", timezone: "Africa/Bujumbura", flag: "🇧🇮"},
+            {name: "Cambodia", capital: "Phnom Penh", timezone: "Asia/Phnom_Penh", flag: "🇰🇭"},
+            {name: "Cameroon", capital: "Yaoundé", timezone: "Africa/Douala", flag: "🇨🇲"},
+            {name: "Canada", capital: "Ottawa", timezone: "America/Toronto", flag: "🇨🇦"},
+            {name: "Cape Verde", capital: "Praia", timezone: "Atlantic/Cape_Verde", flag: "🇨🇻"},
+            {name: "Central African Republic", capital: "Bangui", timezone: "Africa/Bangui", flag: "🇨🇫"},
+            {name: "Chad", capital: "N'Djamena", timezone: "Africa/Ndjamena", flag: "🇹🇩"},
+            {name: "Chile", capital: "Santiago", timezone: "America/Santiago", flag: "🇨🇱"},
+            {name: "China", capital: "Beijing", timezone: "Asia/Shanghai", flag: "🇨🇳"},
+            {name: "Colombia", capital: "Bogotá", timezone: "America/Bogota", flag: "🇨🇴"},
+            {name: "Comoros", capital: "Moroni", timezone: "Indian/Comoro", flag: "🇰🇲"},
+            {name: "Congo (Republic of the)", capital: "Brazzaville", timezone: "Africa/Brazzaville", flag: "🇨🇬"},
+            {name: "Costa Rica", capital: "San José", timezone: "America/Costa_Rica", flag: "🇨🇷"},
+            {name: "Croatia", capital: "Zagreb", timezone: "Europe/Zagreb", flag: "🇭🇷"},
+            {name: "Cuba", capital: "Havana", timezone: "America/Havana", flag: "🇨🇺"},
+            {name: "Cyprus", capital: "Nicosia", timezone: "Asia/Nicosia", flag: "🇨🇾"},
+            {name: "Czech Republic", capital: "Prague", timezone: "Europe/Prague", flag: "🇨🇿"},
+            {name: "Denmark", capital: "Copenhagen", timezone: "Europe/Copenhagen", flag: "🇩🇰"},
+            {name: "Djibouti", capital: "Djibouti", timezone: "Africa/Djibouti", flag: "🇩🇯"},
+            {name: "Dominica", capital: "Roseau", timezone: "America/Dominica", flag: "🇩🇲"},
+            {name: "Dominican Republic", capital: "Santo Domingo", timezone: "America/Santo_Domingo", flag: "🇩🇴"},
+            {name: "Ecuador", capital: "Quito", timezone: "America/Guayaquil", flag: "🇪🇨"},
+            {name: "Egypt", capital: "Cairo", timezone: "Africa/Cairo", flag: "🇪🇬"},
+            {name: "El Salvador", capital: "San Salvador", timezone: "America/El_Salvador", flag: "🇸🇻"},
+            {name: "Equatorial Guinea", capital: "Malabo", timezone: "Africa/Malabo", flag: "🇬🇶"},
+            {name: "Eritrea", capital: "Asmara", timezone: "Africa/Asmara", flag: "🇪🇷"},
+            {name: "Estonia", capital: "Tallinn", timezone: "Europe/Tallinn", flag: "🇪🇪"},
+            {name: "Eswatini", capital: "Mbabane", timezone: "Africa/Mbabane", flag: "🇸🇿"},
+            {name: "Ethiopia", capital: "Addis Ababa", timezone: "Africa/Addis_Ababa", flag: "🇪🇹"},
+            {name: "Fiji", capital: "Suva", timezone: "Pacific/Fiji", flag: "🇫🇯"},
+            {name: "Finland", capital: "Helsinki", timezone: "Europe/Helsinki", flag: "🇫🇮"},
+            {name: "France", capital: "Paris", timezone: "Europe/Paris", flag: "🇫🇷"},
+            {name: "Gabon", capital: "Libreville", timezone: "Africa/Libreville", flag: "🇬🇦"},
+            {name: "Gambia", capital: "Banjul", timezone: "Africa/Banjul", flag: "🇬🇲"},
+            {name: "Georgia", capital: "Tbilisi", timezone: "Asia/Tbilisi", flag: "🇬🇪"},
+            {name: "Germany", capital: "Berlin", timezone: "Europe/Berlin", flag: "🇩🇪"},
+            {name: "Ghana", capital: "Accra", timezone: "Africa/Accra", flag: "🇬🇭"},
+            {name: "Greece", capital: "Athens", timezone: "Europe/Athens", flag: "🇬🇷"},
+            {name: "Grenada", capital: "St. George's", timezone: "America/Grenada", flag: "🇬🇩"},
+            {name: "Guatemala", capital: "Guatemala City", timezone: "America/Guatemala", flag: "🇬🇹"},
+            {name: "Guinea", capital: "Conakry", timezone: "Africa/Conakry", flag: "🇬🇳"},
+            {name: "Guinea-Bissau", capital: "Bissau", timezone: "Africa/Bissau", flag: "🇬🇼"},
+            {name: "Guyana", capital: "Georgetown", timezone: "America/Guyana", flag: "🇬🇾"},
+            {name: "Haiti", capital: "Port-au-Prince", timezone: "America/Port-au-Prince", flag: "🇭🇹"},
+            {name: "Honduras", capital: "Tegucigalpa", timezone: "America/Tegucigalpa", flag: "🇭🇳"},
+            {name: "Hungary", capital: "Budapest", timezone: "Europe/Budapest", flag: "🇭🇺"},
+            {name: "Iceland", capital: "Reykjavík", timezone: "Atlantic/Reykjavik", flag: "🇮🇸"},
+            {name: "India", capital: "New Delhi", timezone: "Asia/Kolkata", flag: "🇮🇳"},
+            {name: "Indonesia", capital: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩"},
+            {name: "Iran", capital: "Tehran", timezone: "Asia/Tehran", flag: "🇮🇷"},
+            {name: "Iraq", capital: "Baghdad", timezone: "Asia/Baghdad", flag: "🇮🇶"},
+            {name: "Ireland", capital: "Dublin", timezone: "Europe/Dublin", flag: "🇮🇪"},
+            {name: "Israel", capital: "Jerusalem", timezone: "Asia/Jerusalem", flag: "🇮🇱"},
+            {name: "Italy", capital: "Rome", timezone: "Europe/Rome", flag: "🇮🇹"},
+            {name: "Jamaica", capital: "Kingston", timezone: "America/Jamaica", flag: "🇯🇲"},
+            {name: "Japan", capital: "Tokyo", timezone: "Asia/Tokyo", flag: "🇯🇵"},
+            {name: "Jordan", capital: "Amman", timezone: "Asia/Amman", flag: "🇯🇴"},
+            {name: "Kazakhstan", capital: "Astana", timezone: "Asia/Almaty", flag: "🇰🇿"},
+            {name: "Kenya", capital: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪"},
+            {name: "Kiribati", capital: "South Tarawa", timezone: "Pacific/Tarawa", flag: "🇰🇮"},
+            {name: "Kuwait", capital: "Kuwait City", timezone: "Asia/Kuwait", flag: "🇰🇼"},
+            {name: "Kyrgyzstan", capital: "Bishkek", timezone: "Asia/Bishkek", flag: "🇰🇬"},
+            {name: "Laos", capital: "Vientiane", timezone: "Asia/Vientiane", flag: "🇱🇦"},
+            {name: "Latvia", capital: "Riga", timezone: "Europe/Riga", flag: "🇱🇻"},
+            {name: "Lebanon", capital: "Beirut", timezone: "Asia/Beirut", flag: "🇱🇧"},
+            {name: "Lesotho", capital: "Maseru", timezone: "Africa/Maseru", flag: "🇱🇸"},
+            {name: "Liberia", capital: "Monrovia", timezone: "Africa/Monrovia", flag: "🇱🇷"},
+            {name: "Libya", capital: "Tripoli", timezone: "Africa/Tripoli", flag: "🇱🇾"},
+            {name: "Liechtenstein", capital: "Vaduz", timezone: "Europe/Vaduz", flag: "🇱🇮"},
+            {name: "Lithuania", capital: "Vilnius", timezone: "Europe/Vilnius", flag: "🇱🇹"},
+            {name: "Luxembourg", capital: "Luxembourg", timezone: "Europe/Luxembourg", flag: "🇱🇺"},
+            {name: "Madagascar", capital: "Antananarivo", timezone: "Indian/Antananarivo", flag: "🇲🇬"},
+            {name: "Malawi", capital: "Lilongwe", timezone: "Africa/Blantyre", flag: "🇲🇼"},
+            {name: "Malaysia", capital: "Kuala Lumpur", timezone: "Asia/Kuala_Lumpur", flag: "🇲🇾"},
+            {name: "Maldives", capital: "Malé", timezone: "Indian/Maldives", flag: "🇲🇻"},
+            {name: "Mali", capital: "Bamako", timezone: "Africa/Bamako", flag: "🇲🇱"},
+            {name: "Malta", capital: "Valletta", timezone: "Europe/Malta", flag: "🇲🇹"},
+            {name: "Marshall Islands", capital: "Majuro", timezone: "Pacific/Majuro", flag: "🇲🇭"},
+            {name: "Mauritania", capital: "Nouakchott", timezone: "Africa/Nouakchott", flag: "🇲🇷"},
+            {name: "Mauritius", capital: "Port Louis", timezone: "Indian/Mauritius", flag: "🇲🇺"},
+            {name: "Mexico", capital: "Mexico City", timezone: "America/Mexico_City", flag: "🇲🇽"},
+            {name: "Micronesia", capital: "Palikir", timezone: "Pacific/Pohnpei", flag: "🇫🇲"},
+            {name: "Moldova", capital: "Chișinău", timezone: "Europe/Chisinau", flag: "🇲🇩"},
+            {name: "Monaco", capital: "Monaco", timezone: "Europe/Monaco", flag: "🇲🇨"},
+            {name: "Mongolia", capital: "Ulaanbaatar", timezone: "Asia/Ulaanbaatar", flag: "🇲🇳"},
+            {name: "Montenegro", capital: "Podgorica", timezone: "Europe/Podgorica", flag: "🇲🇪"},
+            {name: "Morocco", capital: "Rabat", timezone: "Africa/Casablanca", flag: "🇲🇦"},
+            {name: "Mozambique", capital: "Maputo", timezone: "Africa/Maputo", flag: "🇲🇿"},
+            {name: "Myanmar", capital: "Naypyidaw", timezone: "Asia/Yangon", flag: "🇲🇲"},
+            {name: "Namibia", capital: "Windhoek", timezone: "Africa/Windhoek", flag: "🇳🇦"},
+            {name: "Nauru", capital: "Yaren", timezone: "Pacific/Nauru", flag: "🇳🇷"},
+            {name: "Nepal", capital: "Kathmandu", timezone: "Asia/Kathmandu", flag: "🇳🇵"},
+            {name: "Netherlands", capital: "Amsterdam", timezone: "Europe/Amsterdam", flag: "🇳🇱"},
+            {name: "New Zealand", capital: "Wellington", timezone: "Pacific/Auckland", flag: "🇳🇿"},
+            {name: "Nicaragua", capital: "Managua", timezone: "America/Managua", flag: "🇳🇮"},
+            {name: "Niger", capital: "Niamey", timezone: "Africa/Niamey", flag: "🇳🇪"},
+            {name: "Nigeria", capital: "Abuja", timezone: "Africa/Lagos", flag: "🇳🇬"},
+            {name: "North Korea", capital: "Pyongyang", timezone: "Asia/Pyongyang", flag: "🇰🇵"},
+            {name: "North Macedonia", capital: "Skopje", timezone: "Europe/Skopje", flag: "🇲🇰"},
+            {name: "Norway", capital: "Oslo", timezone: "Europe/Oslo", flag: "🇳🇴"},
+            {name: "Oman", capital: "Muscat", timezone: "Asia/Muscat", flag: "🇴🇲"},
+            {name: "Pakistan", capital: "Islamabad", timezone: "Asia/Karachi", flag: "🇵🇰"},
+            {name: "Palau", capital: "Ngerulmud", timezone: "Pacific/Palau", flag: "🇵🇼"},
+            {name: "Panama", capital: "Panama City", timezone: "America/Panama", flag: "🇵🇦"},
+            {name: "Papua New Guinea", capital: "Port Moresby", timezone: "Pacific/Port_Moresby", flag: "🇵🇬"},
+            {name: "Paraguay", capital: "Asunción", timezone: "America/Asuncion", flag: "🇵🇾"},
+            {name: "Peru", capital: "Lima", timezone: "America/Lima", flag: "🇵🇪"},
+            {name: "Philippines", capital: "Manila", timezone: "Asia/Manila", flag: "🇵🇭"},
+            {name: "Poland", capital: "Warsaw", timezone: "Europe/Warsaw", flag: "🇵🇱"},
+            {name: "Portugal", capital: "Lisbon", timezone: "Europe/Lisbon", flag: "🇵🇹"},
+            {name: "Qatar", capital: "Doha", timezone: "Asia/Qatar", flag: "🇶🇦"},
+            {name: "Romania", capital: "Bucharest", timezone: "Europe/Bucharest", flag: "🇷🇴"},
+            {name: "Russia", capital: "Moscow", timezone: "Europe/Moscow", flag: "🇷🇺"},
+            {name: "Rwanda", capital: "Kigali", timezone: "Africa/Kigali", flag: "🇷🇼"},
+            {name: "Saint Kitts and Nevis", capital: "Basseterre", timezone: "America/St_Kitts", flag: "🇰🇳"},
+            {name: "Saint Lucia", capital: "Castries", timezone: "America/St_Lucia", flag: "🇱🇨"},
+            {name: "Saint Vincent and the Grenadines", capital: "Kingstown", timezone: "America/St_Vincent", flag: "🇻🇨"},
+            {name: "Samoa", capital: "Apia", timezone: "Pacific/Apia", flag: "🇼🇸"},
+            {name: "San Marino", capital: "San Marino", timezone: "Europe/San_Marino", flag: "🇸🇲"},
+            {name: "São Tomé and Príncipe", capital: "São Tomé", timezone: "Africa/Sao_Tome", flag: "🇸🇹"},
+            {name: "Saudi Arabia", capital: "Riyadh", timezone: "Asia/Riyadh", flag: "🇸🇦"},
+            {name: "Senegal", capital: "Dakar", timezone: "Africa/Dakar", flag: "🇸🇳"},
+            {name: "Serbia", capital: "Belgrade", timezone: "Europe/Belgrade", flag: "🇷🇸"},
+            {name: "Seychelles", capital: "Victoria", timezone: "Indian/Mahe", flag: "🇸🇨"},
+            {name: "Sierra Leone", capital: "Freetown", timezone: "Africa/Freetown", flag: "🇸🇱"},
+            {name: "Singapore", capital: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬"},
+            {name: "Slovakia", capital: "Bratislava", timezone: "Europe/Bratislava", flag: "🇸🇰"},
+            {name: "Slovenia", capital: "Ljubljana", timezone: "Europe/Ljubljana", flag: "🇸🇮"},
+            {name: "Solomon Islands", capital: "Honiara", timezone: "Pacific/Guadalcanal", flag: "🇸🇧"},
+            {name: "Somalia", capital: "Mogadishu", timezone: "Africa/Mogadishu", flag: "🇸🇴"},
+            {name: "South Africa", capital: "Pretoria", timezone: "Africa/Johannesburg", flag: "🇿🇦"},
+            {name: "South Korea", capital: "Seoul", timezone: "Asia/Seoul", flag: "🇰🇷"},
+            {name: "South Sudan", capital: "Juba", timezone: "Africa/Juba", flag: "🇸🇸"},
+            {name: "Spain", capital: "Madrid", timezone: "Europe/Madrid", flag: "🇪🇸"},
+            {name: "Sri Lanka", capital: "Sri Jayawardenepura Kotte", timezone: "Asia/Colombo", flag: "🇱🇰"},
+            {name: "Sudan", capital: "Khartoum", timezone: "Africa/Khartoum", flag: "🇸🇩"},
+            {name: "Suriname", capital: "Paramaribo", timezone: "America/Paramaribo", flag: "🇸🇷"},
+            {name: "Sweden", capital: "Stockholm", timezone: "Europe/Stockholm", flag: "🇸🇪"},
+            {name: "Switzerland", capital: "Bern", timezone: "Europe/Zurich", flag: "🇨🇭"},
+            {name: "Syria", capital: "Damascus", timezone: "Asia/Damascus", flag: "🇸🇾"},
+            {name: "Tajikistan", capital: "Dushanbe", timezone: "Asia/Dushanbe", flag: "🇹🇯"},
+            {name: "Tanzania", capital: "Dodoma", timezone: "Africa/Dar_es_Salaam", flag: "🇹🇿"},
+            {name: "Thailand", capital: "Bangkok", timezone: "Asia/Bangkok", flag: "🇹🇭"},
+            {name: "Timor-Leste", capital: "Dili", timezone: "Asia/Dili", flag: "🇹🇱"},
+            {name: "Togo", capital: "Lomé", timezone: "Africa/Lome", flag: "🇹🇬"},
+            {name: "Tonga", capital: "Nukuʻalofa", timezone: "Pacific/Tongatapu", flag: "🇹🇴"},
+            {name: "Trinidad and Tobago", capital: "Port of Spain", timezone: "America/Port_of_Spain", flag: "🇹🇹"},
+            {name: "Tunisia", capital: "Tunis", timezone: "Africa/Tunis", flag: "🇹🇳"},
+            {name: "Turkey", capital: "Ankara", timezone: "Europe/Istanbul", flag: "🇹🇷"},
+            {name: "Turkmenistan", capital: "Ashgabat", timezone: "Asia/Ashgabat", flag: "🇹🇲"},
+            {name: "Tuvalu", capital: "Funafuti", timezone: "Pacific/Funafuti", flag: "🇹🇻"},
+            {name: "Uganda", capital: "Kampala", timezone: "Africa/Kampala", flag: "🇺🇬"},
+            {name: "Ukraine", capital: "Kyiv", timezone: "Europe/Kiev", flag: "🇺🇦"},
+            {name: "United Arab Emirates", capital: "Abu Dhabi", timezone: "Asia/Dubai", flag: "🇦🇪"},
+            {name: "United Kingdom", capital: "London", timezone: "Europe/London", flag: "🇬🇧"},
+            {name: "United States", capital: "Washington, D.C.", timezone: "America/New_York", flag: "🇺🇸"},
+            {name: "Uruguay", capital: "Montevideo", timezone: "America/Montevideo", flag: "🇺🇾"},
+            {name: "Uzbekistan", capital: "Tashkent", timezone: "Asia/Tashkent", flag: "🇺🇿"},
+            {name: "Vanuatu", capital: "Port Vila", timezone: "Pacific/Efate", flag: "🇻🇺"},
+            {name: "Vatican City", capital: "Vatican City", timezone: "Europe/Vatican", flag: "🇻🇦"},
+            {name: "Venezuela", capital: "Caracas", timezone: "America/Caracas", flag: "🇻🇪"},
+            {name: "Vietnam", capital: "Hanoi", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳"},
+            {name: "Yemen", capital: "Sana'a", timezone: "Asia/Aden", flag: "🇾🇪"},
+            {name: "Zambia", capital: "Lusaka", timezone: "Africa/Lusaka", flag: "🇿🇲"},
+            {name: "Zimbabwe", capital: "Harare", timezone: "Africa/Harare", flag: "🇿🇼"}
+        ];
+
+        // Application state
+        let selectedCountries = [];
+        let updateInterval;
+
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const clocksContainer = document.getElementById('clocksContainer');
+        const emptyState = document.getElementById('emptyState');
+        const fromCountrySelect = document.getElementById('fromCountry');
+        const toCountrySelect = document.getElementById('toCountry');
+        const fromTimeInput = document.getElementById('fromTime');
+        const converterForm = document.getElementById('converterForm');
+        const resultSection = document.getElementById('resultSection');
+        const resultFrom = document.getElementById('resultFrom');
+        const resultTo = document.getElementById('resultTo');
+        const timeDifference = document.getElementById('timeDifference');
+
+        // Initialize the application
+        function init() {
+            // Set current date and time for converter
+            const now = new Date();
+            const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+                .toISOString()
+                .slice(0, 16);
+            fromTimeInput.value = localDateTime;
+            
+            loadSavedClocks();
+            populateCountrySelects();
+            setupEventListeners();
+            startClockUpdates();
+            
+            // Load any saved converter data
+            const savedConverter = localStorage.getItem('worldClockConverterData');
+            if (savedConverter) {
+                try {
+                    const data = JSON.parse(savedConverter);
+                    fromCountrySelect.value = data.fromCountry || '';
+                    toCountrySelect.value = data.toCountry || '';
+                    if (data.fromTime) fromTimeInput.value = data.fromTime;
+                } catch (e) {
+                    console.error('Error loading converter data:', e);
+                }
+            }
+        }
+
+        // Populate country selects for converter
+        function populateCountrySelects() {
+            countries.forEach(country => {
+                const option1 = document.createElement('option');
+                option1.value = country.timezone;
+                option1.textContent = `${country.flag} ${country.name}`;
+                fromCountrySelect.appendChild(option1.cloneNode(true));
+                
+                const option2 = option1.cloneNode(true);
+                toCountrySelect.appendChild(option2);
+            });
+        }
+
+        // Load saved clocks from localStorage
+        function loadSavedClocks() {
+            const saved = localStorage.getItem('worldClockSelectedCountries');
+            if (saved) {
+                try {
+                    selectedCountries = JSON.parse(saved);
+                    renderAllClocks();
+                } catch (e) {
+                    console.error('Error loading saved clocks:', e);
+                }
+            }
+        }
+
+        // Save selected countries to localStorage
+        function saveClocks() {
+            localStorage.setItem('worldClockSelectedCountries', JSON.stringify(selectedCountries));
+        }
+
+        // Save converter data
+        function saveConverterData() {
+            const data = {
+                fromCountry: fromCountrySelect.value,
+                toCountry: toCountrySelect.value,
+                fromTime: fromTimeInput.value
+            };
+            localStorage.setItem('worldClockConverterData', JSON.stringify(data));
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search input event
+            searchInput.addEventListener('input', handleSearch);
+            
+            // Click outside to close search results
+            document.addEventListener('click', (e) => {
+                if (!searchResults.contains(e.target) && e.target !== searchInput) {
+                    searchResults.classList.remove('active');
+                }
+            });
+            
+            // Converter form submission
+            converterForm.addEventListener('submit', handleTimeConversion);
+            
+            // Save converter data on change
+            fromCountrySelect.addEventListener('change', saveConverterData);
+            toCountrySelect.addEventListener('change', saveConverterData);
+            fromTimeInput.addEventListener('change', saveConverterData);
+        }
+
+        // Handle search input
+        function handleSearch(e) {
+            const query = e.target.value.trim().toLowerCase();
+            
+            if (query.length === 0) {
+                searchResults.classList.remove('active');
+                return;
+            }
+            
+            // Filter countries based on query
+            const filtered = countries.filter(country => 
+                country.name.toLowerCase().includes(query) || 
+                country.capital.toLowerCase().includes(query)
+            ).slice(0, 10); // Limit to 10 results
+            
+            displaySearchResults(filtered);
+        }
+
+        // Display search results
+        function displaySearchResults(results) {
+            searchResults.innerHTML = '';
+            
+            if (results.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'country-item';
+                noResults.innerHTML = `
+                    <div class="country-info">
+                        <div>No countries found</div>
+                    </div>
+                `;
+                searchResults.appendChild(noResults);
+            } else {
+                results.forEach(country => {
+                    const isAdded = isCountrySelected(country);
+                    const item = document.createElement('div');
+                    item.className = 'country-item';
+                    item.innerHTML = `
+                        <div class="country-info">
+                            <span class="flag">${country.flag}</span>
+                            <div>
+                                <div class="country-name">${country.name}</div>
+                                <div class="country-capital">${country.capital}</div>
+                            </div>
+                        </div>
+                        <button class="add-btn ${isAdded ? 'added' : ''}" 
+                                data-country='${JSON.stringify(country)}'>
+                            ${isAdded ? '✓' : '+'}
+                        </button>
+                    `;
+                    
+                    const addBtn = item.querySelector('.add-btn');
+                    addBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!isAdded) {
+                            addCountry(country);
+                            addBtn.textContent = '✓';
+                            addBtn.classList.add('added');
+                        }
+                    });
+                    
+                    searchResults.appendChild(item);
+                });
+            }
+            
+            searchResults.classList.add('active');
+        }
+
+        // Check if a country is already selected
+        function isCountrySelected(country) {
+            return selectedCountries.some(c => c.name === country.name);
+        }
+
+        // Add a country to the clock display
+        function addCountry(country) {
+            // Check if already added
+            if (isCountrySelected(country)) {
+                return;
+            }
+            
+            // Check maximum limit
+            if (selectedCountries.length >= 10) {
+                alert('Maximum 10 clocks allowed. Remove one to add another.');
+                return;
+            }
+            
+            // Add to selected countries
+            selectedCountries.push({...country});
+            saveClocks();
+            renderAllClocks();
+        }
+
+        // Remove a country from the clock display
+        function removeCountry(countryName) {
+            selectedCountries = selectedCountries.filter(c => c.name !== countryName);
+            saveClocks();
+            renderAllClocks();
+        }
+
+        // Render all clocks
+        function renderAllClocks() {
+            clocksContainer.innerHTML = '';
+            
+            if (selectedCountries.length === 0) {
+                clocksContainer.appendChild(emptyState);
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            // Hide empty state
+            emptyState.style.display = 'none';
+            
+            // Create clock for each selected country
+            selectedCountries.forEach((country, index) => {
+                const clockCard = createClockElement(country, index);
+                clocksContainer.appendChild(clockCard);
+            });
+            
+            // Update clocks immediately
+            updateAllClocks();
+        }
+
+        // Create a clock element for a country
+        function createClockElement(country, index) {
+            const card = document.createElement('div');
+            card.className = 'clock-card';
+            card.style.animationDelay = `${index * 0.1}s`;
+            
+            card.innerHTML = `
+                <div class="clock-header">
+                    <div class="clock-title">
+                        <span class="clock-flag">${country.flag}</span>
+                        <div class="clock-info">
+                            <h3>${country.name}</h3>
+                            <div class="capital">${country.capital}</div>
+                        </div>
+                    </div>
+                    <button class="remove-clock" data-country="${country.name}">
+                        ×
+                    </button>
+                </div>
+                <div class="clock-display">
+                    <div class="time">--:--:--</div>
+                    <div class="date">Loading...</div>
+                    <div class="timezone">${country.timezone}</div>
+                </div>
+            `;
+            
+            // Add remove button event listener
+            const removeBtn = card.querySelector('.remove-clock');
+            removeBtn.addEventListener('click', () => removeCountry(country.name));
+            
+            return card;
+        }
+
+        // Get formatted time for a timezone
+        function getTimeForTimezone(timezone) {
+            try {
+                const now = new Date();
+                
+                // Format options
+                const timeOptions = { 
+                    timeZone: timezone, 
+                    hour12: false, 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit' 
+                };
+                
+                const dateOptions = { 
+                    timeZone: timezone, 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                
+                const timeFormatter = new Intl.DateTimeFormat('en-US', timeOptions);
+                const dateFormatter = new Intl.DateTimeFormat('en-US', dateOptions);
+                
+                const time = timeFormatter.format(now);
+                const date = dateFormatter.format(now);
+                
+                return { time, date };
+            } catch (error) {
+                console.error(`Error getting time for ${timezone}:`, error);
+                return { 
+                    time: 'Error', 
+                    date: 'Invalid timezone' 
+                };
+            }
+        }
+
+        // Update all clocks
+        function updateAllClocks() {
+            selectedCountries.forEach(country => {
+                const clockElement = document.querySelector(`[data-country="${country.name}"]`)?.closest('.clock-card');
+                if (!clockElement) return;
+                
+                const timeData = getTimeForTimezone(country.timezone);
+                
+                const timeElement = clockElement.querySelector('.time');
+                const dateElement = clockElement.querySelector('.date');
+                
+                if (timeElement) timeElement.textContent = timeData.time;
+                if (dateElement) dateElement.textContent = timeData.date;
+            });
+        }
+
+        // Start clock updates
+        function startClockUpdates() {
+            // Update immediately
+            updateAllClocks();
+            
+            // Then update every second
+            clearInterval(updateInterval);
+            updateInterval = setInterval(updateAllClocks, 1000);
+        }
+
+        // Handle time conversion
+        function handleTimeConversion(e) {
+            e.preventDefault();
+            
+            const fromTimezone = fromCountrySelect.value;
+            const toTimezone = toCountrySelect.value;
+            const fromDateTime = fromTimeInput.value;
+            
+            if (!fromTimezone || !toTimezone || !fromDateTime) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Convert the input datetime to Date object
+            const localDate = new Date(fromDateTime);
+            
+            // Format for display
+            const fromFormatted = formatDateTime(localDate, fromTimezone);
+            const toFormatted = formatDateTime(localDate, toTimezone);
+            
+            // Calculate time difference
+            const diff = calculateTimeDifference(fromTimezone, toTimezone);
+            
+            // Display results
+            resultFrom.textContent = fromFormatted;
+            resultTo.textContent = toFormatted;
+            timeDifference.textContent = diff;
+            
+            // Show result section with animation
+            resultSection.classList.add('active');
+            
+            // Scroll to result
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Format date and time for display
+        function formatDateTime(date, timezone) {
+            try {
+                const options = {
+                    timeZone: timezone,
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                };
+                
+                return new Intl.DateTimeFormat('en-US', options).format(date);
+            } catch (error) {
+                return 'Invalid timezone';
+            }
+        }
+
+        // Calculate time difference between two timezones
+        function calculateTimeDifference(fromTimezone, toTimezone) {
+            try {
+                const now = new Date();
+                
+                const fromFormatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: fromTimezone,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+                
+                const toFormatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: toTimezone,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+                
+                const fromTime = fromFormatter.format(now);
+                const toTime = toFormatter.format(now);
+                
+                // Parse hours and minutes
+                const fromParts = fromTime.split(':').map(Number);
+                const toParts = toTime.split(':').map(Number);
+                
+                const fromTotalMinutes = fromParts[0] * 60 + fromParts[1];
+                const toTotalMinutes = toParts[0] * 60 + toParts[1];
+                
+                let diffMinutes = toTotalMinutes - fromTotalMinutes;
+                
+                // Handle crossing midnight
+                if (Math.abs(diffMinutes) > 720) {
+                    diffMinutes = diffMinutes > 0 ? diffMinutes - 1440 : diffMinutes + 1440;
+                }
+                
+                const diffHours = Math.floor(diffMinutes / 60);
+                const diffMins = Math.abs(diffMinutes % 60);
+                
+                if (diffHours === 0 && diffMins === 0) {
+                    return 'Same time';
+                }
+                
+                const sign = diffMinutes > 0 ? '+' : '-';
+                const hours = Math.abs(diffHours);
+                const minutes = diffMins > 0 ? `:${diffMins.toString().padStart(2, '0')}` : '';
+                
+                return `${sign}${hours}${minutes} hours`;
+            } catch (error) {
+                return 'Unknown';
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

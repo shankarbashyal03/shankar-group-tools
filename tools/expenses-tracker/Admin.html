@@ -1,0 +1,2492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Admin - Income & Expenses Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            overscroll-behavior-y: none;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s ease;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 12px;
+            font-size: 18px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 1001;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clock, .calendar {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Admin Sections */
+        .admin-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .admin-section:hover {
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f1f1;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-sm {
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-info {
+            background: var(--info);
+        }
+
+        .btn-info:hover {
+            background: #148ea1;
+        }
+
+        /* Balance Categories Styles */
+        .balance-categories-list {
+            display: grid;
+            gap: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .balance-category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid var(--info);
+            transition: all 0.3s ease;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .balance-category-item:hover {
+            background: #e9ecef;
+        }
+
+        .balance-category-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .balance-category-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.2));
+            color: var(--info);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .balance-category-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .balance-category-details h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+
+        .balance-category-details p {
+            font-size: 13px;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+
+        .balance-category-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-right: 10px;
+        }
+
+        .balance-category-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .edit-btn {
+            color: var(--info);
+            background: rgba(23, 162, 184, 0.1);
+        }
+
+        .edit-btn:hover {
+            background: rgba(23, 162, 184, 0.2);
+        }
+
+        .delete-btn {
+            color: var(--danger);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.2);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e1e5ee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e1e5ee;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            min-height: 48px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Backup Section */
+        .backup-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .backup-btn {
+            background: var(--info);
+            color: white;
+            border: none;
+            padding: 20px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+            min-height: 100px;
+        }
+
+        .backup-btn:hover {
+            background: #148ea1;
+            transform: translateY(-3px);
+        }
+
+        .backup-btn.restore {
+            background: var(--warning);
+        }
+
+        .backup-btn.restore:hover {
+            background: #e67e22;
+        }
+
+        .backup-btn.download {
+            background: var(--success);
+        }
+
+        .backup-btn.download:hover {
+            background: #27ae60;
+        }
+
+        /* Currency Section */
+        .currency-search {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .currency-search input {
+            padding-left: 45px;
+            padding-right: 15px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 18px;
+        }
+
+        .currency-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #e1e5ee;
+            border-radius: 8px;
+            margin-top: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .currency-item {
+            padding: 14px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .currency-item:hover {
+            background: #f8f9fa;
+        }
+
+        .currency-item:last-child {
+            border-bottom: none;
+        }
+
+        .currency-item.selected {
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 5px solid var(--secondary);
+        }
+
+        /* Business Info */
+        .business-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Password Section */
+        .password-form {
+            max-width: 100%;
+        }
+
+        /* Data Management */
+        .data-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .data-btn {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 20px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+            min-height: 100px;
+        }
+
+        .data-btn:hover {
+            background: #e67e22;
+            transform: translateY(-3px);
+        }
+
+        .data-btn.danger {
+            background: var(--danger);
+        }
+
+        .data-btn.danger:hover {
+            background: #c0392b;
+        }
+
+        /* System Info */
+        .system-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #e1e5ee;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e1e5ee;
+            font-size: 14px;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-value {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 2px solid #e1e5ee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 8px;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 2px solid #e1e5ee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        /* Icon Upload Styles */
+        .icon-upload-container {
+            border: 2px dashed #e1e5ee;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .icon-upload-container:hover {
+            border-color: var(--secondary);
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .icon-upload-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 8px;
+        }
+
+        /* Icon Preview */
+        #iconPreview {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        #previewImage {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 12px;
+            border: 3px solid #e1e5ee;
+            padding: 4px;
+            background: white;
+        }
+
+        /* Remove Icon Button */
+        .remove-icon-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .remove-icon-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Optional Badge */
+        .optional-badge {
+            background: #f39c12;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .small {
+            font-size: 13px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 2px solid #e1e5ee;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .admin-sections {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sidebar {
+                width: 280px;
+                transform: translateX(-100%);
+                z-index: 1000;
+                box-shadow: 5px 0 20px rgba(0,0,0,0.2);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-menu a {
+                padding: 18px 20px;
+                font-size: 16px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+                width: 100%;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 15px 0;
+            }
+
+            .header-info {
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .clock, .calendar {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 12px;
+            }
+
+            .admin-sections {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .admin-section {
+                padding: 20px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .section-header h2 {
+                min-width: auto;
+                font-size: 17px;
+            }
+
+            .form-grid, .business-info-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .backup-options, .data-actions {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .backup-btn, .data-btn {
+                min-height: 90px;
+                padding: 18px 12px;
+            }
+
+            .balance-category-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 20px;
+            }
+
+            .balance-category-info {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .balance-category-amount {
+                margin-right: 0;
+                align-self: flex-start;
+                font-size: 20px;
+            }
+
+            .balance-category-actions {
+                width: 100%;
+                justify-content: flex-end;
+                align-self: stretch;
+            }
+
+            .currency-list {
+                max-height: 180px;
+            }
+
+            .modal-content {
+                margin: 10px;
+                max-height: 85vh;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 12px;
+            }
+
+            .admin-section {
+                padding: 18px;
+            }
+
+            .btn {
+                padding: 14px 18px;
+                font-size: 15px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .section-header .btn {
+                width: auto;
+            }
+
+            .form-control, .form-select {
+                padding: 16px;
+                font-size: 16px;
+            }
+
+            .balance-category-item {
+                padding: 18px;
+            }
+
+            .balance-category-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .action-btn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .backup-btn, .data-btn {
+                padding: 16px 12px;
+                font-size: 13px;
+                min-height: 80px;
+            }
+
+            .system-info {
+                padding: 18px;
+            }
+
+            .info-item {
+                font-size: 13px;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .currency-item {
+                padding: 16px;
+                font-size: 14px;
+            }
+
+            .mobile-menu-toggle {
+                top: 10px;
+                left: 10px;
+                padding: 10px;
+            }
+        }
+
+        /* Landscape mode for mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .sidebar {
+                overflow-y: auto;
+                height: 100vh;
+            }
+            
+            .modal-content {
+                max-height: 85vh;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .btn:hover, .backup-btn:hover, .data-btn:hover {
+                transform: none;
+            }
+            
+            .btn:active, .backup-btn:active, .data-btn:active {
+                transform: scale(0.98);
+            }
+            
+            .balance-category-item:hover {
+                background: #f8f9fa;
+            }
+            
+            .action-btn:hover {
+                background: none;
+            }
+            
+            .action-btn:active {
+                background: rgba(0,0,0,0.1);
+            }
+        }
+
+        /* High contrast for better accessibility */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid currentColor;
+            }
+
+            .form-control, .form-select {
+                border-width: 2px;
+            }
+            
+            .balance-category-item {
+                border: 2px solid var(--info);
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+                color: #e0e0e0;
+            }
+            
+            .admin-section, .clock, .calendar {
+                background: #2d2d2d;
+                color: #e0e0e0;
+            }
+            
+            .form-control, .form-select {
+                background: #2d2d2d;
+                border-color: #404040;
+                color: #e0e0e0;
+            }
+            
+            .system-info, .balance-category-item {
+                background: #2d2d2d;
+                border-color: #404040;
+            }
+            
+            .currency-list {
+                border-color: #404040;
+                background: #2d2d2d;
+            }
+            
+            .modal-content {
+                background: #2d2d2d;
+                color: #e0e0e0;
+            }
+            
+            .modal-header, .modal-footer {
+                background: #2d2d2d;
+                border-color: #404040;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">☰</button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="wallet-icon">💰</div>
+                <h2>Income & Expenses Tracker</h2>
+                <p id="userVoucher">Voucher: Loading...</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i>📊</i> Dashboard</a></li>
+                    <li><a href="categories.html"><i>📂</i> Categories</a></li>
+                    <li><a href="balance.html"><i>💰</i> Balance</a></li>
+                    <li><a href="entries.html"><i>➕</i> Entries</a></li>
+                    <li><a href="creditors.html"><i>👥</i> Creditors</a></li>
+                    <li><a href="debtors.html"><i>👤</i> Debtors</a></li>
+                    <li><a href="rectify.html"><i>✏️</i> Rectify</a></li>
+                    <li><a href="reports.html"><i>📈</i> Reports</a></li>
+                    <li><a href="admin.html" class="active"><i>⚙️</i> Admin</a></li>
+                    <li><a href="settings.html"><i>🔧</i> Settings</a></li>
+                    <li><a href="#" id="logoutBtn"><i>🚪</i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>Administration</h1>
+                <div class="header-info">
+                    <div class="calendar" id="currentDate">Loading...</div>
+                    <div class="clock" id="currentTime">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Admin Sections -->
+            <div class="admin-sections">
+                <!-- Balance Categories -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2><span>💰</span> Balance Categories</h2>
+                        <button class="btn btn-success" id="addBalanceCategory">
+                            <span>➕</span> Add Category
+                        </button>
+                    </div>
+                    
+                    <div class="balance-categories-list" id="balanceCategoriesList">
+                        <!-- Balance categories will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Backup & Restore -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2><span>💾</span> Backup & Restore</h2>
+                    </div>
+                    
+                    <p style="font-size: 14px; margin-bottom: 15px;">Manage your financial data backups and restore previous versions.</p>
+                    
+                    <div class="backup-options">
+                        <button class="backup-btn" id="createBackup">
+                            <span>📁</span>
+                            <span>Create Backup</span>
+                            <small>Save current data</small>
+                        </button>
+                        <button class="backup-btn restore" id="restoreBackup">
+                            <span>🔄</span>
+                            <span>Restore Backup</span>
+                            <small>Load previous data</small>
+                        </button>
+                        <button class="backup-btn download" id="downloadBackup">
+                            <span>📥</span>
+                            <span>Download Backup</span>
+                            <small>Export to file</small>
+                        </button>
+                    </div>
+                    
+                    <div class="system-info">
+                        <h4 style="margin-bottom: 12px; font-size: 14px;">Backup Information</h4>
+                        <div class="info-item">
+                            <span class="info-label">Last Backup:</span>
+                            <span class="info-value" id="lastBackupDate">Never</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Backup Size:</span>
+                            <span class="info-value" id="backupSize">0 KB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Total Backups:</span>
+                            <span class="info-value" id="totalBackups">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Currency Settings -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2><span>💰</span> Currency Settings</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="currencySearch">Search Country</label>
+                        <div class="currency-search">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="form-control" id="currencySearch" placeholder="Search for country...">
+                        </div>
+                    </div>
+                    
+                    <div class="currency-list" id="currencyList">
+                        <!-- Currency options will be loaded here -->
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 12px;">
+                        <label>Selected Currency</label>
+                        <div class="form-control" id="selectedCurrencyDisplay" style="background: #f8f9fa;">
+                            Indian Rupee (₹) - INR
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success full-width" id="applyCurrency">
+                        <span>💾</span> Apply Currency Changes
+                    </button>
+                </div>
+
+                <!-- Business Information -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2><span>🏢</span> Business Information</h2>
+                        <button class="btn btn-info" id="saveBusinessInfo">
+                            <span>💾</span> Save
+                        </button>
+                    </div>
+                    
+                    <form id="businessForm">
+                        <div class="business-info-grid">
+                            <div class="form-group">
+                                <label for="businessName">Business Name</label>
+                                <input type="text" class="form-control" id="businessName" placeholder="Enter business name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="businessEmail">Email Address</label>
+                                <input type="email" class="form-control" id="businessEmail" placeholder="business@example.com">
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="businessAddress">Business Address</label>
+                                <textarea class="form-control" id="businessAddress" placeholder="Enter full address" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="businessPAN">PAN Number</label>
+                                <input type="text" class="form-control" id="businessPAN" placeholder="Enter PAN number">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="businessPhone">Phone Number</label>
+                                <input type="tel" class="form-control" id="businessPhone" placeholder="+91 XXXXXXXXXX">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Password Management -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2><span>🔐</span> Password & Security</h2>
+                    </div>
+                    
+                    <div class="password-form">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
+                        </div>
+                        
+                        <button class="btn btn-success full-width" id="changePassword">
+                            <span>🔑</span> Change Password
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2><span>🗃️</span> Data Management</h2>
+                    </div>
+                    
+                    <p style="font-size: 14px; margin-bottom: 15px;">Manage your financial data with caution. These actions cannot be undone.</p>
+                    
+                    <div class="data-actions">
+                        <button class="data-btn" id="resetData">
+                            <span>🔄</span>
+                            <span>Reset All Data</span>
+                            <small>Start fresh</small>
+                        </button>
+                        <button class="data-btn" id="deleteRange">
+                            <span>📅</span>
+                            <span>Delete by Date Range</span>
+                            <small>Select dates</small>
+                        </button>
+                        <button class="data-btn danger" id="closeFinancialYear">
+                            <span>📊</span>
+                            <span>Close Financial Year</span>
+                            <small>Archive & start new</small>
+                        </button>
+                    </div>
+                    
+                    <div class="system-info">
+                        <h4 style="margin-bottom: 12px; font-size: 14px;">Data Statistics</h4>
+                        <div class="info-item">
+                            <span class="info-label">Total Transactions:</span>
+                            <span class="info-value" id="totalTransactions">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Database Size:</span>
+                            <span class="info-value" id="databaseSize">0 KB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Reset:</span>
+                            <span class="info-value" id="lastResetDate">Never</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Category Modal -->
+    <div class="modal" id="balanceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Balance Category</h3>
+                <button class="close-modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="balanceForm">
+                    <div class="form-group">
+                        <label for="balanceName">Category Name</label>
+                        <input type="text" class="form-control" id="balanceName" placeholder="e.g., Cash, HDFC Bank, Paytm Wallet" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="balanceType">Category Type</label>
+                        <select class="form-select" id="balanceType" required>
+                            <option value="">Select Type</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank">Bank</option>
+                            <option value="Wallet">Wallet</option>
+                            <option value="Voucher">Voucher</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="balanceIcon">Category Icon <span class="optional-badge">Optional</span></label>
+                        <div class="icon-upload-container" id="iconUploadContainer">
+                            <div class="upload-icon">📷</div>
+                            <div class="icon-upload-label">Upload Icon Image</div>
+                            <div class="upload-hint">Click to select image or drag & drop</div>
+                            <input type="file" class="form-control" id="balanceIcon" accept="image/*" style="display: none;">
+                        </div>
+                        <div id="iconPreview" style="display: none;">
+                            <img id="previewImage" alt="Icon Preview">
+                            <button type="button" class="remove-icon-btn" id="removeIconBtn">
+                                <span>🗑️</span> Remove Icon
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="initialAmount">Initial Amount</label>
+                        <input type="number" class="form-control" id="initialAmount" placeholder="Enter initial amount" value="0" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="balanceDescription">Description (Optional)</label>
+                        <textarea class="form-control" id="balanceDescription" placeholder="Add description or account details" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelBalance">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveBalance">Save Category</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Confirm Action</h3>
+                <button class="close-modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Are you sure you want to proceed? This action cannot be undone.</p>
+                <div id="modalExtraContent" style="display: none;">
+                    <!-- Additional content for specific actions -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelAction">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmAction">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Modal -->
+    <div class="modal" id="dateRangeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete Data by Date Range</h3>
+                <button class="close-modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="deleteFromDate">From Date</label>
+                        <input type="date" class="form-control" id="deleteFromDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="deleteToDate">To Date</label>
+                        <input type="date" class="form-control" id="deleteToDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 14px;">
+                        <input type="checkbox" id="partialDelete">
+                        Partial Delete (Keep balance categories)
+                    </label>
+                </div>
+                <p style="color: var(--danger); font-size: 12px; margin-top: 12px;">
+                    ⚠️ This action will permanently delete all transactions within the selected date range.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelDateRange">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDateRange">Delete Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentAction = null;
+        let currentEditingBalance = null;
+        const countries = [
+            { name: 'India', currency: 'Indian Rupee', symbol: '₹', code: 'INR' },
+            { name: 'Nepal', currency: 'Nepalese Rupee', symbol: 'रू', code: 'NPR' },
+            { name: 'Bangladesh', currency: 'Bangladeshi Taka', symbol: '৳', code: 'BDT' },
+            { name: 'Pakistan', currency: 'Pakistani Rupee', symbol: '₨', code: 'PKR' },
+            { name: 'Sri Lanka', currency: 'Sri Lankan Rupee', symbol: 'රු', code: 'LKR' },
+            { name: 'Bhutan', currency: 'Bhutanese Ngultrum', symbol: 'Nu', code: 'BTN' },
+            { name: 'United Arab Emirates', currency: 'UAE Dirham', symbol: 'د.إ', code: 'AED' },
+            { name: 'United States', currency: 'US Dollar', symbol: '$', code: 'USD' },
+            { name: 'United Kingdom', currency: 'British Pound', symbol: '£', code: 'GBP' },
+            { name: 'European Union', currency: 'Euro', symbol: '€', code: 'EUR' },
+            { name: 'Japan', currency: 'Japanese Yen', symbol: '¥', code: 'JPY' },
+            { name: 'China', currency: 'Chinese Yuan', symbol: '¥', code: 'CNY' },
+            { name: 'Australia', currency: 'Australian Dollar', symbol: 'A$', code: 'AUD' },
+            { name: 'Canada', currency: 'Canadian Dollar', symbol: 'C$', code: 'CAD' },
+            { name: 'Singapore', currency: 'Singapore Dollar', symbol: 'S$', code: 'SGD' },
+            { name: 'Malaysia', currency: 'Malaysian Ringgit', symbol: 'RM', code: 'MYR' },
+            { name: 'Thailand', currency: 'Thai Baht', symbol: '฿', code: 'THB' },
+            { name: 'South Korea', currency: 'South Korean Won', symbol: '₩', code: 'KRW' },
+            { name: 'Saudi Arabia', currency: 'Saudi Riyal', symbol: '﷼', code: 'SAR' },
+            { name: 'Qatar', currency: 'Qatari Riyal', symbol: '﷼', code: 'QAR' }
+        ];
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.voucherCode) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user voucher
+            document.getElementById('userVoucher').textContent = `Voucher: ${currentUser.voucherCode}`;
+            
+            // Load admin data
+            loadAdminData(currentUser.voucherCode);
+            
+            // Load currency options
+            loadCurrencyOptions();
+            
+            // Update clock and calendar
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Setup mobile menu
+            setupMobileMenu();
+            
+            // Prevent accidental back navigation on mobile
+            setupBackButtonPrevention();
+        });
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            mobileMenuToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sidebar.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside (mobile)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(event.target) &&
+                    !mobileMenuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Prevent accidental back button on mobile
+        function setupBackButtonPrevention() {
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                
+                // Check if swipe was from left edge (back gesture)
+                if (touchStartX < 50 && touchEndX > 100) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Load admin data
+        function loadAdminData(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            if (userData) {
+                // Load business information
+                document.getElementById('businessName').value = userData.settings.businessName || '';
+                document.getElementById('businessEmail').value = userData.settings.email || '';
+                document.getElementById('businessAddress').value = userData.settings.address || '';
+                document.getElementById('businessPAN').value = userData.settings.pan || '';
+                document.getElementById('businessPhone').value = userData.settings.phone || '';
+                
+                // Load balance categories
+                loadBalanceCategories(userData);
+                
+                // Update system info
+                updateSystemInfo(userData);
+            }
+        }
+
+        // Load balance categories
+        function loadBalanceCategories(userData) {
+            const container = document.getElementById('balanceCategoriesList');
+            container.innerHTML = '';
+            
+            if (userData.balanceCategories && userData.balanceCategories.length > 0) {
+                userData.balanceCategories.forEach((category, index) => {
+                    const categoryItem = createBalanceCategoryItem(category, index, userData);
+                    container.appendChild(categoryItem);
+                });
+            } else {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 16px;">💰</div>
+                        <p style="font-size: 16px; margin-bottom: 8px;">No balance categories yet</p>
+                        <p style="font-size: 13px; color: #7f8c8d;">Add your first balance category to track your money</p>
+                        <button class="btn btn-success" style="margin-top: 20px; padding: 14px 24px; min-height: 50px;" onclick="document.getElementById('addBalanceCategory').click()">
+                            <span>➕</span> Add Your First Category
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // Make sure scroll works on mobile
+            container.style.WebkitOverflowScrolling = 'touch';
+        }
+
+        // Create balance category list item
+        function createBalanceCategoryItem(category, index, userData) {
+            const div = document.createElement('div');
+            div.className = 'balance-category-item';
+            
+            // Calculate current balance for this category
+            let currentBalance = parseFloat(category.amount) || 0;
+            
+            // Add income transactions
+            if (userData.transactions) {
+                userData.transactions
+                    .filter(t => t.balanceCategory === category.name && t.type === 'income')
+                    .forEach(t => currentBalance += parseFloat(t.amount));
+                
+                // Subtract expense transactions
+                userData.transactions
+                    .filter(t => t.balanceCategory === category.name && t.type === 'expense')
+                    .forEach(t => currentBalance -= parseFloat(t.amount));
+            }
+            
+            // Use custom icon if available, otherwise use default
+            let iconHTML = '';
+            if (category.icon) {
+                iconHTML = `<img src="${category.icon}" alt="${category.name}">`;
+            } else {
+                // Default icons based on type
+                const defaultIcons = {
+                    'Cash': '💵',
+                    'Bank': '🏦',
+                    'Wallet': '👛',
+                    'Voucher': '🎫',
+                    'Other': '💰'
+                };
+                iconHTML = defaultIcons[category.type] || '💰';
+            }
+            
+            div.innerHTML = `
+                <div class="balance-category-info">
+                    <div class="balance-category-icon">${iconHTML}</div>
+                    <div class="balance-category-details">
+                        <h4>${category.name}</h4>
+                        <p>${category.type} • ${category.description || 'No description'}</p>
+                    </div>
+                </div>
+                <div class="balance-category-amount">${formatCurrency(currentBalance, userData.settings.currency)}</div>
+                <div class="balance-category-actions">
+                    <button class="action-btn edit-btn" data-index="${index}" title="Edit" aria-label="Edit ${category.name}">✏️</button>
+                    <button class="action-btn delete-btn" data-index="${index}" title="Delete" aria-label="Delete ${category.name}">🗑️</button>
+                </div>
+            `;
+            
+            // Make touch-friendly
+            div.style.cursor = 'pointer';
+            div.addEventListener('click', function(e) {
+                if (!e.target.closest('.action-btn')) {
+                    // Optional: View category details on click
+                    console.log('Viewing category:', category.name);
+                }
+            });
+            
+            return div;
+        }
+
+        // Update system information
+        function updateSystemInfo(userData) {
+            const transactions = userData.transactions || [];
+            const backups = userData.backups || [];
+            
+            document.getElementById('totalTransactions').textContent = transactions.length.toLocaleString();
+            document.getElementById('totalBackups').textContent = backups.length.toLocaleString();
+            
+            // Calculate database size (approximate)
+            const dataSize = JSON.stringify(userData).length;
+            document.getElementById('databaseSize').textContent = `${Math.round(dataSize / 1024)} KB`;
+            document.getElementById('backupSize').textContent = `${Math.round(dataSize / 1024)} KB`;
+            
+            // Last backup date
+            if (backups.length > 0) {
+                const lastBackup = backups[backups.length - 1];
+                document.getElementById('lastBackupDate').textContent = new Date(lastBackup.date).toLocaleDateString();
+            }
+            
+            // Last reset date
+            if (userData.lastReset) {
+                document.getElementById('lastResetDate').textContent = new Date(userData.lastReset).toLocaleDateString();
+            }
+        }
+
+        // Load currency options
+        function loadCurrencyOptions() {
+            const currencyList = document.getElementById('currencyList');
+            currencyList.innerHTML = '';
+            
+            countries.forEach(country => {
+                const item = document.createElement('div');
+                item.className = 'currency-item';
+                item.tabIndex = 0; // Make focusable for keyboard navigation
+                item.setAttribute('role', 'button');
+                item.setAttribute('aria-label', `Select ${country.name} currency`);
+                
+                item.innerHTML = `
+                    <strong>${country.name}</strong>
+                    <div style="font-size: 13px; color: #7f8c8d;">
+                        ${country.currency} (${country.symbol}) - ${country.code}
+                    </div>
+                `;
+                
+                item.addEventListener('click', function() {
+                    selectCurrencyItem(this, country);
+                });
+                
+                item.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectCurrencyItem(this, country);
+                    }
+                });
+                
+                currencyList.appendChild(item);
+            });
+            
+            // Select India by default
+            if (currencyList.firstChild) {
+                selectCurrencyItem(currencyList.firstChild, countries[0]);
+            }
+        }
+
+        function selectCurrencyItem(item, country) {
+            // Remove selected class from all items
+            document.querySelectorAll('.currency-item').forEach(i => i.classList.remove('selected'));
+            // Add selected class to clicked item
+            item.classList.add('selected');
+            // Update display
+            document.getElementById('selectedCurrencyDisplay').textContent = 
+                `${country.currency} (${country.symbol}) - ${country.code}`;
+            // Focus for accessibility
+            item.focus();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add balance category
+            document.getElementById('addBalanceCategory').addEventListener('click', openBalanceModal);
+            
+            // Save balance category
+            document.getElementById('saveBalance').addEventListener('click', saveBalanceCategory);
+            
+            // Cancel balance category
+            document.getElementById('cancelBalance').addEventListener('click', closeBalanceModal);
+            
+            // Close modal
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                    document.body.style.overflow = '';
+                });
+            });
+            
+            // Icon upload handling
+            const iconUploadContainer = document.getElementById('iconUploadContainer');
+            const balanceIconInput = document.getElementById('balanceIcon');
+            
+            // Click on container to trigger file input
+            iconUploadContainer.addEventListener('click', function() {
+                balanceIconInput.click();
+            });
+            
+            // Drag and drop support
+            iconUploadContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'var(--secondary)';
+                this.style.background = 'rgba(52, 152, 219, 0.1)';
+            });
+            
+            iconUploadContainer.addEventListener('dragleave', function() {
+                this.style.borderColor = '#e1e5ee';
+                this.style.background = '#f8f9fa';
+            });
+            
+            iconUploadContainer.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#e1e5ee';
+                this.style.background = '#f8f9fa';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.startsWith('image/')) {
+                        balanceIconInput.files = e.dataTransfer.files;
+                        handleIconPreview(file);
+                    } else {
+                        alert('Please drop an image file');
+                    }
+                }
+            });
+            
+            // Icon preview
+            balanceIconInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    handleIconPreview(file);
+                }
+            });
+            
+            // Remove icon button
+            document.getElementById('removeIconBtn').addEventListener('click', function() {
+                document.getElementById('balanceIcon').value = '';
+                document.getElementById('iconPreview').style.display = 'none';
+                document.getElementById('iconUploadContainer').style.display = 'block';
+            });
+            
+            // Currency search
+            const currencySearch = document.getElementById('currencySearch');
+            currencySearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const items = document.querySelectorAll('.currency-item');
+                
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+                });
+            });
+            
+            // Apply currency
+            document.getElementById('applyCurrency').addEventListener('click', function() {
+                const selectedItem = document.querySelector('.currency-item.selected');
+                if (selectedItem) {
+                    const countryName = selectedItem.querySelector('strong').textContent;
+                    const country = countries.find(c => c.name === countryName);
+                    
+                    if (country) {
+                        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                        const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+                        
+                        userData.settings.currency = country.symbol;
+                        userData.settings.currencyCode = country.code;
+                        localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+                        
+                        showToast(`Currency changed to ${country.currency} (${country.symbol})`);
+                        loadBalanceCategories(userData);
+                    }
+                } else {
+                    showToast('Please select a currency', 'error');
+                }
+            });
+            
+            // Save business info
+            document.getElementById('saveBusinessInfo').addEventListener('click', function() {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+                
+                userData.settings.businessName = document.getElementById('businessName').value;
+                userData.settings.email = document.getElementById('businessEmail').value;
+                userData.settings.address = document.getElementById('businessAddress').value;
+                userData.settings.pan = document.getElementById('businessPAN').value;
+                userData.settings.phone = document.getElementById('businessPhone').value;
+                
+                localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+                showToast('Business information saved successfully!');
+            });
+            
+            // Change password
+            document.getElementById('changePassword').addEventListener('click', function() {
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (!currentPassword) {
+                    showToast('Please enter current password', 'error');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    showToast('New passwords do not match', 'error');
+                    return;
+                }
+                
+                if (newPassword.length < 6) {
+                    showToast('Password must be at least 6 characters long', 'error');
+                    return;
+                }
+                
+                // In a real app, this would verify current password and update
+                showToast('Password changed successfully!');
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            });
+            
+            // Backup actions
+            document.getElementById('createBackup').addEventListener('click', createBackup);
+            document.getElementById('restoreBackup').addEventListener('click', restoreBackup);
+            document.getElementById('downloadBackup').addEventListener('click', downloadBackup);
+            
+            // Data management actions
+            document.getElementById('resetData').addEventListener('click', function() {
+                showConfirmModal(
+                    'Reset All Data',
+                    'Are you sure you want to reset all data? This will delete all transactions, categories, and settings. This action cannot be undone.',
+                    'resetData'
+                );
+            });
+            
+            document.getElementById('deleteRange').addEventListener('click', function() {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('deleteFromDate').value = '';
+                document.getElementById('deleteToDate').value = today;
+                document.getElementById('dateRangeModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+            
+            document.getElementById('closeFinancialYear').addEventListener('click', function() {
+                showConfirmModal(
+                    'Close Financial Year',
+                    'This will archive all current data and start a new financial year. Current data will be preserved in archives. Continue?',
+                    'closeFinancialYear'
+                );
+            });
+            
+            // Modal actions
+            document.getElementById('cancelAction').addEventListener('click', closeConfirmModal);
+            document.getElementById('confirmAction').addEventListener('click', executeAction);
+            
+            document.getElementById('cancelDateRange').addEventListener('click', function() {
+                document.getElementById('dateRangeModal').style.display = 'none';
+                document.body.style.overflow = '';
+            });
+            
+            document.getElementById('confirmDateRange').addEventListener('click', deleteByDateRange);
+            
+            // Edit and delete balance categories (delegated)
+            document.getElementById('balanceCategoriesList').addEventListener('click', function(e) {
+                // Edit balance category
+                if (e.target.classList.contains('edit-btn') || e.target.closest('.edit-btn')) {
+                    const btn = e.target.classList.contains('edit-btn') ? e.target : e.target.closest('.edit-btn');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    editBalanceCategory(index);
+                }
+                
+                // Delete balance category
+                if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+                    const btn = e.target.classList.contains('delete-btn') ? e.target : e.target.closest('.delete-btn');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    deleteBalanceCategory(index);
+                }
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Handle keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modals = document.querySelectorAll('.modal');
+                    modals.forEach(modal => {
+                        if (modal.style.display === 'flex') {
+                            modal.style.display = 'none';
+                            document.body.style.overflow = '';
+                        }
+                    });
+                    
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 768) {
+                        const sidebar = document.getElementById('sidebar');
+                        if (sidebar.classList.contains('active')) {
+                            sidebar.classList.remove('active');
+                            document.body.style.overflow = '';
+                        }
+                    }
+                }
+            });
+        }
+
+        // Handle icon preview
+        function handleIconPreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('iconPreview').style.display = 'block';
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('iconUploadContainer').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Open balance modal
+        function openBalanceModal(category = null, index = null) {
+            const modal = document.getElementById('balanceModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('balanceForm');
+            
+            if (category && index !== null) {
+                // Editing existing category
+                title.textContent = 'Edit Balance Category';
+                document.getElementById('balanceName').value = category.name;
+                document.getElementById('balanceType').value = category.type;
+                document.getElementById('initialAmount').value = category.amount || 0;
+                document.getElementById('balanceDescription').value = category.description || '';
+                
+                // Show icon preview if exists
+                if (category.icon) {
+                    document.getElementById('iconPreview').style.display = 'block';
+                    document.getElementById('previewImage').src = category.icon;
+                    document.getElementById('iconUploadContainer').style.display = 'none';
+                } else {
+                    document.getElementById('iconPreview').style.display = 'none';
+                    document.getElementById('iconUploadContainer').style.display = 'block';
+                }
+                
+                currentEditingBalance = index;
+            } else {
+                // Adding new category
+                title.textContent = 'Add Balance Category';
+                form.reset();
+                document.getElementById('initialAmount').value = 0;
+                document.getElementById('iconPreview').style.display = 'none';
+                document.getElementById('iconUploadContainer').style.display = 'block';
+                currentEditingBalance = null;
+            }
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Focus on first input
+            setTimeout(() => {
+                document.getElementById('balanceName').focus();
+            }, 300);
+        }
+
+        // Close balance modal
+        function closeBalanceModal() {
+            document.getElementById('balanceModal').style.display = 'none';
+            document.getElementById('balanceForm').reset();
+            document.getElementById('iconPreview').style.display = 'none';
+            document.getElementById('iconUploadContainer').style.display = 'block';
+            currentEditingBalance = null;
+            document.body.style.overflow = '';
+        }
+
+        // Save balance category
+        function saveBalanceCategory() {
+            const balanceName = document.getElementById('balanceName').value.trim();
+            const balanceType = document.getElementById('balanceType').value;
+            const initialAmount = parseFloat(document.getElementById('initialAmount').value) || 0;
+            const description = document.getElementById('balanceDescription').value.trim();
+            const iconFile = document.getElementById('balanceIcon').files[0];
+            
+            if (!balanceName || !balanceType) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            if (!userData.balanceCategories) {
+                userData.balanceCategories = [];
+            }
+            
+            // Handle icon upload (optional)
+            let iconData = null;
+            if (iconFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    iconData = e.target.result;
+                    saveBalanceCategoryData(iconData);
+                };
+                reader.readAsDataURL(iconFile);
+            } else {
+                // Keep existing icon when editing, otherwise use null
+                if (currentEditingBalance !== null) {
+                    iconData = userData.balanceCategories[currentEditingBalance].icon;
+                }
+                saveBalanceCategoryData(iconData);
+            }
+            
+            function saveBalanceCategoryData(iconData) {
+                if (currentEditingBalance !== null) {
+                    // Update existing category
+                    userData.balanceCategories[currentEditingBalance] = {
+                        name: balanceName,
+                        type: balanceType,
+                        amount: initialAmount,
+                        description: description,
+                        icon: iconData
+                    };
+                } else {
+                    // Check for duplicate names
+                    if (userData.balanceCategories.some(cat => cat.name.toLowerCase() === balanceName.toLowerCase())) {
+                        showToast('A balance category with this name already exists', 'error');
+                        return;
+                    }
+                    
+                    // Add new category
+                    userData.balanceCategories.push({
+                        name: balanceName,
+                        type: balanceType,
+                        amount: initialAmount,
+                        description: description,
+                        icon: iconData
+                    });
+                }
+                
+                // Save data
+                localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+                
+                // Reload balance categories
+                loadBalanceCategories(userData);
+                
+                // Close modal
+                closeBalanceModal();
+                
+                // Show success message
+                showToast(`Balance category "${balanceName}" ${currentEditingBalance !== null ? 'updated' : 'added'} successfully!`);
+            }
+        }
+
+        // Edit balance category
+        function editBalanceCategory(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const category = userData.balanceCategories[index];
+            openBalanceModal(category, index);
+        }
+
+        // Delete balance category
+        function deleteBalanceCategory(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const categoryName = userData.balanceCategories[index].name;
+            
+            // Check if category is used in transactions
+            const isUsed = userData.transactions && userData.transactions.some(transaction => 
+                transaction.balanceCategory === categoryName
+            );
+            
+            if (isUsed) {
+                showToast(`Cannot delete "${categoryName}" because it is used in existing transactions.`, 'error');
+                return;
+            }
+            
+            showConfirmModal(
+                'Delete Balance Category',
+                `Are you sure you want to delete "${categoryName}"? This action cannot be undone.`,
+                'deleteBalanceCategory',
+                index
+            );
+        }
+
+        // Show confirmation modal
+        function showConfirmModal(title, message, action, extraData = null) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            currentAction = action;
+            currentActionData = extraData;
+            document.getElementById('confirmModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close confirmation modal
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            currentAction = null;
+            currentActionData = null;
+            document.body.style.overflow = '';
+        }
+
+        // Execute confirmed action
+        function executeAction() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            switch (currentAction) {
+                case 'resetData':
+                    resetAllData(currentUser.voucherCode);
+                    break;
+                case 'closeFinancialYear':
+                    closeFinancialYear(currentUser.voucherCode);
+                    break;
+                case 'deleteBalanceCategory':
+                    if (currentActionData !== null) {
+                        deleteBalanceCategoryConfirmed(currentActionData, currentUser.voucherCode);
+                    }
+                    break;
+            }
+            
+            closeConfirmModal();
+        }
+
+        function deleteBalanceCategoryConfirmed(index, voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            const categoryName = userData.balanceCategories[index].name;
+            
+            // Remove category
+            userData.balanceCategories.splice(index, 1);
+            
+            // Save data
+            localStorage.setItem(`userData_${voucherCode}`, JSON.stringify(userData));
+            
+            // Reload balance categories
+            loadBalanceCategories(userData);
+            
+            // Show success message
+            showToast(`Balance category "${categoryName}" deleted successfully!`);
+        }
+
+        // Create backup
+        function createBackup() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            if (!userData.backups) {
+                userData.backups = [];
+            }
+            
+            const backup = {
+                id: 'BKP' + Date.now(),
+                date: new Date().toISOString(),
+                data: JSON.parse(JSON.stringify(userData)) // Deep copy
+            };
+            
+            userData.backups.push(backup);
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            updateSystemInfo(userData);
+            showToast('Backup created successfully!');
+        }
+
+        // Restore backup
+        function restoreBackup() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            if (!userData.backups || userData.backups.length === 0) {
+                showToast('No backups available to restore', 'error');
+                return;
+            }
+            
+            // For demo, restore the latest backup
+            const latestBackup = userData.backups[userData.backups.length - 1];
+            
+            showConfirmModal(
+                'Restore Backup',
+                `Restore backup from ${new Date(latestBackup.date).toLocaleDateString()}? Current data will be replaced.`,
+                'restoreBackupAction',
+                latestBackup
+            );
+        }
+
+        // Download backup
+        function downloadBackup() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const dataStr = JSON.stringify(userData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `finance_backup_${currentUser.voucherCode}_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showToast('Backup downloaded successfully!');
+        }
+
+        // Reset all data
+        function resetAllData(voucherCode) {
+            const userData = {
+                voucherCode: voucherCode,
+                created: new Date().toISOString(),
+                lastReset: new Date().toISOString(),
+                settings: {
+                    currency: '₹',
+                    currencyCode: 'INR',
+                    businessName: '',
+                    address: '',
+                    pan: '',
+                    email: '',
+                    phone: ''
+                },
+                categories: {
+                    income: ['Salary', 'Business', 'Investment', 'Other'],
+                    expense: ['Food', 'Transport', 'Rent', 'Utilities', 'Entertainment', 'Other']
+                },
+                balanceCategories: [
+                    { name: 'Cash', amount: 0, type: 'Cash', icon: null },
+                    { name: 'Bank', amount: 0, type: 'Bank', icon: null },
+                    { name: 'Wallet', amount: 0, type: 'Wallet', icon: null },
+                    { name: 'Voucher', amount: 0, type: 'Voucher', icon: null }
+                ],
+                transactions: [],
+                creditors: [],
+                debtors: [],
+                backups: []
+            };
+            
+            localStorage.setItem(`userData_${voucherCode}`, JSON.stringify(userData));
+            showToast('All data has been reset successfully!');
+            setTimeout(() => location.reload(), 1500);
+        }
+
+        // Delete by date range
+        function deleteByDateRange() {
+            const fromDate = document.getElementById('deleteFromDate').value;
+            const toDate = document.getElementById('deleteToDate').value;
+            const partialDelete = document.getElementById('partialDelete').checked;
+            
+            if (!fromDate || !toDate) {
+                showToast('Please select both from and to dates', 'error');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            // Filter out transactions within the date range
+            const originalCount = userData.transactions.length;
+            userData.transactions = userData.transactions.filter(transaction => {
+                const transactionDate = new Date(transaction.date);
+                return transactionDate < new Date(fromDate) || transactionDate > new Date(toDate);
+            });
+            
+            const deletedCount = originalCount - userData.transactions.length;
+            
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            document.getElementById('dateRangeModal').style.display = 'none';
+            document.body.style.overflow = '';
+            
+            showToast(`Deleted ${deletedCount} transactions between ${fromDate} and ${toDate}`);
+            updateSystemInfo(userData);
+        }
+
+        // Close financial year
+        function closeFinancialYear() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            // Create archive
+            if (!userData.archives) {
+                userData.archives = [];
+            }
+            
+            const archive = {
+                id: 'ARC' + Date.now(),
+                year: new Date().getFullYear(),
+                date: new Date().toISOString(),
+                transactions: userData.transactions,
+                creditors: userData.creditors,
+                debtors: userData.debtors
+            };
+            
+            userData.archives.push(archive);
+            
+            // Reset current data (keep settings and categories)
+            userData.transactions = [];
+            userData.creditors = [];
+            userData.debtors = [];
+            userData.lastFinancialYearClose = new Date().toISOString();
+            
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            showToast('Financial year closed successfully! New year started with fresh records.');
+            setTimeout(() => location.reload(), 1500);
+        }
+
+        // Format currency
+        function formatCurrency(amount, currency) {
+            return `${currency}${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? 'var(--danger)' : 'var(--success)'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 3000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+            
+            // Add CSS for animation
+            if (!document.querySelector('#toast-animations')) {
+                const style = document.createElement('style');
+                style.id = 'toast-animations';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+    </script>
+</body>
+</html>

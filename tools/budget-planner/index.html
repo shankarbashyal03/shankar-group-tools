@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetPro | Dashboard</title>
+    <meta name="theme-color" content="#0a0a0a">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #1a1a1a;
+            --surface-light: #2a2a2a;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text: #ffffff;
+            --text-secondary: #a1a1aa;
+            --border: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .main {
+            padding: 6rem 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .main {
+                padding-top: 5rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">
+                <span>💰</span>
+                <span>BudgetPro</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Dashboard</a>
+                <a href="budget.html" class="nav-link">Budget</a>
+                <a href="expenses.html" class="nav-link">Expenses</a>
+                <a href="reports.html" class="nav-link">Reports</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>Financial Summary</h2>
+                <div class="stat">
+                    <div class="stat-label">Total Income</div>
+                    <div class="stat-value" id="totalIncome">$0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Total Expenses</div>
+                    <div class="stat-value" id="totalExpenses">$0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Balance</div>
+                    <div class="stat-value" id="balance">$0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <div class="quick-actions">
+                    <a href="budget.html" class="btn">Set Budget</a>
+                    <a href="expenses.html" class="btn">Add Expense</a>
+                    <a href="reports.html" class="btn">View Reports</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Recent Activity</h2>
+                <div class="empty-state" id="recentActivity">
+                    No recent activity
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+        });
+
+        function loadDashboardData() {
+            // Load from localStorage
+            const budgetData = JSON.parse(localStorage.getItem('budgetData')) || {};
+            const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+            
+            // Calculate totals
+            const totalIncome = budgetData.monthlyIncome || 0;
+            const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const balance = totalIncome - totalExpenses;
+            
+            // Update display
+            document.getElementById('totalIncome').textContent = `$${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
+            document.getElementById('balance').textContent = `$${balance.toFixed(2)}`;
+            
+            // Show recent activity
+            if (expenses.length > 0) {
+                const recent = expenses.slice(-3).reverse();
+                const html = recent.map(exp => `
+                    <div style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>${exp.category}</span>
+                            <span style="color: var(--danger);">-$${exp.amount.toFixed(2)}</span>
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">${exp.date}</div>
+                    </div>
+                `).join('');
+                document.getElementById('recentActivity').innerHTML = html;
+            }
+        }
+    </script>
+</body>
+</html>

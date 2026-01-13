@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Income & Expenses Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clock, .calendar {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        /* Settings Sections */
+        .settings-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f1f1;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f1f1;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toggle-label {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .toggle-label h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .toggle-label p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Data Management */
+        .data-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .data-btn {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            text-align: center;
+        }
+
+        .data-btn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        .data-btn.danger {
+            background: var(--danger);
+        }
+
+        .data-btn.danger:hover {
+            background: #c0392b;
+        }
+
+        /* Date Range Selector */
+        .date-range-selector {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Financial Year Settings */
+        .financial-year-settings {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .year-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .year-status:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .status-value {
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        /* System Info */
+        .system-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #e1e5ee;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-value {
+            color: var(--dark);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        /* Export & Import */
+        .export-options {
+            display: none; /* Will be shown via JS if needed */
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #e1e5ee;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .settings-sections {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .header-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .clock, .calendar {
+                flex: 1;
+                text-align: center;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .settings-sections {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .section-header h2 {
+                min-width: auto;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .toggle-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .toggle-label {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .year-status {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .modal-content {
+                margin: 10px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .settings-section {
+                padding: 15px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .form-control, .form-select {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .toggle-switch {
+                width: 45px;
+                height: 25px;
+            }
+
+            .slider:before {
+                height: 17px;
+                width: 17px;
+            }
+
+            input:checked + .slider:before {
+                transform: translateX(20px);
+            }
+
+            .data-btn {
+                padding: 10px;
+                font-size: 11px;
+            }
+
+            .system-info {
+                padding: 12px;
+            }
+
+            .info-item {
+                font-size: 12px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) {
+            .btn:hover, .data-btn:hover {
+                transform: none;
+                background: inherit;
+            }
+
+            .toggle-switch:hover .slider {
+                background-color: #ccc;
+            }
+
+            input:checked + .slider:hover {
+                background-color: var(--success);
+            }
+        }
+
+        /* High contrast for better accessibility */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid currentColor;
+            }
+
+            .form-control, .form-select {
+                border-width: 2px;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="wallet-icon">💰</div>
+                <h2>Income & Expenses Tracker</h2>
+                <p id="userVoucher">Voucher: Loading...</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i>📊</i> Dashboard</a></li>
+                    <li><a href="categories.html"><i>📂</i> Categories</a></li>
+                    <li><a href="balance.html"><i>💰</i> Balance</a></li>
+                    <li><a href="entries.html"><i>➕</i> Entries</a></li>
+                    <li><a href="creditors.html"><i>👥</i> Creditors</a></li>
+                    <li><a href="debtors.html"><i>👤</i> Debtors</a></li>
+                    <li><a href="notes.html"><i>📝</i> Notes</a></li>
+                    <li><a href="rectify.html"><i>✏️</i> Rectify</a></li>
+                    <li><a href="reports.html"><i>📈</i> Reports</a></li>
+                    <li><a href="admin.html"><i>⚙️</i> Admin</a></li>
+                    <li><a href="settings.html" class="active"><i>🔧</i> Settings</a></li>
+                    <li><a href="#" id="logoutBtn"><i>🚪</i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>Settings & Preferences</h1>
+                <div class="header-info">
+                    <div class="calendar" id="currentDate">Loading...</div>
+                    <div class="clock" id="currentTime">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Settings Sections -->
+            <div class="settings-sections">
+                <!-- Application Settings -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2><span>⚙️</span> Application Settings</h2>
+                        <button class="btn btn-success" id="saveAppSettings">
+                            <span>💾</span> Save Settings
+                        </button>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Dark Mode</h4>
+                            <p>Switch to dark theme for better visibility</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="darkMode">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Auto Backup</h4>
+                            <p>Automatically create backups daily</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoBackup" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Email Notifications</h4>
+                            <p>Receive email alerts for important events</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emailNotifications">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Sound Effects</h4>
+                            <p>Play sounds for actions and alerts</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="soundEffects" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="language">Language</label>
+                        <select class="form-select" id="language">
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                            <option value="bn">Bengali</option>
+                            <option value="ta">Tamil</option>
+                            <option value="te">Telugu</option>
+                            <option value="mr">Marathi</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dateFormat">Date Format</label>
+                        <select class="form-select" id="dateFormat">
+                            <option value="dd/mm/yyyy">DD/MM/YYYY</option>
+                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                            <option value="dd-mm-yyyy">DD-MM-YYYY</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2><span>🗃️</span> Data Management</h2>
+                    </div>
+                    
+                    <p style="font-size: 14px; margin-bottom: 15px;">Manage your financial data with caution. These actions affect your records.</p>
+                    
+                    <div class="data-actions">
+                        <button class="data-btn" id="resetAllData">
+                            <span>🔄</span>
+                            <span>Reset All Data</span>
+                            <small>Start fresh</small>
+                        </button>
+                        <button class="data-btn" id="deleteByDate">
+                            <span>📅</span>
+                            <span>Delete by Date</span>
+                            <small>Select range</small>
+                        </button>
+                        <button class="data-btn danger" id="partialReset">
+                            <span>🔧</span>
+                            <span>Partial Reset</span>
+                            <small>Keep categories</small>
+                        </button>
+                    </div>
+                    
+                    <div class="date-range-selector" id="dateRangeSection" style="display: none;">
+                        <h4 style="margin-bottom: 12px; font-size: 14px;">Select Date Range to Delete</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="deleteFromDate">From Date</label>
+                                <input type="date" class="form-control" id="deleteFromDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="deleteToDate">To Date</label>
+                                <input type="date" class="form-control" id="deleteToDate">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 14px;">
+                                <input type="checkbox" id="keepBalanceCategories">
+                                Keep Balance Categories
+                            </label>
+                        </div>
+                        <button class="btn btn-danger full-width" id="confirmDateDelete">
+                            <span>🗑️</span> Delete Selected Data
+                        </button>
+                    </div>
+                    
+                    <div class="system-info">
+                        <h4 style="margin-bottom: 12px; font-size: 14px;">Data Statistics</h4>
+                        <div class="info-item">
+                            <span class="info-label">Total Transactions:</span>
+                            <span class="info-value" id="totalTransactions">0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Database Size:</span>
+                            <span class="info-value" id="databaseSize">0 KB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Reset:</span>
+                            <span class="info-value" id="lastResetDate">Never</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Year Settings -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2><span>📊</span> Financial Year</h2>
+                        <button class="btn btn-warning" id="closeFinancialYear">
+                            <span>🔒</span> Close Year
+                        </button>
+                    </div>
+                    
+                    <div class="financial-year-settings">
+                        <div class="year-status">
+                            <span class="status-label">Current Financial Year:</span>
+                            <span class="status-value" id="currentFinancialYear">2023-2024</span>
+                        </div>
+                        <div class="year-status">
+                            <span class="status-label">Year Start Date:</span>
+                            <span class="status-value" id="yearStartDate">April 1, 2023</span>
+                        </div>
+                        <div class="year-status">
+                            <span class="status-label">Year End Date:</span>
+                            <span class="status-value" id="yearEndDate">March 31, 2024</span>
+                        </div>
+                        <div class="year-status">
+                            <span class="status-label">Transactions This Year:</span>
+                            <span class="status-value" id="yearTransactions">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="financialYearStart">Financial Year Start Month</label>
+                        <select class="form-select" id="financialYearStart">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3" selected>April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-success full-width" id="updateFinancialYear">
+                        <span>💾</span> Update Financial Year Settings
+                    </button>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2><span>🔔</span> Notifications</h2>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Transaction Alerts</h4>
+                            <p>Notify for large transactions</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="transactionAlerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Balance Warnings</h4>
+                            <p>Alert when balance is low</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="balanceWarnings" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Due Date Reminders</h4>
+                            <p>Remind about creditor/debtor due dates</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dueDateReminders" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4>Backup Reminders</h4>
+                            <p>Remind to create backups</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="backupReminders">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="alertThreshold">Alert Threshold Amount</label>
+                        <input type="number" class="form-control" id="alertThreshold" placeholder="Enter amount for transaction alerts" value="10000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lowBalanceThreshold">Low Balance Threshold</label>
+                        <input type="number" class="form-control" id="lowBalanceThreshold" placeholder="Enter low balance alert amount" value="1000">
+                    </div>
+                </div>
+
+                <!-- Export & Import -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2><span>📤</span> Export & Import</h2>
+                    </div>
+                    
+                    <p style="font-size: 14px; margin-bottom: 15px;">Export your data for backup or import from previous backups.</p>
+                    
+                    <div class="data-actions">
+                        <button class="data-btn" id="exportData">
+                            <span>📥</span>
+                            <span>Export Data</span>
+                            <small>JSON format</small>
+                        </button>
+                        <button class="data-btn" id="importData">
+                            <span>📤</span>
+                            <span>Import Data</span>
+                            <small>From backup</small>
+                        </button>
+                        <button class="data-btn" id="printReports">
+                            <span>🖨️</span>
+                            <span>Print Reports</span>
+                            <small>All formats</small>
+                        </button>
+                    </div>
+                    
+                    <div class="system-info">
+                        <h4 style="margin-bottom: 12px; font-size: 14px;">Export Options</h4>
+                        <div class="info-item">
+                            <span class="info-label">Last Export:</span>
+                            <span class="info-value" id="lastExportDate">Never</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Export Format:</span>
+                            <span class="info-value">JSON, CSV, Excel</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Data Privacy:</span>
+                            <span class="info-value">Local storage only</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Information -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2><span>💻</span> System Information</h2>
+                    </div>
+                    
+                    <div class="system-info">
+                        <div class="info-item">
+                            <span class="info-label">App Version:</span>
+                            <span class="info-value">v2.1.0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Updated:</span>
+                            <span class="info-value" id="lastUpdated">2023-12-01</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Browser:</span>
+                            <span class="info-value" id="browserInfo">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Local Storage:</span>
+                            <span class="info-value" id="localStorageInfo">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">User Voucher:</span>
+                            <span class="info-value" id="userVoucherInfo">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Data Created:</span>
+                            <span class="info-value" id="dataCreated">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-info full-width" style="margin-top: 20px;" id="refreshSystemInfo">
+                        <span>🔄</span> Refresh System Info
+                    </button>
+                    
+                    <button class="btn btn-warning full-width" style="margin-top: 10px;" id="clearCache">
+                        <span>🧹</span> Clear Application Cache
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Confirm Action</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Are you sure you want to proceed? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelAction">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmAction">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentAction = null;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.voucherCode) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user voucher
+            document.getElementById('userVoucher').textContent = `Voucher: ${currentUser.voucherCode}`;
+            
+            // Load settings data
+            loadSettingsData(currentUser.voucherCode);
+            
+            // Update clock and calendar
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Load system information
+            loadSystemInfo(currentUser.voucherCode);
+            
+            // Setup mobile menu
+            setupMobileMenu();
+        });
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+
+                // Close sidebar when clicking on a link (mobile)
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            sidebar.classList.remove('active');
+                        }
+                    });
+                });
+
+                // Close sidebar when clicking outside (mobile)
+                document.addEventListener('click', function(event) {
+                    if (window.innerWidth <= 768 && 
+                        sidebar.classList.contains('active') &&
+                        !sidebar.contains(event.target) &&
+                        !mobileMenuToggle.contains(event.target)) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Load settings data
+        function loadSettingsData(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            if (userData) {
+                // Load application settings
+                const settings = userData.settings || {};
+                
+                document.getElementById('darkMode').checked = settings.darkMode || false;
+                document.getElementById('autoBackup').checked = settings.autoBackup !== false;
+                document.getElementById('emailNotifications').checked = settings.emailNotifications || false;
+                document.getElementById('soundEffects').checked = settings.soundEffects !== false;
+                document.getElementById('language').value = settings.language || 'en';
+                document.getElementById('dateFormat').value = settings.dateFormat || 'dd/mm/yyyy';
+                
+                // Load notification settings
+                document.getElementById('transactionAlerts').checked = settings.transactionAlerts !== false;
+                document.getElementById('balanceWarnings').checked = settings.balanceWarnings !== false;
+                document.getElementById('dueDateReminders').checked = settings.dueDateReminders !== false;
+                document.getElementById('backupReminders').checked = settings.backupReminders || false;
+                document.getElementById('alertThreshold').value = settings.alertThreshold || 10000;
+                document.getElementById('lowBalanceThreshold').value = settings.lowBalanceThreshold || 1000;
+                
+                // Load financial year settings
+                document.getElementById('financialYearStart').value = settings.financialYearStart || 3; // April
+                
+                // Update data statistics
+                updateDataStatistics(userData);
+                
+                // Update financial year info
+                updateFinancialYearInfo(userData);
+            }
+        }
+
+        // Update data statistics
+        function updateDataStatistics(userData) {
+            const transactions = userData.transactions || [];
+            
+            document.getElementById('totalTransactions').textContent = transactions.length;
+            
+            // Calculate database size (approximate)
+            const dataSize = JSON.stringify(userData).length;
+            document.getElementById('databaseSize').textContent = `${Math.round(dataSize / 1024)} KB`;
+            
+            // Last reset date
+            if (userData.lastReset) {
+                document.getElementById('lastResetDate').textContent = new Date(userData.lastReset).toLocaleDateString();
+            }
+        }
+
+        // Update financial year info
+        function updateFinancialYearInfo(userData) {
+            const settings = userData.settings || {};
+            const startMonth = parseInt(settings.financialYearStart) || 3; // Default to April
+            
+            const now = new Date();
+            let currentYear = now.getFullYear();
+            let nextYear = currentYear + 1;
+            
+            // Adjust based on financial year start month
+            if (now.getMonth() < startMonth) {
+                currentYear = now.getFullYear() - 1;
+                nextYear = now.getFullYear();
+            }
+            
+            document.getElementById('currentFinancialYear').textContent = `${currentYear}-${nextYear}`;
+            
+            const startDate = new Date(currentYear, startMonth, 1);
+            const endDate = new Date(nextYear, startMonth, 0);
+            
+            document.getElementById('yearStartDate').textContent = startDate.toLocaleDateString();
+            document.getElementById('yearEndDate').textContent = endDate.toLocaleDateString();
+            
+            // Count transactions for current financial year
+            const transactions = userData.transactions || [];
+            const yearTransactions = transactions.filter(transaction => {
+                const transactionDate = new Date(transaction.date);
+                return transactionDate >= startDate && transactionDate <= endDate;
+            }).length;
+            
+            document.getElementById('yearTransactions').textContent = yearTransactions;
+        }
+
+        // Load system information
+        function loadSystemInfo(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            // Browser information
+            document.getElementById('browserInfo').textContent = navigator.userAgent.split(' ')[0];
+            
+            // Local storage information
+            let totalSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    totalSize += localStorage[key].length;
+                }
+            }
+            document.getElementById('localStorageInfo').textContent = `${Math.round(totalSize / 1024)} KB used`;
+            
+            // User information
+            document.getElementById('userVoucherInfo').textContent = voucherCode;
+            
+            // Data created date
+            if (userData && userData.created) {
+                document.getElementById('dataCreated').textContent = new Date(userData.created).toLocaleDateString();
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Save application settings
+            document.getElementById('saveAppSettings').addEventListener('click', saveApplicationSettings);
+            
+            // Update financial year settings
+            document.getElementById('updateFinancialYear').addEventListener('click', updateFinancialYearSettings);
+            
+            // Data management actions
+            document.getElementById('resetAllData').addEventListener('click', function() {
+                showConfirmModal(
+                    'Reset All Data',
+                    'Are you sure you want to reset all data? This will delete all transactions, categories, and settings. This action cannot be undone.',
+                    'resetAllData'
+                );
+            });
+            
+            document.getElementById('deleteByDate').addEventListener('click', function() {
+                const dateRangeSection = document.getElementById('dateRangeSection');
+                dateRangeSection.style.display = dateRangeSection.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            document.getElementById('partialReset').addEventListener('click', function() {
+                showConfirmModal(
+                    'Partial Reset',
+                    'This will reset all transactions but keep your categories and settings. Continue?',
+                    'partialReset'
+                );
+            });
+            
+            document.getElementById('confirmDateDelete').addEventListener('click', deleteDataByDateRange);
+            
+            // Close financial year
+            document.getElementById('closeFinancialYear').addEventListener('click', function() {
+                showConfirmModal(
+                    'Close Financial Year',
+                    'This will archive all current data and start a new financial year. Current data will be preserved in archives. Continue?',
+                    'closeFinancialYear'
+                );
+            });
+            
+            // Export/Import actions
+            document.getElementById('exportData').addEventListener('click', exportAllData);
+            document.getElementById('importData').addEventListener('click', importData);
+            document.getElementById('printReports').addEventListener('click', printAllReports);
+            
+            // System actions
+            document.getElementById('refreshSystemInfo').addEventListener('click', function() {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                loadSystemInfo(currentUser.voucherCode);
+                alert('System information refreshed!');
+            });
+            
+            document.getElementById('clearCache').addEventListener('click', function() {
+                showConfirmModal(
+                    'Clear Cache',
+                    'This will clear all temporary data and refresh the application. Your main data will be preserved. Continue?',
+                    'clearCache'
+                );
+            });
+            
+            // Modal actions
+            document.getElementById('cancelAction').addEventListener('click', closeConfirmModal);
+            document.getElementById('confirmAction').addEventListener('click', executeAction);
+            
+            // Close modal
+            document.querySelector('.close-modal').addEventListener('click', closeConfirmModal);
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+            
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+        }
+
+        // Save application settings
+        function saveApplicationSettings() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            // Application settings
+            userData.settings = userData.settings || {};
+            userData.settings.darkMode = document.getElementById('darkMode').checked;
+            userData.settings.autoBackup = document.getElementById('autoBackup').checked;
+            userData.settings.emailNotifications = document.getElementById('emailNotifications').checked;
+            userData.settings.soundEffects = document.getElementById('soundEffects').checked;
+            userData.settings.language = document.getElementById('language').value;
+            userData.settings.dateFormat = document.getElementById('dateFormat').value;
+            
+            // Notification settings
+            userData.settings.transactionAlerts = document.getElementById('transactionAlerts').checked;
+            userData.settings.balanceWarnings = document.getElementById('balanceWarnings').checked;
+            userData.settings.dueDateReminders = document.getElementById('dueDateReminders').checked;
+            userData.settings.backupReminders = document.getElementById('backupReminders').checked;
+            userData.settings.alertThreshold = parseFloat(document.getElementById('alertThreshold').value) || 10000;
+            userData.settings.lowBalanceThreshold = parseFloat(document.getElementById('lowBalanceThreshold').value) || 1000;
+            
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            alert('Settings saved successfully!');
+        }
+
+        // Update financial year settings
+        function updateFinancialYearSettings() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            userData.settings = userData.settings || {};
+            userData.settings.financialYearStart = parseInt(document.getElementById('financialYearStart').value);
+            
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            updateFinancialYearInfo(userData);
+            alert('Financial year settings updated successfully!');
+        }
+
+        // Show confirmation modal
+        function showConfirmModal(title, message, action) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            currentAction = action;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        // Close confirmation modal
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            currentAction = null;
+        }
+
+        // Execute confirmed action
+        function executeAction() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            switch (currentAction) {
+                case 'resetAllData':
+                    resetAllData(currentUser.voucherCode);
+                    break;
+                case 'partialReset':
+                    partialResetData(currentUser.voucherCode);
+                    break;
+                case 'closeFinancialYear':
+                    closeFinancialYear(currentUser.voucherCode);
+                    break;
+                case 'clearCache':
+                    clearApplicationCache();
+                    break;
+            }
+            
+            closeConfirmModal();
+        }
+
+        // Reset all data
+        function resetAllData(voucherCode) {
+            const userData = {
+                voucherCode: voucherCode,
+                created: new Date().toISOString(),
+                lastReset: new Date().toISOString(),
+                settings: {
+                    currency: '₹',
+                    businessName: '',
+                    address: '',
+                    pan: '',
+                    email: '',
+                    phone: '',
+                    darkMode: false,
+                    autoBackup: true,
+                    emailNotifications: false,
+                    soundEffects: true,
+                    language: 'en',
+                    dateFormat: 'dd/mm/yyyy',
+                    transactionAlerts: true,
+                    balanceWarnings: true,
+                    dueDateReminders: true,
+                    backupReminders: false,
+                    alertThreshold: 10000,
+                    lowBalanceThreshold: 1000,
+                    financialYearStart: 3
+                },
+                categories: {
+                    income: ['Salary', 'Business', 'Investment', 'Other'],
+                    expense: ['Food', 'Transport', 'Rent', 'Utilities', 'Entertainment', 'Other']
+                },
+                balanceCategories: [
+                    { name: 'Cash', amount: 0, type: 'Cash' },
+                    { name: 'Bank', amount: 0, type: 'Bank' },
+                    { name: 'Wallet', amount: 0, type: 'Wallet' },
+                    { name: 'Voucher', amount: 0, type: 'Voucher' }
+                ],
+                transactions: [],
+                creditors: [],
+                debtors: [],
+                backups: []
+            };
+            
+            localStorage.setItem(`userData_${voucherCode}`, JSON.stringify(userData));
+            alert('All data has been reset successfully!');
+            location.reload();
+        }
+
+        // Partial reset data (keep categories)
+        function partialResetData(voucherCode) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            // Reset transactions, creditors, debtors but keep categories and settings
+            userData.transactions = [];
+            userData.creditors = [];
+            userData.debtors = [];
+            userData.lastPartialReset = new Date().toISOString();
+            
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            alert('Partial reset completed! Transactions cleared but categories preserved.');
+            location.reload();
+        }
+
+        // Delete data by date range
+        function deleteDataByDateRange() {
+            const fromDate = document.getElementById('deleteFromDate').value;
+            const toDate = document.getElementById('deleteToDate').value;
+            const keepBalanceCategories = document.getElementById('keepBalanceCategories').checked;
+            
+            if (!fromDate || !toDate) {
+                alert('Please select both from and to dates');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            // Filter out transactions within the date range
+            const originalCount = userData.transactions.length;
+            userData.transactions = userData.transactions.filter(transaction => {
+                const transactionDate = new Date(transaction.date);
+                return transactionDate < new Date(fromDate) || transactionDate > new Date(toDate);
+            });
+            
+            const deletedCount = originalCount - userData.transactions.length;
+            
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            document.getElementById('dateRangeSection').style.display = 'none';
+            
+            alert(`Deleted ${deletedCount} transactions between ${fromDate} and ${toDate}`);
+            updateDataStatistics(userData);
+        }
+
+        // Close financial year
+        function closeFinancialYear() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            // Create archive
+            if (!userData.archives) {
+                userData.archives = [];
+            }
+            
+            const archive = {
+                id: 'ARC' + Date.now(),
+                year: new Date().getFullYear(),
+                date: new Date().toISOString(),
+                transactions: userData.transactions,
+                creditors: userData.creditors,
+                debtors: userData.debtors
+            };
+            
+            userData.archives.push(archive);
+            
+            // Reset current data (keep settings and categories)
+            userData.transactions = [];
+            userData.creditors = [];
+            userData.debtors = [];
+            userData.lastFinancialYearClose = new Date().toISOString();
+            
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            alert('Financial year closed successfully! New year started with fresh records.');
+            location.reload();
+        }
+
+        // Export all data
+        function exportAllData() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const dataStr = JSON.stringify(userData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `finance_data_${currentUser.voucherCode}_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            // Update last export date
+            userData.settings.lastExport = new Date().toISOString();
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            alert('Data exported successfully!');
+        }
+
+        // Import data
+        function importData() {
+            alert('In the full version, this would open a file picker to import backup files.');
+        }
+
+        // Print all reports
+        function printAllReports() {
+            alert('In the full version, this would generate and open printable reports.');
+        }
+
+        // Clear application cache
+        function clearApplicationCache() {
+            // Clear any temporary data (in a real app, this would clear service worker cache, etc.)
+            alert('Application cache cleared!');
+            location.reload();
+        }
+    </script>
+</body>
+</html>

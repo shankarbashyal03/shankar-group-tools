@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debtors - Income & Expenses Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clock, .calendar {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        /* Debtors Summary */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border-top: 4px solid var(--info);
+            transition: transform 0.3s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .summary-card h3 {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .summary-amount {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .summary-count {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Debtors Management */
+        .debtors-management {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f1f1;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-export {
+            background: #9b59b6;
+        }
+
+        .btn-export:hover {
+            background: #8e44ad;
+        }
+
+        /* Debtors List */
+        .debtors-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .debtor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--info);
+            transition: all 0.3s;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .debtor-item:hover {
+            background: #e9ecef;
+        }
+
+        .debtor-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .debtor-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+            flex-shrink: 0;
+        }
+
+        .debtor-details h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .debtor-details p {
+            font-size: 14px;
+            color: #7f8c8d;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .debtor-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--info);
+            margin-right: 10px;
+        }
+
+        .debtor-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .receive-btn {
+            color: var(--success);
+        }
+
+        .receive-btn:hover {
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .edit-btn {
+            color: var(--info);
+        }
+
+        .edit-btn:hover {
+            background: rgba(23, 162, 184, 0.1);
+        }
+
+        .delete-btn {
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .statement-btn {
+            color: var(--secondary);
+        }
+
+        .statement-btn:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .status-partial {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .status-settled {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        /* Payment History */
+        .payment-history {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .payment-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Statement Modal */
+        .statement-modal {
+            max-width: 800px;
+        }
+
+        .statement-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .statement-body {
+            padding: 20px;
+        }
+
+        .statement-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .statement-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .statement-item h4 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .statement-item .amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5ee;
+        }
+
+        .transactions-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .transactions-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .small {
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #e1e5ee;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .header-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .clock, .calendar {
+                flex: 1;
+                text-align: center;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .section-header h2 {
+                min-width: auto;
+            }
+
+            .debtor-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .debtor-info {
+                width: 100%;
+            }
+
+            .debtor-amount {
+                margin-right: 0;
+                align-self: flex-start;
+            }
+
+            .debtor-actions {
+                align-self: flex-end;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .transactions-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .modal-content {
+                margin: 10px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .debtors-management {
+                padding: 15px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .debtor-item {
+                padding: 12px;
+            }
+
+            .debtor-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+
+            .debtor-details p {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .action-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+
+            .form-control, .form-select {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .statement-summary {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .statement-item {
+                padding: 12px;
+            }
+
+            .transactions-table th,
+            .transactions-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) {
+            .btn:hover, .summary-card:hover, .debtor-item:hover {
+                transform: none;
+                background: inherit;
+            }
+
+            .action-btn:hover {
+                background: none;
+            }
+        }
+
+        /* High contrast for better accessibility */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid currentColor;
+            }
+
+            .form-control, .form-select {
+                border-width: 2px;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="wallet-icon">💰</div>
+                <h2>Income & Expenses Tracker</h2>
+                <p id="userVoucher">Voucher: Loading...</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i>📊</i> Dashboard</a></li>
+                    <li><a href="categories.html"><i>📂</i> Categories</a></li>
+                    <li><a href="balance.html"><i>💰</i> Balance</a></li>
+                    <li><a href="entries.html"><i>➕</i> Entries</a></li>
+                    <li><a href="creditors.html"><i>👥</i> Creditors</a></li>
+                    <li><a href="debtors.html" class="active"><i>👤</i> Debtors</a></li>
+                    <li><a href="notes.html"><i>📝</i> Notes</a></li>
+                    <li><a href="rectify.html"><i>✏️</i> Rectify</a></li>
+                    <li><a href="reports.html"><i>📈</i> Reports</a></li>
+                    <li><a href="admin.html"><i>⚙️</i> Admin</a></li>
+                    <li><a href="settings.html"><i>🔧</i> Settings</a></li>
+                    <li><a href="#" id="logoutBtn"><i>🚪</i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>Debtors Management</h1>
+                <div class="header-info">
+                    <div class="calendar" id="currentDate">Loading...</div>
+                    <div class="clock" id="currentTime">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Debtors Summary -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon">👤</div>
+                    <h3>TOTAL DEBTORS</h3>
+                    <div class="summary-amount" id="totalDebtorsAmount">₹0</div>
+                    <div class="summary-count" id="totalDebtorsCount">0 People</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">⏰</div>
+                    <h3>PENDING RECEIVABLES</h3>
+                    <div class="summary-amount" id="pendingAmount">₹0</div>
+                    <div class="summary-count" id="pendingCount">0 Payments</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">✅</div>
+                    <h3>RECEIVED AMOUNT</h3>
+                    <div class="summary-amount" id="receivedAmount">₹0</div>
+                    <div class="summary-count" id="receivedCount">0 Settled</div>
+                </div>
+            </div>
+
+            <!-- Debtors Management -->
+            <div class="debtors-management">
+                <div class="section-header">
+                    <h2><span>👤</span> Debtors List</h2>
+                    <button class="btn btn-success" id="addDebtor">
+                        <span>➕</span> Add Debtor
+                    </button>
+                </div>
+                
+                <div class="debtors-list" id="debtorsList">
+                    <!-- Debtors will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Debtor Modal -->
+    <div class="modal" id="debtorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Debtor</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="debtorForm">
+                    <div class="form-group">
+                        <label for="debtorName">Full Name *</label>
+                        <input type="text" class="form-control" id="debtorName" placeholder="Enter debtor's full name" required>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="debtorContact">Contact Number</label>
+                            <input type="tel" class="form-control" id="debtorContact" placeholder="Phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="debtorEmail">Email Address</label>
+                            <input type="email" class="form-control" id="debtorEmail" placeholder="Email address">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="debtorAmount">Amount Given *</label>
+                        <input type="number" class="form-control" id="debtorAmount" placeholder="Enter amount given" required step="0.01" min="0.01">
+                    </div>
+
+                    <!-- Given Through Options -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="givenMethod">Given Through *</label>
+                            <select class="form-select" id="givenMethod" required>
+                                <option value="">Select Method</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank Transfer</option>
+                                <option value="Wallet">Digital Wallet</option>
+                                <option value="Voucher">Voucher</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="givenBalance">Select Balance Account *</label>
+                            <select class="form-select" id="givenBalance" required>
+                                <option value="">Select Balance Account</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="givenTransactionNumber">Transaction Number</label>
+                        <input type="text" class="form-control" id="givenTransactionNumber" placeholder="Auto-generated after save" readonly>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fromDate">From Date</label>
+                            <input type="date" class="form-control" id="fromDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="toDate">Due Date</label>
+                            <input type="date" class="form-control" id="toDate">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="debtorNotes">Notes (Optional)</label>
+                        <textarea class="form-control" id="debtorNotes" placeholder="Add any additional notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelDebtor">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveDebtor">Save Debtor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receive Payment Modal -->
+    <div class="modal" id="receiveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Receive Payment</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="receiveForm">
+                    <div class="form-group">
+                        <label for="receiveAmount">Received Amount *</label>
+                        <input type="number" class="form-control" id="receiveAmount" placeholder="Enter received amount" required step="0.01" min="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="receiveDate">Received Date *</label>
+                        <input type="date" class="form-control" id="receiveDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="receiveMethod">Received Method *</label>
+                        <select class="form-select" id="receiveMethod" required>
+                            <option value="">Select Method</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank">Bank Transfer</option>
+                            <option value="Wallet">Digital Wallet</option>
+                            <option value="Voucher">Voucher</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="receiveBalance">Select Balance Account *</label>
+                        <select class="form-select" id="receiveBalance" required>
+                            <option value="">Select Balance Account</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="settlementType">Settlement Type *</label>
+                        <select class="form-select" id="settlementType" required>
+                            <option value="full">Full Settlement</option>
+                            <option value="partial">Partial Payment</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transactionNumber">Transaction Number</label>
+                        <input type="text" class="form-control" id="transactionNumber" placeholder="Auto-generated after save" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="receiveNotes">Payment Notes</label>
+                        <textarea class="form-control" id="receiveNotes" placeholder="Add payment notes" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="payment-history" id="paymentHistory">
+                        <h4>Payment History</h4>
+                        <div id="historyList">
+                            <!-- Payment history will be shown here -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelReceive">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveReceipt">Record Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statement Modal -->
+    <div class="modal" id="statementModal">
+        <div class="modal-content statement-modal">
+            <div class="modal-header">
+                <h3 id="statementTitle">Debtor Statement</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="statement-summary" id="statementSummary">
+                    <!-- Statement summary will be loaded here -->
+                </div>
+                
+                <div class="transactions-table-container">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Transaction #</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statementTransactions">
+                            <!-- Statement transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="closeStatement">Close</button>
+                <button type="button" class="btn btn-export" id="exportExcel">📊 Export to Excel</button>
+                <button type="button" class="btn btn-export" id="exportCSV">📄 Export to CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentEditingDebtor = null;
+        let currentReceivingDebtor = null;
+        let currentStatementDebtor = null;
+        let transactionCounter = 1;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.voucherCode) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user voucher
+            document.getElementById('userVoucher').textContent = `Voucher: ${currentUser.voucherCode}`;
+            
+            // Set current date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fromDate').value = today;
+            document.getElementById('receiveDate').value = today;
+            
+            // Load debtors data
+            loadDebtorsData(currentUser.voucherCode);
+            
+            // Update clock and calendar
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Setup mobile menu
+            setupMobileMenu();
+        });
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside (mobile)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(event.target) &&
+                    !mobileMenuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Load debtors data
+        function loadDebtorsData(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            if (userData) {
+                // Update summary cards
+                updateSummaryCards(userData);
+                
+                // Load debtors list
+                loadDebtorsList(userData);
+                
+                // Load balance accounts for payment
+                loadBalanceAccounts(userData);
+                
+                // Initialize transaction counter
+                initializeTransactionCounter(userData);
+            }
+        }
+
+        // Initialize transaction counter
+        function initializeTransactionCounter(userData) {
+            let maxTransactionNumber = 0;
+            
+            // Check debtors transactions
+            if (userData.debtors) {
+                userData.debtors.forEach(debtor => {
+                    // Check initial transaction
+                    if (debtor.givenTransactionNumber) {
+                        const num = parseInt(debtor.givenTransactionNumber.replace('DT', ''));
+                        if (num > maxTransactionNumber) maxTransactionNumber = num;
+                    }
+                    
+                    // Check payment transactions
+                    if (debtor.payments) {
+                        debtor.payments.forEach(payment => {
+                            if (payment.transactionNumber) {
+                                const num = parseInt(payment.transactionNumber.replace('DT', ''));
+                                if (num > maxTransactionNumber) maxTransactionNumber = num;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Check creditors transactions
+            if (userData.creditors) {
+                userData.creditors.forEach(creditor => {
+                    // Check received transaction
+                    if (creditor.receivedTransactionNumber) {
+                        const num = parseInt(creditor.receivedTransactionNumber.replace('CR', ''));
+                        if (num > maxTransactionNumber) maxTransactionNumber = num;
+                    }
+                    
+                    // Check payment transactions
+                    if (creditor.payments) {
+                        creditor.payments.forEach(payment => {
+                            if (payment.transactionNumber) {
+                                const num = parseInt(payment.transactionNumber.replace('CR', ''));
+                                if (num > maxTransactionNumber) maxTransactionNumber = num;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Check general transactions
+            if (userData.transactions) {
+                userData.transactions.forEach(transaction => {
+                    if (transaction.id && transaction.id.startsWith('DT')) {
+                        const num = parseInt(transaction.id.replace('DT', ''));
+                        if (num > maxTransactionNumber) maxTransactionNumber = num;
+                    }
+                });
+            }
+            
+            transactionCounter = maxTransactionNumber + 1;
+        }
+
+        // Generate systematic transaction number
+        function generateTransactionNumber() {
+            const number = transactionCounter.toString().padStart(6, '0');
+            transactionCounter++;
+            return `DT${number}`;
+        }
+
+        // Update summary cards
+        function updateSummaryCards(userData) {
+            const debtors = userData.debtors || [];
+            
+            const totalAmount = debtors.reduce((sum, debtor) => sum + parseFloat(debtor.amount), 0);
+            const pendingAmount = debtors.reduce((sum, debtor) => {
+                if (debtor.status !== 'settled') {
+                    return sum + (parseFloat(debtor.amount) - (debtor.receivedAmount || 0));
+                }
+                return sum;
+            }, 0);
+            
+            const receivedAmount = debtors.reduce((sum, debtor) => sum + (debtor.receivedAmount || 0), 0);
+            const pendingCount = debtors.filter(debtor => debtor.status !== 'settled').length;
+            const receivedCount = debtors.filter(debtor => debtor.status === 'settled').length;
+            
+            document.getElementById('totalDebtorsAmount').textContent = formatCurrency(totalAmount, userData.settings.currency);
+            document.getElementById('totalDebtorsCount').textContent = `${debtors.length} People`;
+            document.getElementById('pendingAmount').textContent = formatCurrency(pendingAmount, userData.settings.currency);
+            document.getElementById('pendingCount').textContent = `${pendingCount} Payments`;
+            document.getElementById('receivedAmount').textContent = formatCurrency(receivedAmount, userData.settings.currency);
+            document.getElementById('receivedCount').textContent = `${receivedCount} Settled`;
+        }
+
+        // Load debtors list
+        function loadDebtorsList(userData) {
+            const container = document.getElementById('debtorsList');
+            container.innerHTML = '';
+            
+            const debtors = userData.debtors || [];
+            
+            if (debtors.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>👤</div>
+                        <p>No debtors yet</p>
+                        <p class="small">Add your first debtor to track money owed to you</p>
+                        <button class="btn btn-success" style="margin-top: 15px; padding: 10px 16px;" onclick="document.getElementById('addDebtor').click()">
+                            <span>➕</span> Add Your First Debtor
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            debtors.forEach((debtor, index) => {
+                const debtorItem = createDebtorItem(debtor, index, userData.settings.currency);
+                container.appendChild(debtorItem);
+            });
+        }
+
+        // Create debtor list item
+        function createDebtorItem(debtor, index, currency) {
+            const div = document.createElement('div');
+            div.className = 'debtor-item';
+            
+            const receivedAmount = debtor.receivedAmount || 0;
+            const remainingAmount = parseFloat(debtor.amount) - receivedAmount;
+            const status = debtor.status || 'pending';
+            
+            let statusBadge = '';
+            if (status === 'settled') {
+                statusBadge = '<span class="status-badge status-settled">Settled</span>';
+            } else if (receivedAmount > 0) {
+                statusBadge = '<span class="status-badge status-partial">Partial</span>';
+            } else {
+                statusBadge = '<span class="status-badge status-pending">Pending</span>';
+            }
+            
+            div.innerHTML = `
+                <div class="debtor-info">
+                    <div class="debtor-icon">👤</div>
+                    <div class="debtor-details">
+                        <h4>${debtor.name} ${statusBadge}</h4>
+                        <p>
+                            ${debtor.contact ? `<span>📞 ${debtor.contact}</span>` : ''}
+                            ${debtor.email ? `<span>📧 ${debtor.email}</span>` : ''}
+                            <span>Remaining: ${formatCurrency(remainingAmount, currency)}</span>
+                        </p>
+                        ${debtor.notes ? `<p style="margin-top: 5px;">${debtor.notes}</p>` : ''}
+                        ${debtor.givenMethod ? `<p style="margin-top: 5px; font-size: 12px;">Given Through: ${debtor.givenMethod} - ${debtor.givenBalance}</p>` : ''}
+                    </div>
+                </div>
+                <div class="debtor-amount">
+                    ${formatCurrency(debtor.amount, currency)}
+                </div>
+                <div class="debtor-actions">
+                    <button class="action-btn statement-btn" data-index="${index}" title="View Statement">📊</button>
+                    <button class="action-btn receive-btn" data-index="${index}" title="Receive Payment">💰</button>
+                    <button class="action-btn edit-btn" data-index="${index}" title="Edit Debtor">✏️</button>
+                    <button class="action-btn delete-btn" data-index="${index}" title="Delete Debtor">🗑️</button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Load balance accounts for payment
+        function loadBalanceAccounts(userData) {
+            const balanceSelect = document.getElementById('receiveBalance');
+            const givenBalanceSelect = document.getElementById('givenBalance');
+            
+            balanceSelect.innerHTML = '<option value="">Select Balance Account</option>';
+            givenBalanceSelect.innerHTML = '<option value="">Select Balance Account</option>';
+            
+            if (userData.balanceCategories && userData.balanceCategories.length > 0) {
+                userData.balanceCategories.forEach(category => {
+                    const option1 = document.createElement('option');
+                    option1.value = category.name;
+                    option1.textContent = `${category.name} (${category.type})`;
+                    balanceSelect.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = category.name;
+                    option2.textContent = `${category.name} (${category.type})`;
+                    givenBalanceSelect.appendChild(option2);
+                });
+            }
+        }
+
+        // Format currency
+        function formatCurrency(amount, currency) {
+            return `${currency}${parseFloat(amount).toLocaleString('en-IN')}`;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add debtor
+            document.getElementById('addDebtor').addEventListener('click', function() {
+                openDebtorModal();
+            });
+            
+            // Save debtor
+            document.getElementById('saveDebtor').addEventListener('click', saveDebtor);
+            
+            // Cancel debtor
+            document.getElementById('cancelDebtor').addEventListener('click', closeDebtorModal);
+            
+            // Save receipt
+            document.getElementById('saveReceipt').addEventListener('click', saveReceipt);
+            
+            // Cancel receipt
+            document.getElementById('cancelReceive').addEventListener('click', closeReceiveModal);
+            
+            // Close statement
+            document.getElementById('closeStatement').addEventListener('click', closeStatementModal);
+            
+            // Export to Excel
+            document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+            
+            // Export to CSV
+            document.getElementById('exportCSV').addEventListener('click', exportToCSV);
+            
+            // Receive method change
+            document.getElementById('receiveMethod').addEventListener('change', function() {
+                updateBalanceOptions(this.value, 'receiveBalance');
+            });
+            
+            // Given method change
+            document.getElementById('givenMethod').addEventListener('change', function() {
+                updateBalanceOptions(this.value, 'givenBalance');
+            });
+            
+            // Close modals
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+            
+            // Action buttons (delegated)
+            document.addEventListener('click', function(e) {
+                // View statement
+                if (e.target.classList.contains('statement-btn') || e.target.closest('.statement-btn')) {
+                    const btn = e.target.classList.contains('statement-btn') ? e.target : e.target.closest('.statement-btn');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    openStatementModal(index);
+                }
+                
+                // Receive payment
+                if (e.target.classList.contains('receive-btn') || e.target.closest('.receive-btn')) {
+                    const btn = e.target.classList.contains('receive-btn') ? e.target : e.target.closest('.receive-btn');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    openReceiveModal(index);
+                }
+                
+                // Edit debtor
+                if (e.target.classList.contains('edit-btn') || e.target.closest('.edit-btn')) {
+                    const btn = e.target.classList.contains('edit-btn') ? e.target : e.target.closest('.edit-btn');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    editDebtor(index);
+                }
+                
+                // Delete debtor
+                if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+                    const btn = e.target.classList.contains('delete-btn') ? e.target : e.target.closest('.delete-btn');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    deleteDebtor(index);
+                }
+            });
+        }
+
+        // Update balance options based on payment method
+        function updateBalanceOptions(method, selectId) {
+            const balanceSelect = document.getElementById(selectId);
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            balanceSelect.innerHTML = '<option value="">Select Balance Account</option>';
+            
+            if (userData.balanceCategories && userData.balanceCategories.length > 0) {
+                userData.balanceCategories.forEach(category => {
+                    // Filter based on payment method
+                    if ((method === 'Cash' && category.type === 'Cash') ||
+                        (method === 'Bank' && category.type === 'Bank') ||
+                        (method === 'Wallet' && category.type === 'Wallet') ||
+                        (method === 'Voucher' && category.type === 'Voucher') ||
+                        (method === 'Other' || method === '')) {
+                        
+                        const option = document.createElement('option');
+                        option.value = category.name;
+                        option.textContent = `${category.name} (${category.type})`;
+                        balanceSelect.appendChild(option);
+                    }
+                });
+            }
+        }
+
+        // Open debtor modal
+        function openDebtorModal(debtor = null, index = null) {
+            const modal = document.getElementById('debtorModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('debtorForm');
+            
+            if (debtor && index !== null) {
+                // Editing existing debtor
+                title.textContent = 'Edit Debtor';
+                document.getElementById('debtorName').value = debtor.name;
+                document.getElementById('debtorContact').value = debtor.contact || '';
+                document.getElementById('debtorEmail').value = debtor.email || '';
+                document.getElementById('debtorAmount').value = debtor.amount;
+                document.getElementById('givenMethod').value = debtor.givenMethod || '';
+                document.getElementById('givenBalance').value = debtor.givenBalance || '';
+                document.getElementById('givenTransactionNumber').value = debtor.givenTransactionNumber || '';
+                document.getElementById('fromDate').value = debtor.fromDate || '';
+                document.getElementById('toDate').value = debtor.toDate || '';
+                document.getElementById('debtorNotes').value = debtor.notes || '';
+                
+                currentEditingDebtor = index;
+            } else {
+                // Adding new debtor
+                title.textContent = 'Add Debtor';
+                form.reset();
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fromDate').value = today;
+                document.getElementById('givenTransactionNumber').value = 'Auto-generated after save';
+                currentEditingDebtor = null;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Close debtor modal
+        function closeDebtorModal() {
+            document.getElementById('debtorModal').style.display = 'none';
+            document.getElementById('debtorForm').reset();
+            currentEditingDebtor = null;
+        }
+
+        // Save debtor
+        function saveDebtor() {
+            const name = document.getElementById('debtorName').value.trim();
+            const contact = document.getElementById('debtorContact').value.trim();
+            const email = document.getElementById('debtorEmail').value.trim();
+            const amount = parseFloat(document.getElementById('debtorAmount').value);
+            const givenMethod = document.getElementById('givenMethod').value;
+            const givenBalance = document.getElementById('givenBalance').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const notes = document.getElementById('debtorNotes').value.trim();
+            
+            if (!name || !amount || !givenMethod || !givenBalance) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            if (!userData.debtors) {
+                userData.debtors = [];
+            }
+            
+            // Generate transaction number
+            const transactionNumber = generateTransactionNumber();
+            
+            const debtorData = {
+                name: name,
+                contact: contact,
+                email: email,
+                amount: amount,
+                givenMethod: givenMethod,
+                givenBalance: givenBalance,
+                givenTransactionNumber: transactionNumber,
+                status: 'pending', // Always start as pending
+                receivedAmount: 0, // No initial receipt
+                fromDate: fromDate,
+                toDate: toDate,
+                notes: notes,
+                payments: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            // Create expense transaction for the money given
+            const transactionId = transactionNumber;
+            const transaction = {
+                id: transactionId,
+                date: fromDate || new Date().toISOString().split('T')[0],
+                amount: amount,
+                type: 'expense',
+                category: 'Money Given to Debtor',
+                balanceCategory: givenBalance,
+                description: `Money given to ${name} - Debtor`,
+                notes: `Debtor money given: ${notes} | Method: ${givenMethod} | Transaction: ${transactionNumber}`,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (!userData.transactions) {
+                userData.transactions = [];
+            }
+            userData.transactions.push(transaction);
+            
+            if (currentEditingDebtor !== null) {
+                // Update existing debtor
+                userData.debtors[currentEditingDebtor] = {
+                    ...userData.debtors[currentEditingDebtor],
+                    ...debtorData
+                };
+            } else {
+                // Add new debtor
+                userData.debtors.push(debtorData);
+            }
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload debtors data
+            loadDebtorsData(currentUser.voucherCode);
+            
+            // Close modal
+            closeDebtorModal();
+            
+            // Show success message
+            alert(`Debtor "${name}" ${currentEditingDebtor !== null ? 'updated' : 'added'} successfully! Amount deducted from ${givenBalance}. Transaction ID: ${transactionNumber}`);
+        }
+
+        // Edit debtor
+        function editDebtor(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const debtor = userData.debtors[index];
+            openDebtorModal(debtor, index);
+        }
+
+        // Delete debtor
+        function deleteDebtor(index) {
+            if (!confirm('Are you sure you want to delete this debtor? This action cannot be undone.')) {
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const debtorName = userData.debtors[index].name;
+            
+            // Remove debtor
+            userData.debtors.splice(index, 1);
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload debtors data
+            loadDebtorsData(currentUser.voucherCode);
+            
+            // Show success message
+            alert(`Debtor "${debtorName}" deleted successfully!`);
+        }
+
+        // Open receive modal
+        function openReceiveModal(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const debtor = userData.debtors[index];
+            const remainingAmount = parseFloat(debtor.amount) - (debtor.receivedAmount || 0);
+            
+            document.getElementById('receiveAmount').value = remainingAmount;
+            document.getElementById('receiveAmount').max = remainingAmount;
+            document.getElementById('transactionNumber').value = 'Auto-generated after save';
+            
+            // Load payment history
+            loadPaymentHistory(debtor, userData.settings.currency);
+            
+            currentReceivingDebtor = index;
+            document.getElementById('receiveModal').style.display = 'flex';
+        }
+
+        // Close receive modal
+        function closeReceiveModal() {
+            document.getElementById('receiveModal').style.display = 'none';
+            document.getElementById('receiveForm').reset();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('receiveDate').value = today;
+            currentReceivingDebtor = null;
+        }
+
+        // Load payment history
+        function loadPaymentHistory(debtor, currency) {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (!debtor.payments || debtor.payments.length === 0) {
+                historyList.innerHTML = '<p>No payments received yet</p>';
+                return;
+            }
+            
+            debtor.payments.forEach(payment => {
+                const paymentItem = document.createElement('div');
+                paymentItem.className = 'payment-item';
+                paymentItem.innerHTML = `
+                    <div>
+                        <strong>${formatCurrency(payment.amount, currency)}</strong>
+                        <div style="font-size: 12px; color: #7f8c8d;">
+                            ${new Date(payment.date).toLocaleDateString()} • ${payment.method} • ${payment.balanceAccount}
+                            ${payment.settlementType === 'full' ? '• Full Settlement' : '• Partial Payment'}
+                            ${payment.transactionNumber ? `• ${payment.transactionNumber}` : ''}
+                        </div>
+                    </div>
+                    <div>${payment.notes || ''}</div>
+                `;
+                historyList.appendChild(paymentItem);
+            });
+        }
+
+        // Save receipt
+        function saveReceipt() {
+            const receiveAmount = parseFloat(document.getElementById('receiveAmount').value);
+            const receiveDate = document.getElementById('receiveDate').value;
+            const receiveMethod = document.getElementById('receiveMethod').value;
+            const receiveBalance = document.getElementById('receiveBalance').value;
+            const settlementType = document.getElementById('settlementType').value;
+            const receiveNotes = document.getElementById('receiveNotes').value.trim();
+            
+            if (!receiveAmount || !receiveDate || !receiveMethod || !receiveBalance) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const debtor = userData.debtors[currentReceivingDebtor];
+            const remainingAmount = parseFloat(debtor.amount) - (debtor.receivedAmount || 0);
+            
+            if (receiveAmount > remainingAmount) {
+                alert('Received amount cannot exceed remaining amount');
+                return;
+            }
+            
+            // Generate transaction number
+            const transactionNumber = generateTransactionNumber();
+            
+            // Create payment record
+            const payment = {
+                amount: receiveAmount,
+                date: receiveDate,
+                method: receiveMethod,
+                balanceAccount: receiveBalance,
+                settlementType: settlementType,
+                transactionNumber: transactionNumber,
+                notes: receiveNotes,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Update debtor payment history
+            if (!debtor.payments) {
+                debtor.payments = [];
+            }
+            debtor.payments.push(payment);
+            
+            // Update received amount
+            debtor.receivedAmount = (debtor.receivedAmount || 0) + receiveAmount;
+            
+            // Update status
+            if (debtor.receivedAmount >= parseFloat(debtor.amount)) {
+                debtor.status = 'settled';
+            } else if (debtor.receivedAmount > 0) {
+                debtor.status = 'partial';
+            }
+            
+            // Create income transaction for the received payment
+            const transactionId = transactionNumber;
+            const transaction = {
+                id: transactionId,
+                date: receiveDate,
+                amount: receiveAmount,
+                type: 'income',
+                category: 'Debtor Payment Received',
+                balanceCategory: receiveBalance,
+                description: `Payment received from ${debtor.name} - ${settlementType === 'full' ? 'Full Settlement' : 'Partial Payment'}`,
+                notes: `Debtor payment received: ${receiveNotes} | Method: ${receiveMethod} | Transaction: ${transactionNumber}`,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (!userData.transactions) {
+                userData.transactions = [];
+            }
+            userData.transactions.push(transaction);
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload debtors data
+            loadDebtorsData(currentUser.voucherCode);
+            
+            // Close modal
+            closeReceiveModal();
+            
+            // Show success message
+            alert(`${settlementType === 'full' ? 'Full settlement' : 'Partial payment'} of ${formatCurrency(receiveAmount, userData.settings.currency)} recorded successfully! Amount added to ${receiveBalance}. Transaction ID: ${transactionNumber}`);
+        }
+
+        // Open statement modal
+        function openStatementModal(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const debtor = userData.debtors[index];
+            
+            // Load statement data
+            loadStatementData(debtor, userData.settings.currency);
+            
+            currentStatementDebtor = index;
+            document.getElementById('statementModal').style.display = 'flex';
+        }
+
+        // Close statement modal
+        function closeStatementModal() {
+            document.getElementById('statementModal').style.display = 'none';
+            currentStatementDebtor = null;
+        }
+
+        // Load statement data
+        function loadStatementData(debtor, currency) {
+            document.getElementById('statementTitle').textContent = `Statement - ${debtor.name}`;
+            
+            // Update summary
+            const receivedAmount = debtor.receivedAmount || 0;
+            const remainingAmount = parseFloat(debtor.amount) - receivedAmount;
+            
+            document.getElementById('statementSummary').innerHTML = `
+                <div class="statement-item">
+                    <h4>Total Amount</h4>
+                    <div class="amount">${formatCurrency(debtor.amount, currency)}</div>
+                </div>
+                <div class="statement-item">
+                    <h4>Received Amount</h4>
+                    <div class="amount">${formatCurrency(receivedAmount, currency)}</div>
+                </div>
+                <div class="statement-item">
+                    <h4>Remaining Amount</h4>
+                    <div class="amount">${formatCurrency(remainingAmount, currency)}</div>
+                </div>
+                <div class="statement-item">
+                    <h4>Status</h4>
+                    <div class="amount">${debtor.status || 'pending'}</div>
+                </div>
+            `;
+            
+            // Load transactions
+            const transactionsBody = document.getElementById('statementTransactions');
+            transactionsBody.innerHTML = '';
+            
+            // Add initial debit entry
+            const initialRow = document.createElement('tr');
+            initialRow.innerHTML = `
+                <td>${new Date(debtor.fromDate || debtor.createdAt).toLocaleDateString()}</td>
+                <td>${debtor.givenTransactionNumber || '-'}</td>
+                <td>Initial Debit - ${debtor.givenMethod || 'N/A'} - ${debtor.givenBalance || 'N/A'}</td>
+                <td>${formatCurrency(debtor.amount, currency)}</td>
+                <td>Debit</td>
+                <td>${formatCurrency(debtor.amount, currency)}</td>
+            `;
+            transactionsBody.appendChild(initialRow);
+            
+            // Add payment entries
+            let runningBalance = parseFloat(debtor.amount);
+            
+            if (debtor.payments && debtor.payments.length > 0) {
+                debtor.payments.forEach(payment => {
+                    runningBalance -= parseFloat(payment.amount);
+                    
+                    const paymentRow = document.createElement('tr');
+                    paymentRow.innerHTML = `
+                        <td>${new Date(payment.date).toLocaleDateString()}</td>
+                        <td>${payment.transactionNumber || '-'}</td>
+                        <td>Payment Received - ${payment.method} - ${payment.balanceAccount} - ${payment.settlementType === 'full' ? 'Full Settlement' : 'Partial Payment'}</td>
+                        <td>${formatCurrency(payment.amount, currency)}</td>
+                        <td>Payment</td>
+                        <td>${formatCurrency(runningBalance, currency)}</td>
+                    `;
+                    transactionsBody.appendChild(paymentRow);
+                });
+            }
+        }
+
+        // Export to Excel - Fixed version
+        function exportToExcel() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            const debtor = userData.debtors[currentStatementDebtor];
+            
+            if (!debtor) return;
+            
+            // Create HTML table for proper Excel format
+            let htmlContent = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Debtor Statement - ${debtor.name}</title>
+                    <!--[if gte mso 9]>
+                    <xml>
+                        <x:ExcelWorkbook>
+                            <x:ExcelWorksheets>
+                                <x:ExcelWorksheet>
+                                    <x:Name>Debtor Statement</x:Name>
+                                    <x:WorksheetOptions>
+                                        <x:DisplayGridlines/>
+                                    </x:WorksheetOptions>
+                                </x:ExcelWorksheet>
+                            </x:ExcelWorksheets>
+                        </x:ExcelWorkbook>
+                    </xml>
+                    <![endif]-->
+                    <style>
+                        table { border-collapse: collapse; width: 100%; }
+                        th { background-color: #f2f2f2; font-weight: bold; text-align: left; padding: 8px; border: 1px solid #ddd; }
+                        td { padding: 8px; border: 1px solid #ddd; }
+                        .summary { margin-bottom: 20px; }
+                        .summary-item { margin: 5px 0; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Debtor Statement - ${debtor.name}</h1>
+                    <div class="summary">
+                        <div class="summary-item"><strong>Total Amount:</strong> ${formatCurrency(debtor.amount, userData.settings.currency)}</div>
+                        <div class="summary-item"><strong>Received Amount:</strong> ${formatCurrency(debtor.receivedAmount || 0, userData.settings.currency)}</div>
+                        <div class="summary-item"><strong>Remaining Amount:</strong> ${formatCurrency(parseFloat(debtor.amount) - (debtor.receivedAmount || 0), userData.settings.currency)}</div>
+                        <div class="summary-item"><strong>Status:</strong> ${debtor.status || 'pending'}</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Transaction #</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            let runningBalance = parseFloat(debtor.amount);
+            htmlContent += `
+                <tr>
+                    <td>${new Date(debtor.fromDate || debtor.createdAt).toLocaleDateString()}</td>
+                    <td>${debtor.givenTransactionNumber || '-'}</td>
+                    <td>Initial Debit - ${debtor.givenMethod || 'N/A'} - ${debtor.givenBalance || 'N/A'}</td>
+                    <td>${formatCurrency(debtor.amount, userData.settings.currency)}</td>
+                    <td>Debit</td>
+                    <td>${formatCurrency(runningBalance, userData.settings.currency)}</td>
+                </tr>
+            `;
+            
+            if (debtor.payments && debtor.payments.length > 0) {
+                debtor.payments.forEach(payment => {
+                    runningBalance -= parseFloat(payment.amount);
+                    htmlContent += `
+                        <tr>
+                            <td>${new Date(payment.date).toLocaleDateString()}</td>
+                            <td>${payment.transactionNumber || '-'}</td>
+                            <td>Payment Received - ${payment.method} - ${payment.balanceAccount} - ${payment.settlementType === 'full' ? 'Full Settlement' : 'Partial Payment'}</td>
+                            <td>${formatCurrency(payment.amount, userData.settings.currency)}</td>
+                            <td>Payment</td>
+                            <td>${formatCurrency(runningBalance, userData.settings.currency)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            htmlContent += `
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+            
+            // Create and download Excel file
+            const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Debtor_Statement_${debtor.name}_${new Date().toISOString().split('T')[0]}.xls`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Statement exported to Excel successfully!');
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            const debtor = userData.debtors[currentStatementDebtor];
+            
+            if (!debtor) return;
+            
+            // Create CSV content
+            let csvContent = "Date,Transaction #,Description,Amount,Type,Balance\n";
+            
+            let runningBalance = parseFloat(debtor.amount);
+            csvContent += `"${new Date(debtor.fromDate || debtor.createdAt).toLocaleDateString()}","${debtor.givenTransactionNumber || '-'}","Initial Debit - ${debtor.givenMethod || 'N/A'} - ${debtor.givenBalance || 'N/A'}","${formatCurrency(debtor.amount, userData.settings.currency)}","Debit","${formatCurrency(runningBalance, userData.settings.currency)}"\n`;
+            
+            if (debtor.payments && debtor.payments.length > 0) {
+                debtor.payments.forEach(payment => {
+                    runningBalance -= parseFloat(payment.amount);
+                    csvContent += `"${new Date(payment.date).toLocaleDateString()}","${payment.transactionNumber || '-'}","Payment Received - ${payment.method} - ${payment.balanceAccount} - ${payment.settlementType === 'full' ? 'Full Settlement' : 'Partial Payment'}","${formatCurrency(payment.amount, userData.settings.currency)}","Payment","${formatCurrency(runningBalance, userData.settings.currency)}"\n`;
+                });
+            }
+            
+            // Create and download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Debtor_Statement_${debtor.name}_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Statement exported to CSV successfully!');
+        }
+    </script>
+</body>
+</html>

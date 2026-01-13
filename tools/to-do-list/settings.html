@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <title>Settings - Todo App</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --text-light: #1e293b;
+            --text-dark: #f1f5f9;
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
+            --secondary-light: #94a3b8;
+            --secondary-dark: #cbd5e1;
+        }
+
+        [data-theme="light"] {
+            --bg-color: var(--bg-light);
+            --card-color: var(--card-light);
+            --text-color: var(--text-light);
+            --border-color: var(--border-light);
+            --secondary-color: var(--secondary-light);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: var(--bg-dark);
+            --card-color: var(--card-dark);
+            --text-color: var(--text-dark);
+            --border-color: var(--border-dark);
+            --secondary-color: var(--secondary-dark);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .header h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .header-actions button {
+            background: var(--card-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .header-actions button:hover {
+            border-color: var(--primary);
+        }
+
+        /* Settings Sections */
+        .settings-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .settings-card {
+            background: var(--card-color);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .settings-icon {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .settings-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* Setting Items */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+
+        .setting-description {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--card-color);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Select Styling */
+        .setting-control select {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .setting-control select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Number Input */
+        .number-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .number-input button {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .number-input button:hover {
+            border-color: var(--primary);
+        }
+
+        .number-input input {
+            width: 60px;
+            padding: 6px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .number-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            border-color: var(--danger);
+        }
+
+        .danger-zone .settings-icon {
+            color: var(--danger);
+        }
+
+        .danger-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .danger-btn {
+            padding: 12px 20px;
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--danger);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .danger-btn:hover {
+            background: color-mix(in srgb, var(--danger) 10%, transparent);
+            transform: translateY(-2px);
+        }
+
+        /* About Section */
+        .about-content {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .app-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .app-name {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .app-version {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .app-description {
+            color: var(--secondary-color);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .feature-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-color);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--danger);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .modal-text {
+            color: var(--secondary-color);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-cancel {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+        }
+
+        .modal-cancel:hover {
+            border-color: var(--primary);
+        }
+
+        .modal-confirm {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .modal-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        .toast.hide {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+            to {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            color: var(--success);
+        }
+
+        .toast-message {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-color);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: var(--secondary-color);
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 10%, transparent);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bottom-nav {
+                padding: 10px;
+            }
+            
+            .nav-label {
+                font-size: 0.75rem;
+            }
+            
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .setting-control {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()" aria-label="Go back">
+                    ←
+                </button>
+                <h1>⚙️ Settings</h1>
+            </div>
+            <div class="header-actions">
+                <button onclick="toggleTheme()" id="themeToggle">
+                    <span class="theme-icon">☀️</span>
+                    <span>Light Mode</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="settings-sections">
+            <!-- Appearance Settings -->
+            <div class="settings-card">
+                <div class="settings-header">
+                    <div class="settings-icon">🎨</div>
+                    <div class="settings-title">Appearance</div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-name">Dark Mode</div>
+                        <div class="setting-description">Use dark theme across the app</div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="darkModeToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-name">Theme Color</div>
+                        <div class="setting-description">Choose your preferred accent color</div>
+                    </div>
+                    <div class="setting-control">
+                        <select id="themeColor">
+                            <option value="purple">Purple</option>
+                            <option value="blue">Blue</option>
+                            <option value="green">Green</option>
+                            <option value="red">Red</option>
+                            <option value="orange">Orange</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-name">Font Size</div>
+                        <div class="setting-description">Adjust the text size</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="number-input">
+                            <button onclick="adjustFontSize(-1)">-</button>
+                            <input type="number" id="fontSize" value="16" min="12" max="24" step="1">
+                            <button onclick="adjustFontSize(1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="settings-card">
+                <div class="settings-header">
+                    <div class="settings-icon">🔔</div>
+                    <div class="settings-title">Notifications</div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-name">Task Reminders</div>
+                        <div class="setting-description">Get reminders for upcoming tasks</div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="remindersToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-name">Daily Summary</div>
+                        <div class="setting-description">Receive daily progress report</div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dailySummaryToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-name">Reminder Time</div>
+                        <div class="setting-description">When to send daily reminders</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="time" id="reminderTime" value="09:00" class="form-input">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Settings -->
+            <div class="settings-card">
+                <div class="settings-header">
+                    <div class="settings-icon">💾</div>
+                    <div class="settings-title">Data & Storage</div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-name">Auto Backup</div>
+                        <div class="setting-description">Automatically backup data weekly</div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoBackupToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-name">Storage Usage</div>
+                        <div class="setting-description">View and manage your data</div>
+                    </div>
+                    <div class="setting-control">
+                        <button onclick="viewStorageUsage()" style="padding: 8px 16px; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); cursor: pointer;">
+                            View Usage
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="settings-card danger-zone">
+                <div class="settings-header">
+                    <div class="settings-icon">⚠️</div>
+                    <div class="settings-title">Danger Zone</div>
+                </div>
+                
+                <div class="danger-actions">
+                    <button class="danger-btn" onclick="clearCompletedTasks()">
+                        <span>🗑️</span>
+                        <span>Clear Completed Tasks</span>
+                    </button>
+                    <button class="danger-btn" onclick="resetAllData()">
+                        <span>🔄</span>
+                        <span>Reset All Data</span>
+                    </button>
+                    <button class="danger-btn" onclick="exportData()">
+                        <span>📤</span>
+                        <span>Export All Data</span>
+                    </button>
+                    <button class="danger-btn" onclick="importData()">
+                        <span>📥</span>
+                        <span>Import Data</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="settings-card">
+                <div class="about-content">
+                    <div class="app-icon">✅</div>
+                    <div class="app-name">Todo Master</div>
+                    <div class="app-version">Version 1.0.0</div>
+                    <div class="app-description">
+                        A powerful, offline-first todo application designed to boost your productivity and help you stay organized.
+                    </div>
+                    
+                    <div class="features">
+                        <div class="feature">
+                            <div class="feature-icon">📱</div>
+                            <div class="feature-name">Offline First</div>
+                            <div class="feature-desc">Works without internet connection</div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">🎨</div>
+                            <div class="feature-name">Customizable</div>
+                            <div class="feature-desc">Dark/Light themes with colors</div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">🏷️</div>
+                            <div class="feature-name">Categories</div>
+                            <div class="feature-desc">Organize tasks by categories</div>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">📊</div>
+                            <div class="feature-name">Analytics</div>
+                            <div class="feature-desc">Track your productivity</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon" id="modalIcon">⚠️</div>
+                <div class="modal-title" id="modalTitle">Confirm Action</div>
+                <div class="modal-text" id="modalText">Are you sure you want to proceed?</div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-cancel" onclick="hideModal()">Cancel</button>
+                <button class="modal-confirm" onclick="confirmAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">✅</div>
+        <div class="toast-message" id="toastMessage">Action completed successfully!</div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="todo.html" class="nav-item">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Tasks</span>
+        </a>
+        <a href="calendar.html" class="nav-item">
+            <span class="nav-icon">📅</span>
+            <span class="nav-label">Calendar</span>
+        </a>
+        <a href="categories.html" class="nav-item">
+            <span class="nav-icon">🏷️</span>
+            <span class="nav-label">Categories</span>
+        </a>
+        <a href="settings.html" class="nav-item active">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">Settings</span>
+        </a>
+    </nav>
+
+    <script>
+        // Theme Management
+        function toggleTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('.theme-icon');
+            const themeText = themeToggle.querySelector('span:last-child');
+            const currentTheme = document.body.dataset.theme;
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.body.dataset.theme = newTheme;
+            themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+            themeText.textContent = newTheme === 'light' ? 'Dark Mode' : 'Light Mode';
+            
+            // Save preference
+            localStorage.setItem('theme', newTheme);
+            document.getElementById('darkModeToggle').checked = newTheme === 'dark';
+            
+            // Update meta theme-color
+            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            metaThemeColor.content = newTheme === 'light' ? '#6366f1' : '#0f172a';
+            
+            showToast('Theme updated successfully!');
+        }
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.dataset.theme = savedTheme;
+        
+        // Back button functionality
+        function goBack() {
+            if (document.referrer && document.referrer.includes(location.hostname)) {
+                history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Settings Management
+        class SettingsManager {
+            constructor() {
+                this.settings = JSON.parse(localStorage.getItem('settings')) || this.getDefaultSettings();
+                this.pendingAction = null;
+            }
+            
+            getDefaultSettings() {
+                return {
+                    theme: 'dark',
+                    themeColor: 'purple',
+                    fontSize: 16,
+                    reminders: true,
+                    dailySummary: false,
+                    reminderTime: '09:00',
+                    autoBackup: true
+                };
+            }
+            
+            saveSettings() {
+                localStorage.setItem('settings', JSON.stringify(this.settings));
+                this.applySettings();
+            }
+            
+            applySettings() {
+                // Apply theme
+                document.body.dataset.theme = this.settings.theme;
+                
+                // Apply theme color
+                const root = document.documentElement;
+                switch(this.settings.themeColor) {
+                    case 'blue':
+                        root.style.setProperty('--primary', '#3b82f6');
+                        root.style.setProperty('--primary-dark', '#2563eb');
+                        break;
+                    case 'green':
+                        root.style.setProperty('--primary', '#10b981');
+                        root.style.setProperty('--primary-dark', '#059669');
+                        break;
+                    case 'red':
+                        root.style.setProperty('--primary', '#ef4444');
+                        root.style.setProperty('--primary-dark', '#dc2626');
+                        break;
+                    case 'orange':
+                        root.style.setProperty('--primary', '#f59e0b');
+                        root.style.setProperty('--primary-dark', '#d97706');
+                        break;
+                    default: // purple
+                        root.style.setProperty('--primary', '#6366f1');
+                        root.style.setProperty('--primary-dark', '#4f46e5');
+                }
+                
+                // Apply font size
+                document.documentElement.style.fontSize = `${this.settings.fontSize}px`;
+                
+                // Update UI elements
+                document.getElementById('darkModeToggle').checked = this.settings.theme === 'dark';
+                document.getElementById('themeColor').value = this.settings.themeColor;
+                document.getElementById('fontSize').value = this.settings.fontSize;
+                document.getElementById('remindersToggle').checked = this.settings.reminders;
+                document.getElementById('dailySummaryToggle').checked = this.settings.dailySummary;
+                document.getElementById('reminderTime').value = this.settings.reminderTime;
+                document.getElementById('autoBackupToggle').checked = this.settings.autoBackup;
+            }
+            
+            loadSettings() {
+                this.applySettings();
+                this.setupEventListeners();
+            }
+            
+            setupEventListeners() {
+                // Dark mode toggle
+                document.getElementById('darkModeToggle').addEventListener('change', (e) => {
+                    this.settings.theme = e.target.checked ? 'dark' : 'light';
+                    this.saveSettings();
+                    showToast('Theme updated!');
+                });
+                
+                // Theme color
+                document.getElementById('themeColor').addEventListener('change', (e) => {
+                    this.settings.themeColor = e.target.value;
+                    this.saveSettings();
+                    showToast('Theme color updated!');
+                });
+                
+                // Font size
+                document.getElementById('fontSize').addEventListener('change', (e) => {
+                    this.settings.fontSize = parseInt(e.target.value);
+                    this.saveSettings();
+                    showToast('Font size updated!');
+                });
+                
+                // Reminders
+                document.getElementById('remindersToggle').addEventListener('change', (e) => {
+                    this.settings.reminders = e.target.checked;
+                    this.saveSettings();
+                    showToast(`Reminders ${e.target.checked ? 'enabled' : 'disabled'}`);
+                });
+                
+                // Daily summary
+                document.getElementById('dailySummaryToggle').addEventListener('change', (e) => {
+                    this.settings.dailySummary = e.target.checked;
+                    this.saveSettings();
+                    showToast(`Daily summary ${e.target.checked ? 'enabled' : 'disabled'}`);
+                });
+                
+                // Reminder time
+                document.getElementById('reminderTime').addEventListener('change', (e) => {
+                    this.settings.reminderTime = e.target.value;
+                    this.saveSettings();
+                    showToast('Reminder time updated!');
+                });
+                
+                // Auto backup
+                document.getElementById('autoBackupToggle').addEventListener('change', (e) => {
+                    this.settings.autoBackup = e.target.checked;
+                    this.saveSettings();
+                    showToast(`Auto backup ${e.target.checked ? 'enabled' : 'disabled'}`);
+                });
+            }
+            
+            // Data management functions
+            clearCompletedTasks() {
+                const todos = JSON.parse(localStorage.getItem('todos')) || [];
+                const remaining = todos.filter(todo => !todo.completed);
+                localStorage.setItem('todos', JSON.stringify(remaining));
+                showToast('Completed tasks cleared!');
+            }
+            
+            resetAllData() {
+                localStorage.clear();
+                window.location.reload();
+            }
+            
+            exportData() {
+                const data = {
+                    todos: JSON.parse(localStorage.getItem('todos')) || [],
+                    categories: JSON.parse(localStorage.getItem('categories')) || [],
+                    settings: JSON.parse(localStorage.getItem('settings')) || this.getDefaultSettings(),
+                    exportDate: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `todo-master-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('Data exported successfully!');
+            }
+            
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (data.todos) localStorage.setItem('todos', JSON.stringify(data.todos));
+                            if (data.categories) localStorage.setItem('categories', JSON.stringify(data.categories));
+                            if (data.settings) localStorage.setItem('settings', JSON.stringify(data.settings));
+                            
+                            showToast('Data imported successfully!');
+                            setTimeout(() => window.location.reload(), 1000);
+                        } catch (error) {
+                            showToast('Error importing data!', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+            
+            viewStorageUsage() {
+                let totalSize = 0;
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        totalSize += localStorage[key].length * 2; // UTF-16 is 2 bytes per char
+                    }
+                }
+                
+                const sizeInKB = (totalSize / 1024).toFixed(2);
+                showToast(`Storage used: ${sizeInKB} KB`);
+            }
+        }
+        
+        // Initialize Settings Manager
+        const settingsManager = new SettingsManager();
+        
+        // Utility Functions
+        function adjustFontSize(change) {
+            const input = document.getElementById('fontSize');
+            let value = parseInt(input.value) + change;
+            value = Math.max(12, Math.min(24, value));
+            input.value = value;
+            input.dispatchEvent(new Event('change'));
+        }
+        
+        function clearCompletedTasks() {
+            showConfirmation(
+                '🗑️',
+                'Clear Completed Tasks',
+                'This will permanently delete all completed tasks. This action cannot be undone.',
+                () => {
+                    settingsManager.clearCompletedTasks();
+                }
+            );
+        }
+        
+        function resetAllData() {
+            showConfirmation(
+                '🔄',
+                'Reset All Data',
+                'This will delete ALL your tasks, categories, and settings. This action cannot be undone!',
+                () => {
+                    settingsManager.resetAllData();
+                }
+            );
+        }
+        
+        function exportData() {
+            settingsManager.exportData();
+        }
+        
+        function importData() {
+            settingsManager.importData();
+        }
+        
+        function viewStorageUsage() {
+            settingsManager.viewStorageUsage();
+        }
+        
+        // Modal Functions
+        function showConfirmation(icon, title, text, callback) {
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            settingsManager.pendingAction = callback;
+            document.getElementById('confirmationModal').classList.add('show');
+        }
+        
+        function hideModal() {
+            document.getElementById('confirmationModal').classList.remove('show');
+            settingsManager.pendingAction = null;
+        }
+        
+        function confirmAction() {
+            if (settingsManager.pendingAction) {
+                settingsManager.pendingAction();
+            }
+            hideModal();
+        }
+        
+        // Toast Functions
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.classList.remove('hide');
+            toast.classList.add('show');
+            
+            // Set icon based on type
+            const toastIcon = toast.querySelector('.toast-icon');
+            toastIcon.textContent = type === 'error' ? '❌' : '✅';
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => {
+                    toast.classList.remove('show', 'hide');
+                }, 300);
+            }, 3000);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            settingsManager.loadSettings();
+            
+            // Set initial theme toggle UI
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                const themeIcon = themeToggle.querySelector('.theme-icon');
+                const themeText = themeToggle.querySelector('span:last-child');
+                
+                themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+                themeText.textContent = savedTheme === 'light' ? 'Dark Mode' : 'Light Mode';
+            }
+            
+            // Initialize meta theme-color
+            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            metaThemeColor.content = savedTheme === 'light' ? '#6366f1' : '#0f172a';
+        });
+        
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

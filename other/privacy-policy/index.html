@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Privacy Policy - Shankar Group Tools">
+    <title>Privacy Policy - Shankar Group Tools</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" type="image/png" href="../../icon-192.png">
+    <link rel="apple-touch-icon" href="../../icon-512.png">
+    
+    <!-- iOS PWA Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Shankar Tools">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===== CSS RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --light: #f8fafc;
+            --dark: #020617;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            --gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        body {
+            background: var(--gradient);
+            color: var(--light);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-top: 80px; /* Space for fixed header */
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.05);
+            animation: float 20s infinite linear;
+        }
+
+        .bg-particle:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-particle:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            top: 60%;
+            right: -50px;
+            animation-delay: -7s;
+        }
+
+        .bg-particle:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, -30px) rotate(90deg); }
+            50% { transform: translate(-15px, 20px) rotate(180deg); }
+            75% { transform: translate(10px, -10px) rotate(270deg); }
+        }
+
+        /* ===== GRID LINES ===== */
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridPulse 8s infinite alternate;
+        }
+
+        @keyframes gridPulse {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Logo */
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
+            animation: logoGlow 3s infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4); }
+            100% { box-shadow: 0 12px 48px rgba(139, 92, 246, 0.6); }
+        }
+
+        .logo:hover {
+            animation: logoSpin 0.6s ease;
+        }
+
+        @keyframes logoSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .logo-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .logo-text p {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-weight: 300;
+            display: none;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.3s;
+            z-index: 1002;
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 1001;
+            padding: 6rem 1.5rem 2rem;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-direction: row; /* Default for desktop */
+        }
+
+        /* Desktop Navigation */
+        .desktop-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Sidebar specific styles */
+        .sidebar .nav-links {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+
+        .sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            font-size: 1.1rem;
+            border-radius: 12px;
+        }
+
+        .sidebar .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+
+        /* ===== PRIVACY POLICY CONTENT ===== */
+        .privacy-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .privacy-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .privacy-header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .last-updated {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .last-updated span {
+            font-weight: 600;
+            color: #60a5fa;
+        }
+
+        /* Policy Sections */
+        .policy-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .policy-section:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px -12px rgba(0, 0, 0, 0.4);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .section-content {
+            line-height: 1.8;
+        }
+
+        .section-content p {
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .section-content ul {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        .section-content li {
+            margin-bottom: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .section-content strong {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .highlight-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            padding: 1.2rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            opacity: 1 !important;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            text-align: center;
+        }
+
+        .contact-section .section-content {
+            text-align: center;
+        }
+
+        .contact-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Back to Home Button */
+        .back-home {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .back-home a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .back-home a:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .footer-section h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            color: white;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.7rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: #3b82f6;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            
+            .header {
+                padding: 0.8rem 1.2rem;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.2rem;
+            }
+            
+            .desktop-nav {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .privacy-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .policy-section {
+                padding: 1.5rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding-top: 65px;
+            }
+            
+            .header-container {
+                gap: 0.5rem;
+            }
+            
+            .logo {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+                border-radius: 10px;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.1rem;
+            }
+            
+            .privacy-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .privacy-container {
+                padding: 1rem;
+            }
+            
+            .policy-section {
+                padding: 1.2rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .footer {
+                padding: 2rem 1rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .logo-text h1 {
+                font-size: 1rem;
+            }
+            
+            .privacy-header h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="bg-particle"></div>
+        <div class="bg-particle"></div>
+        <div class="bg-particle"></div>
+    </div>
+    
+    <!-- Grid Lines -->
+    <div class="grid-lines"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Logo -->
+            <a href="../../index.html" class="logo-area">
+                <div class="logo">SG</div>
+                <div class="logo-text">
+                    <h1>Shankar Group Tools</h1>
+                    <p>Professional All-in-One Dashboard</p>
+                </div>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav">
+                <div class="nav-links">
+                    <a href="../../index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                    <a href="../contact-us/index.html" class="nav-link"><i class="fas fa-phone"></i> Contact</a>
+                    <a href="#" class="nav-link active"><i class="fas fa-shield-alt"></i> Privacy</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="nav-links">
+            <a href="../../index.html" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="../contact-us/index.html" class="nav-link">
+                <i class="fas fa-phone"></i> Contact Us
+            </a>
+            <a href="#" class="nav-link active">
+                <i class="fas fa-shield-alt"></i> Privacy Policy
+            </a>
+        </div>
+    </nav>
+
+    <!-- Privacy Policy Content -->
+    <div class="privacy-container">
+        <div class="privacy-header">
+            <h1>Privacy Policy</h1>
+            <p>Your privacy is important to us. This policy explains how we handle your information.</p>
+        </div>
+
+        <div 
+        </div>
+
+        <!-- Introduction Section -->
+        <div class="policy-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h2 class="section-title">Introduction</h2>
+            </div>
+            <div class="section-content">
+                <p>Welcome to Shankar Group Tools ("we," "our," or "us"). We are committed to protecting your privacy and providing a safe online experience. This Privacy Policy explains how we collect, use, and protect your information when you use our tools and services.</p>
+                <p>By using Shankar Group Tools, you agree to the terms of this Privacy Policy. If you do not agree with any part of this policy, please do not use our services.</p>
+                
+                <div class="highlight-box">
+                    <p><strong>Important:</strong> Shankar Group Tools is a client-side application. All calculations and data processing occur locally on your device. We do not store your personal data on our servers.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information We Collect Section -->
+        <div class="policy-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h2 class="section-title">Information We Collect</h2>
+            </div>
+            <div class="section-content">
+                <p>We collect minimal information to provide and improve our services:</p>
+                
+                <ul>
+                    <li><strong>Usage Data:</strong> Anonymous information about how you interact with our tools (features used, duration, errors encountered)</li>
+                    <li><strong>Device Information:</strong> Basic device information (browser type, screen resolution, operating system)</li>
+                    <li><strong>Local Storage:</strong> Data you choose to save locally on your device (calculator history, preferences)</li>
+                    <li><strong>Contact Information:</strong> Only if you voluntarily contact us via email</li>
+                </ul>
+                
+                <p><strong>What We Do NOT Collect:</strong></p>
+                <ul>
+                    <li>Personal identification information (name, address, phone number)</li>
+                    <li>Financial data or transaction information</li>
+                    <li>Location data (GPS information)</li>
+                    <li>Contact lists or address books</li>
+                    <li>Photos or media files from your device</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- How We Use Information Section -->
+        <div class="policy-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h2 class="section-title">How We Use Information</h2>
+            </div>
+            <div class="section-content">
+                <p>We use the collected information for the following purposes:</p>
+                
+                <ul>
+                    <li><strong>Service Improvement:</strong> To enhance existing tools and develop new features</li>
+                    <li><strong>Performance Analysis:</strong> To understand usage patterns and optimize performance</li>
+                    <li><strong>Bug Fixing:</strong> To identify and resolve technical issues</li>
+                    <li><strong>User Support:</strong> To respond to your inquiries and provide assistance</li>
+                    <li><strong>Security:</strong> To protect against unauthorized access and ensure service integrity</li>
+                </ul>
+                
+                <div class="highlight-box">
+                    <p><strong>Local Processing:</strong> All calculations, conversions, and data processing happen directly on your device. No sensitive data is transmitted to our servers.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Storage & Security Section -->
+        <div class="policy-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2 class="section-title">Data Storage & Security</h2>
+            </div>
+            <div class="section-content">
+                <p>We prioritize the security of your information:</p>
+                
+                <ul>
+                    <li><strong>Local Storage:</strong> Your tool preferences and history are stored locally on your device using browser storage technologies</li>
+                    <li><strong>No Cloud Storage:</strong> We do not store your calculation history or personal data on cloud servers</li>
+                    <li><strong>Encryption:</strong> All communications with our servers (when necessary) use HTTPS encryption</li>
+                    <li><strong>Data Retention:</strong> Anonymous usage data is retained for up to 90 days for analysis purposes</li>
+                    <li><strong>Clear Local Data:</strong> You can clear all locally stored data by clearing your browser cache</li>
+                </ul>
+                
+                <p><strong>Your Control:</strong> Since data is stored locally, you have full control over it. You can clear your browser cache at any time to remove all locally stored data.</p>
+            </div>
+        </div>
+
+        <!-- Third-Party Services Section -->
+        <div class="policy-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-external-link-alt"></i>
+                </div>
+                <h2 class="section-title">Third-Party Services</h2>
+            </div>
+            <div class="section-content">
+                <p>We may use third-party services for specific functionality:</p>
+                
+                <ul>
+                    <li><strong>Font Awesome:</strong> For icons and visual elements (privacy policy available on fontawesome.com)</li>
+                    <li><strong>CDN Services:</strong> For loading external libraries and resources</li>
+                    <li><strong>Analytics:</strong> Basic anonymous analytics to understand usage patterns</li>
+                </ul>
+                
+                <p>These third-party services have their own privacy policies. We recommend reviewing them for complete information.</p>
+                
+                <div class="highlight-box">
+                    <p><strong>No Advertising:</strong> Shankar Group Tools does not display advertisements and does not use advertising networks that track user behavior.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Children's Privacy Section -->
+        <div class="policy-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-child"></i>
+                </div>
+                <h2 class="section-title">Children's Privacy</h2>
+            </div>
+            <div class="section-content">
+                <p>Shankar Group Tools is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13.</p>
+                
+                <p>If you are a parent or guardian and believe that your child has provided us with personal information, please contact us immediately. We will take steps to remove such information from our records.</p>
+                
+                <p>Our tools are designed to be family-friendly and safe for educational use under parental supervision.</p>
+            </div>
+        </div>
+
+        <!-- Your Rights Section -->
+        <div class="policy-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h2 class="section-title">Your Rights & Choices</h2>
+            </div>
+            <div class="section-content">
+                <p>You have the following rights regarding your information:</p>
+                
+                <ul>
+                    <li><strong>Access:</strong> Request information about what data we have collected</li>
+                    <li><strong>Correction:</strong> Request correction of inaccurate information</li>
+                    <li><strong>Deletion:</strong> Request deletion of your data</li>
+                    <li><strong>Opt-out:</strong> Opt-out of data collection (though this may affect functionality)</li>
+                    <li><strong>Data Portability:</strong> Request a copy of your data in a readable format</li>
+                </ul>
+                
+                <p>To exercise these rights, please contact us using the information provided in the "Contact Us" section.</p>
+                
+                <p><strong>Browser Settings:</strong> You can control many aspects of data collection through your browser settings, including cookie preferences and cache management.</p>
+            </div>
+        </div>
+
+        <!-- Policy Updates Section -->
+        <div class="policy-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <h2 class="section-title">Policy Updates</h2>
+            </div>
+            <div class="section-content">
+                <p>We may update this Privacy Policy from time to time. When we make changes, we will:</p>
+                
+                <ul>
+                    <li>Update the "Last Updated" date at the top of this policy</li>
+                    <li>Post a notice on our website for significant changes</li>
+                    <li>Provide a summary of changes for major updates</li>
+                </ul>
+                
+                <p>We encourage you to review this Privacy Policy periodically to stay informed about how we are protecting your information.</p>
+                
+                <p><strong>Continued Use:</strong> Your continued use of Shankar Group Tools after any changes to this Privacy Policy constitutes your acceptance of the updated policy.</p>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="policy-section contact-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h2 class="section-title">Contact Us</h2>
+            </div>
+            <div class="section-content">
+                <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
+                
+                <div class="highlight-box">
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> <a href="#" id="privacyEmailLink" style="color: #60a5fa; text-decoration: none;">Click to Email Support</a></p>
+                    <p><i class="fas fa-clock"></i> <strong>Response Time:</strong> We aim to respond to all privacy-related inquiries within 48 hours</p>
+                </div>
+                
+                <p>We take privacy concerns seriously and will investigate any issues promptly.</p>
+                
+                <a href="#" id="contactBtn" class="contact-btn">
+                    <i class="fas fa-paper-plane"></i> Contact Support
+                </a>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="back-home">
+            <a href="../../index.html">
+                <i class="fas fa-arrow-left"></i> Back to Tools Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-link"></i> Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="../../index.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="../contact-us/index.html"><i class="fas fa-phone"></i> Contact Us</a></li>
+                    <li><a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-fire"></i> Popular Tools</h4>
+                <ul class="footer-links">
+                    <li><a href="../../tools/currency-converter/index.html"><i class="fas fa-exchange-alt"></i> Currency Converter</a></li>
+                    <li><a href="../../tools/scientific-calculator/index.html"><i class="fas fa-calculator"></i> Scientific Calculator</a></li>
+                    <li><a href="../../tools/finance-tracker/index.html"><i class="fas fa-wallet"></i> Finance Tracker</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-comments"></i> Connect</h4>
+                <ul class="footer-links">
+                    <li><a href="#" id="emailLink"><i class="fas fa-envelope"></i> Email Support</a></li>
+                    <li><a href="#" id="feedbackLink"><i class="fas fa-comment-dots"></i> Send Feedback</a></li>
+                    <li><a href="#" id="shareLink"><i class="fas fa-share-alt"></i> Share App</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2024 Shankar Group Tools. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ===== SET CURRENT DATE =====
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // ===== DOM ELEMENTS =====
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const header = document.getElementById('header');
+        const privacyEmailLink = document.getElementById('privacyEmailLink');
+        const contactBtn = document.getElementById('contactBtn');
+
+        // ===== MOBILE MENU FUNCTIONALITY =====
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Close sidebar when clicking on a link
+        sidebar.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // ===== HEADER HIDE ON SCROLL =====
+        let lastScrollTop = 0;
+        const scrollThreshold = 100;
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > scrollThreshold) {
+                if (scrollTop > lastScrollTop) {
+                    // Scrolling down - hide header
+                    header.classList.add('hidden');
+                } else {
+                    // Scrolling up - show header
+                    header.classList.remove('hidden');
+                }
+            } else {
+                // Near top - always show header
+                header.classList.remove('hidden');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+
+        // ===== EMAIL FUNCTION =====
+        function getSupportEmail() {
+            // Base64 encoded version of "sbvianet03@gmail.com"
+            return atob('c2J2aWFuZXQwM0BnbWFpbC5jb20=');
+        }
+
+        // Privacy page email link
+        privacyEmailLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const supportEmail = getSupportEmail();
+            const subject = 'Shankar Group Tools - Privacy Policy Inquiry';
+            const body = encodeURIComponent('Hello,\n\nI have a question about your Privacy Policy:\n\n');
+            
+            window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+        });
+
+        // Contact button
+        contactBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const supportEmail = getSupportEmail();
+            const subject = 'Shankar Group Tools - Privacy Policy Support';
+            const body = encodeURIComponent(`Hello,\n\nI need assistance regarding privacy matters:\n\nTimestamp: ${new Date().toLocaleString()}\nPage: Privacy Policy`);
+            
+            window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+        });
+
+        // ===== FOOTER LINKS =====
+        document.getElementById('emailLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            const supportEmail = getSupportEmail();
+            const subject = 'Shankar Group Tools - Support Request';
+            const body = encodeURIComponent('Hello,\n\nI need assistance with:');
+            
+            window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+        });
+
+        document.getElementById('feedbackLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Get user feedback through prompt
+            const feedback = prompt('Please share your feedback or suggestions:');
+            
+            if (feedback && feedback.trim() !== '') {
+                const supportEmail = getSupportEmail();
+                const subject = 'Shankar Group Tools - Feedback';
+                const body = encodeURIComponent(`Feedback: ${feedback}\n\nTimestamp: ${new Date().toLocaleString()}\nPage: ${window.location.href}`);
+                
+                window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+                
+                // Show confirmation
+                setTimeout(() => {
+                    alert('Thank you for your feedback! A mail app will open to send your feedback.');
+                }, 100);
+            } else if (feedback !== null) {
+                alert('Please enter your feedback to proceed.');
+            }
+        });
+
+        document.getElementById('shareLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Shankar Group Tools - Privacy Policy',
+                        text: 'Read our Privacy Policy',
+                        url: window.location.href,
+                    });
+                } catch (err) {
+                    console.log('Share cancelled');
+                }
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Privacy Policy link copied to clipboard!');
+                });
+            }
+        });
+
+        // ===== SERVICE WORKER REGISTRATION =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../../service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered');
+                    })
+                    .catch(error => {
+                        console.log('Service Worker failed:', error);
+                    });
+            });
+        }
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', (e) => {
+            // Escape to close sidebar
+            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            // B for back to home
+            if (e.key === 'b' && !e.ctrlKey && !e.metaKey) {
+                const backLink = document.querySelector('.back-home a');
+                if (document.activeElement !== document.body) return;
+                backLink.click();
+            }
+        });
+
+        // ===== TOUCH SWIPE SUPPORT =====
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const swipeDistance = touchEndX - touchStartX;
+            
+            // Swipe from left edge to open sidebar
+            if (touchStartX < 20 && swipeDistance > swipeThreshold) {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Swipe from sidebar to close
+            if (sidebar.classList.contains('active') && swipeDistance < -swipeThreshold) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // ===== ANIMATE SECTIONS ON SCROLL =====
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all policy sections
+        document.querySelectorAll('.policy-section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

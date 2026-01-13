@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff6b6b">
+    <title>Image Resizer</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        :root {
+            --primary: #ff6b6b;
+            --primary-dark: #ff5252;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --text-light: #1e293b;
+            --text-dark: #f1f5f9;
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
+            --secondary-light: #94a3b8;
+            --secondary-dark: #cbd5e1;
+        }
+
+        [data-theme="light"] {
+            --bg-color: var(--bg-light);
+            --card-color: var(--card-light);
+            --text-color: var(--text-light);
+            --border-color: var(--border-light);
+            --secondary-color: var(--secondary-light);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: var(--bg-dark);
+            --card-color: var(--card-dark);
+            --text-color: var(--text-dark);
+            --border-color: var(--border-dark);
+            --secondary-color: var(--secondary-dark);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .header h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .theme-toggle {
+            background: var(--card-color);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .theme-icon {
+            font-size: 20px;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: var(--card-color);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--card-color) 95%, var(--primary) 5%);
+        }
+
+        .upload-icon {
+            font-size: clamp(48px, 10vw, 64px);
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .upload-text {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .browse-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .browse-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Preview Section */
+        .preview-section {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .preview-box {
+            background: var(--card-color);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-header {
+            background: var(--primary);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dimension-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            background: var(--bg-color);
+            padding: 16px;
+        }
+
+        /* Controls */
+        .controls {
+            background: var(--card-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .control-group {
+            margin-bottom: 24px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+
+        .dimension-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 640px) {
+            .dimension-inputs {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .input-group {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--card-color);
+            color: var(--text-color);
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .preset-buttons {
+            margin-top: 16px;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .preset-btn {
+            padding: 12px 16px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .preset-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .aspect-ratio {
+            margin-top: 16px;
+        }
+
+        .ratio-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .ratio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .ratio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .action-btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 200px;
+            max-width: 300px;
+        }
+
+        .resize-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .resize-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .resize-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            background: var(--card-color);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .reset-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Download Button */
+        .download-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+            margin: 0 auto 24px;
+            min-width: 250px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 640px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .header {
+                padding: 12px 0;
+                margin-bottom: 20px;
+            }
+            
+            .theme-toggle {
+                padding: 6px;
+                font-size: 12px;
+            }
+            
+            .upload-section {
+                padding: 32px 16px;
+            }
+            
+            .controls {
+                padding: 20px;
+            }
+            
+            .preset-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-btn {
+                min-width: 100%;
+            }
+            
+            .preview-image {
+                height: 200px;
+            }
+            
+            .ratio-options {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        /* Touch Device Optimizations */
+        @media (hover: none) {
+            .browse-btn:hover,
+            .action-btn:hover,
+            .preset-btn:hover {
+                transform: none;
+                box-shadow: none;
+            }
+            
+            .browse-btn:active,
+            .action-btn:active,
+            .preset-btn:active {
+                transform: scale(0.98);
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()" aria-label="Go back">
+                    ←
+                </button>
+                <h1>📐 Image Resizer</h1>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span class="theme-icon">🌙</span>
+                <span>Dark Mode</span>
+            </button>
+        </header>
+
+        <div class="upload-section" id="uploadArea">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">Drag & Drop Image Here</div>
+            <div class="upload-subtext">Supports all image formats</div>
+            <button class="browse-btn" id="browseBtn">Choose Image File</button>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-grid">
+                <div class="preview-box">
+                    <div class="preview-header">
+                        <span>Original Image</span>
+                        <span class="dimension-badge" id="originalDimensions">-</span>
+                    </div>
+                    <img id="originalPreview" class="preview-image" alt="Original Preview">
+                </div>
+                <div class="preview-box">
+                    <div class="preview-header">
+                        <span>Resized Image</span>
+                        <span class="dimension-badge" id="resizedDimensions">-</span>
+                    </div>
+                    <img id="resizedPreview" class="preview-image" alt="Resized Preview">
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-label">Set Dimensions (in pixels)</div>
+                <div class="dimension-inputs">
+                    <div class="input-group">
+                        <label>Width</label>
+                        <input type="number" id="widthInput" min="1" max="5000" placeholder="Enter width">
+                    </div>
+                    <div class="input-group">
+                        <label>Height</label>
+                        <input type="number" id="heightInput" min="1" max="5000" placeholder="Enter height">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Preset Sizes</div>
+                <div class="preset-buttons">
+                    <div class="preset-grid" id="presetGrid">
+                        <button class="preset-btn" data-width="800" data-height="600">800×600</button>
+                        <button class="preset-btn" data-width="1024" data-height="768">1024×768</button>
+                        <button class="preset-btn" data-width="1920" data-height="1080">1920×1080 (HD)</button>
+                        <button class="preset-btn" data-width="1280" data-height="720">1280×720</button>
+                        <button class="preset-btn" data-width="1080" data-height="1080">1080×1080 (Square)</button>
+                        <button class="preset-btn" data-width="1200" data-height="630">1200×630 (Social)</button>
+                        <button class="preset-btn" data-width="150" data-height="150">150×150 (Thumb)</button>
+                        <button class="preset-btn" data-width="300" data-height="300">300×300</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group aspect-ratio">
+                <div class="control-label">Aspect Ratio</div>
+                <div class="ratio-options">
+                    <label class="ratio-option">
+                        <input type="radio" name="aspectRatio" value="free" checked>
+                        <span>Free (Custom)</span>
+                    </label>
+                    <label class="ratio-option">
+                        <input type="radio" name="aspectRatio" value="original">
+                        <span>Keep Original</span>
+                    </label>
+                    <label class="ratio-option">
+                        <input type="radio" name="aspectRatio" value="square">
+                        <span>Square (1:1)</span>
+                    </label>
+                    <label class="ratio-option">
+                        <input type="radio" name="aspectRatio" value="landscape">
+                        <span>Landscape (16:9)</span>
+                    </label>
+                    <label class="ratio-option">
+                        <input type="radio" name="aspectRatio" value="portrait">
+                        <span>Portrait (9:16)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Resizing image...</p>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn resize-btn" id="resizeBtn" disabled>Resize Image</button>
+            <button class="action-btn reset-btn" id="resetBtn">Reset</button>
+        </div>
+
+        <button class="download-btn" id="downloadBtn">⬇️ Download Resized Image</button>
+    </div>
+
+    <script>
+        // Theme Management
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('.theme-icon');
+        const themeText = themeToggle.querySelector('span:last-child');
+        
+        function toggleTheme() {
+            const currentTheme = document.body.dataset.theme;
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.body.dataset.theme = newTheme;
+            themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+            themeText.textContent = newTheme === 'light' ? 'Dark Mode' : 'Light Mode';
+            
+            // Save preference
+            localStorage.setItem('theme', newTheme);
+            
+            // Update meta theme-color
+            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            metaThemeColor.content = newTheme === 'light' ? '#ff6b6b' : '#0f172a';
+        }
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.dataset.theme = savedTheme;
+        themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+        themeText.textContent = savedTheme === 'light' ? 'Dark Mode' : 'Light Mode';
+        
+        themeToggle.addEventListener('click', toggleTheme);
+        
+        // Back button functionality
+        function goBack() {
+            if (document.referrer && document.referrer.includes(location.hostname)) {
+                history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Image Resizer Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const browseBtn = document.getElementById('browseBtn');
+            const fileInput = document.getElementById('fileInput');
+            const previewSection = document.getElementById('previewSection');
+            const originalPreview = document.getElementById('originalPreview');
+            const resizedPreview = document.getElementById('resizedPreview');
+            const originalDimensions = document.getElementById('originalDimensions');
+            const resizedDimensions = document.getElementById('resizedDimensions');
+            const widthInput = document.getElementById('widthInput');
+            const heightInput = document.getElementById('heightInput');
+            const presetButtons = document.querySelectorAll('.preset-btn');
+            const aspectRatioRadios = document.querySelectorAll('input[name="aspectRatio"]');
+            const resizeBtn = document.getElementById('resizeBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const loading = document.getElementById('loading');
+
+            let originalImage = null;
+            let originalWidth = 0;
+            let originalHeight = 0;
+            let currentWidth = 0;
+            let currentHeight = 0;
+            let resizedBlob = null;
+
+            // Event Listeners
+            browseBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
+            resizeBtn.addEventListener('click', resizeImage);
+            resetBtn.addEventListener('click', resetResizer);
+            downloadBtn.addEventListener('click', downloadImage);
+
+            // Preset buttons
+            presetButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    presetButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const width = parseInt(this.dataset.width);
+                    const height = parseInt(this.dataset.height);
+                    
+                    widthInput.value = width;
+                    heightInput.value = height;
+                    
+                    updateDimensions();
+                });
+            });
+
+            // Dimension inputs
+            widthInput.addEventListener('input', updateDimensions);
+            heightInput.addEventListener('input', updateDimensions);
+
+            // Aspect ratio
+            aspectRatioRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (originalImage && this.value === 'original') {
+                        widthInput.value = originalWidth;
+                        heightInput.value = originalHeight;
+                        updateDimensions();
+                    } else if (this.value === 'square') {
+                        const size = Math.min(widthInput.value || heightInput.value || 500);
+                        widthInput.value = size;
+                        heightInput.value = size;
+                        updateDimensions();
+                    } else if (this.value === 'landscape') {
+                        if (widthInput.value) {
+                            heightInput.value = Math.round(widthInput.value * 9/16);
+                        }
+                        updateDimensions();
+                    } else if (this.value === 'portrait') {
+                        if (heightInput.value) {
+                            widthInput.value = Math.round(heightInput.value * 9/16);
+                        }
+                        updateDimensions();
+                    }
+                });
+            });
+
+            // Functions
+            function handleDragOver(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary)';
+                uploadArea.style.background = 'color-mix(in srgb, var(--card-color) 90%, var(--primary) 10%)';
+            }
+
+            function handleDragLeave(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--border-color)';
+                uploadArea.style.background = 'var(--card-color)';
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                handleDragLeave(e);
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    loadImage(files[0]);
+                }
+            }
+
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    loadImage(files[0]);
+                }
+            }
+
+            function loadImage(file) {
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file');
+                    return;
+                }
+
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    originalImage = new Image();
+                    originalImage.onload = function() {
+                        originalWidth = this.width;
+                        originalHeight = this.height;
+                        currentWidth = originalWidth;
+                        currentHeight = originalHeight;
+                        
+                        originalPreview.src = e.target.result;
+                        resizedPreview.src = e.target.result;
+                        
+                        originalDimensions.textContent = `${originalWidth}×${originalHeight}`;
+                        resizedDimensions.textContent = `${originalWidth}×${originalHeight}`;
+                        
+                        previewSection.style.display = 'block';
+                        widthInput.value = originalWidth;
+                        heightInput.value = originalHeight;
+                        
+                        resizeBtn.disabled = false;
+                        downloadBtn.style.display = 'none';
+                    };
+                    originalImage.src = e.target.result;
+                };
+                
+                reader.readAsDataURL(file);
+            }
+
+            function updateDimensions() {
+                if (!originalImage) return;
+                
+                currentWidth = parseInt(widthInput.value) || 0;
+                currentHeight = parseInt(heightInput.value) || 0;
+                
+                if (currentWidth > 0 && currentHeight > 0) {
+                    resizedDimensions.textContent = `${currentWidth}×${currentHeight}`;
+                }
+            }
+
+            function resizeImage() {
+                if (!originalImage) {
+                    alert('Please select an image first');
+                    return;
+                }
+
+                if (!widthInput.value || !heightInput.value) {
+                    alert('Please enter both width and height');
+                    return;
+                }
+
+                const newWidth = parseInt(widthInput.value);
+                const newHeight = parseInt(heightInput.value);
+
+                if (newWidth < 1 || newHeight < 1) {
+                    alert('Please enter valid dimensions (minimum 1px)');
+                    return;
+                }
+
+                if (newWidth > 5000 || newHeight > 5000) {
+                    alert('Maximum dimension is 5000px');
+                    return;
+                }
+
+                loading.style.display = 'block';
+                resizeBtn.disabled = true;
+
+                setTimeout(() => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+                        
+                        // Use high-quality image scaling
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        
+                        ctx.drawImage(originalImage, 0, 0, newWidth, newHeight);
+                        
+                        canvas.toBlob((blob) => {
+                            resizedBlob = blob;
+                            const url = URL.createObjectURL(blob);
+                            resizedPreview.src = url;
+                            resizedDimensions.textContent = `${newWidth}×${newHeight}`;
+                            
+                            downloadBtn.style.display = 'block';
+                            loading.style.display = 'none';
+                            resizeBtn.disabled = false;
+                        }, 'image/jpeg', 0.9);
+                        
+                    } catch (error) {
+                        console.error('Resize error:', error);
+                        alert('Error resizing image. Please try again.');
+                        loading.style.display = 'none';
+                        resizeBtn.disabled = false;
+                    }
+                }, 500);
+            }
+
+            function downloadImage() {
+                if (!resizedBlob) {
+                    alert('Please resize an image first');
+                    return;
+                }
+                
+                const width = parseInt(widthInput.value);
+                const height = parseInt(heightInput.value);
+                const url = URL.createObjectURL(resizedBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `resized_${width}x${height}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function resetResizer() {
+                originalImage = null;
+                originalWidth = 0;
+                originalHeight = 0;
+                resizedBlob = null;
+                
+                originalPreview.src = '';
+                resizedPreview.src = '';
+                previewSection.style.display = 'none';
+                resizeBtn.disabled = true;
+                downloadBtn.style.display = 'none';
+                
+                originalDimensions.textContent = '-';
+                resizedDimensions.textContent = '-';
+                widthInput.value = '';
+                heightInput.value = '';
+                
+                presetButtons.forEach(btn => btn.classList.remove('active'));
+                aspectRatioRadios[0].checked = true;
+                
+                fileInput.value = '';
+                uploadArea.style.borderColor = '';
+                uploadArea.style.background = '';
+            }
+
+            // Initialize
+            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            metaThemeColor.content = savedTheme === 'light' ? '#ff6b6b' : '#0f172a';
+        });
+
+        // Service Worker for offline capability
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

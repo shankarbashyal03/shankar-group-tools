@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rectify - Income & Expenses Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clock, .calendar {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        /* Search and Filters */
+        .search-filters {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        /* Transactions Section */
+        .transactions-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transactions-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+
+        .transaction-item:hover {
+            background: #e9ecef;
+        }
+
+        .transaction-item.income {
+            border-left-color: var(--success);
+        }
+
+        .transaction-item.expense {
+            border-left-color: var(--danger);
+        }
+
+        .transaction-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .transaction-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .income .transaction-icon {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .expense .transaction-icon {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .transaction-details h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .transaction-details p {
+            font-size: 14px;
+            color: #7f8c8d;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .transaction-amount {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .income .transaction-amount {
+            color: var(--success);
+        }
+
+        .expense .transaction-amount {
+            color: var(--danger);
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .edit-btn {
+            color: var(--info);
+        }
+
+        .edit-btn:hover {
+            background: rgba(23, 162, 184, 0.1);
+        }
+
+        .delete-btn {
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        /* Transaction ID */
+        .transaction-id {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .small {
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #e1e5ee;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .filters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .header-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .clock, .calendar {
+                flex: 1;
+                text-align: center;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .search-actions {
+                flex-direction: column;
+            }
+
+            .search-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .transaction-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .transaction-info {
+                width: 100%;
+            }
+
+            .transaction-actions {
+                align-self: flex-end;
+                margin-top: 10px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 10px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .search-filters {
+                padding: 15px;
+            }
+
+            .transactions-section {
+                padding: 15px;
+            }
+
+            .transaction-item {
+                padding: 12px;
+            }
+
+            .transaction-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .form-control, .form-select {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .transaction-details h4 {
+                font-size: 14px;
+            }
+
+            .transaction-details p {
+                font-size: 12px;
+                gap: 8px;
+            }
+
+            .transaction-amount {
+                font-size: 16px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) {
+            .btn:hover, .action-btn:hover {
+                transform: none;
+                background: inherit;
+            }
+
+            .transaction-item:hover {
+                background: #f8f9fa;
+            }
+
+            .action-btn:hover {
+                background: none;
+            }
+        }
+
+        /* High contrast for better accessibility */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid currentColor;
+            }
+
+            .form-control, .form-select {
+                border-width: 2px;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="wallet-icon">💰</div>
+                <h2>Income & Expenses Tracker</h2>
+                <p id="userVoucher">Voucher: Loading...</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i>📊</i> Dashboard</a></li>
+                    <li><a href="categories.html"><i>📂</i> Categories</a></li>
+                    <li><a href="balance.html"><i>💰</i> Balance</a></li>
+                    <li><a href="entries.html"><i>➕</i> Entries</a></li>
+                    <li><a href="creditors.html"><i>👥</i> Creditors</a></li>
+                    <li><a href="debtors.html"><i>👤</i> Debtors</a></li>
+                    <li><a href="notes.html"><i>📝</i> Notes</a></li>
+                    <li><a href="rectify.html" class="active"><i>✏️</i> Rectify</a></li>
+                    <li><a href="reports.html"><i>📈</i> Reports</a></li>
+                    <li><a href="admin.html"><i>⚙️</i> Admin</a></li>
+                    <li><a href="settings.html"><i>🔧</i> Settings</a></li>
+                    <li><a href="#" id="logoutBtn"><i>🚪</i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>Transaction Rectification</h1>
+                <div class="header-info">
+                    <div class="calendar" id="currentDate">Loading...</div>
+                    <div class="clock" id="currentTime">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-filters">
+                <div class="filters-grid">
+                    <div class="form-group">
+                        <label for="searchTransaction">Search Transaction</label>
+                        <input type="text" class="form-control" id="searchTransaction" placeholder="Search by description or ID">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filterType">Transaction Type</label>
+                        <select class="form-select" id="filterType">
+                            <option value="all">All Types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filterCategory">Category</label>
+                        <select class="form-select" id="filterCategory">
+                            <option value="all">All Categories</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filterBalance">Balance Category</label>
+                        <select class="form-select" id="filterBalance">
+                            <option value="all">All Balance Categories</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filterFromDate">From Date</label>
+                        <input type="date" class="form-control" id="filterFromDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filterToDate">To Date</label>
+                        <input type="date" class="form-control" id="filterToDate">
+                    </div>
+                </div>
+                
+                <div class="search-actions">
+                    <button class="btn btn-warning" id="clearFilters">
+                        <span>🗑️</span> Clear Filters
+                    </button>
+                    <button class="btn btn-success" id="applyFilters">
+                        <span>🔍</span> Apply Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Transactions List -->
+            <div class="transactions-section">
+                <div class="section-header">
+                    <h2><span>📋</span> Transactions</h2>
+                    <div class="transaction-count" id="transactionCount">0 transactions found</div>
+                </div>
+                
+                <div class="transactions-list" id="transactionsList">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Transaction</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editDate">Date *</label>
+                            <input type="date" class="form-control" id="editDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editAmount">Amount *</label>
+                            <input type="number" class="form-control" id="editAmount" required step="0.01" min="0.01">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editType">Type *</label>
+                            <select class="form-select" id="editType" required>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editCategory">Category *</label>
+                            <select class="form-select" id="editCategory" required>
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editBalance">Balance Category *</label>
+                            <select class="form-select" id="editBalance" required>
+                                <option value="">Select Balance Category</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="editDescription">Description</label>
+                            <input type="text" class="form-control" id="editDescription" placeholder="Enter transaction description">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="editNotes">Notes</label>
+                            <textarea class="form-control" id="editNotes" placeholder="Add any additional notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelEdit">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveEdit">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentEditingTransaction = null;
+        let allTransactions = [];
+        let filteredTransactions = [];
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.voucherCode) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user voucher
+            document.getElementById('userVoucher').textContent = `Voucher: ${currentUser.voucherCode}`;
+            
+            // Set default date filters (last 30 days)
+            const today = new Date();
+            const lastMonth = new Date();
+            lastMonth.setDate(today.getDate() - 30);
+            
+            document.getElementById('filterFromDate').value = lastMonth.toISOString().split('T')[0];
+            document.getElementById('filterToDate').value = today.toISOString().split('T')[0];
+            
+            // Setup mobile menu
+            setupMobileMenu();
+            
+            // Load transactions and filters
+            loadTransactionsData(currentUser.voucherCode);
+            
+            // Update clock and calendar
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside (mobile)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(event.target) &&
+                    !mobileMenuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Load transactions data
+        function loadTransactionsData(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            if (userData) {
+                // Store all transactions
+                allTransactions = userData.transactions || [];
+                
+                // Load filter options
+                loadFilterOptions(userData);
+                
+                // Apply initial filters
+                applyFilters();
+            }
+        }
+
+        // Load filter options
+        function loadFilterOptions(userData) {
+            // Load categories
+            const categorySelect = document.getElementById('filterCategory');
+            categorySelect.innerHTML = '<option value="all">All Categories</option>';
+            
+            // Add income categories
+            if (userData.categories.income && userData.categories.income.length > 0) {
+                userData.categories.income.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = `📥 ${category}`;
+                    categorySelect.appendChild(option);
+                });
+            }
+            
+            // Add expense categories
+            if (userData.categories.expense && userData.categories.expense.length > 0) {
+                userData.categories.expense.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = `📤 ${category}`;
+                    categorySelect.appendChild(option);
+                });
+            }
+            
+            // Load balance categories
+            const balanceSelect = document.getElementById('filterBalance');
+            balanceSelect.innerHTML = '<option value="all">All Balance Categories</option>';
+            
+            if (userData.balanceCategories && userData.balanceCategories.length > 0) {
+                userData.balanceCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.name;
+                    option.textContent = category.name;
+                    balanceSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchTransaction').value.toLowerCase();
+            const typeFilter = document.getElementById('filterType').value;
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const balanceFilter = document.getElementById('filterBalance').value;
+            const fromDate = document.getElementById('filterFromDate').value;
+            const toDate = document.getElementById('filterToDate').value;
+            
+            // Start with all transactions
+            filteredTransactions = [...allTransactions];
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredTransactions = filteredTransactions.filter(transaction => 
+                    transaction.description.toLowerCase().includes(searchTerm) ||
+                    transaction.id.toLowerCase().includes(searchTerm) ||
+                    (transaction.notes && transaction.notes.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Apply type filter
+            if (typeFilter !== 'all') {
+                filteredTransactions = filteredTransactions.filter(transaction => 
+                    transaction.type === typeFilter
+                );
+            }
+            
+            // Apply category filter
+            if (categoryFilter !== 'all') {
+                filteredTransactions = filteredTransactions.filter(transaction => 
+                    transaction.category === categoryFilter
+                );
+            }
+            
+            // Apply balance filter
+            if (balanceFilter !== 'all') {
+                filteredTransactions = filteredTransactions.filter(transaction => 
+                    transaction.balanceCategory === balanceFilter
+                );
+            }
+            
+            // Apply date filters
+            if (fromDate) {
+                filteredTransactions = filteredTransactions.filter(transaction => 
+                    new Date(transaction.date) >= new Date(fromDate)
+                );
+            }
+            
+            if (toDate) {
+                filteredTransactions = filteredTransactions.filter(transaction => 
+                    new Date(transaction.date) <= new Date(toDate)
+                );
+            }
+            
+            // Sort by date (newest first)
+            filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Display transactions
+            displayTransactions();
+        }
+
+        // Display transactions
+        function displayTransactions() {
+            const container = document.getElementById('transactionsList');
+            const countElement = document.getElementById('transactionCount');
+            
+            container.innerHTML = '';
+            
+            if (filteredTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>🔍</div>
+                        <p>No transactions found</p>
+                        <p class="small">Try adjusting your search criteria or filters</p>
+                    </div>
+                `;
+                countElement.textContent = '0 transactions found';
+                return;
+            }
+            
+            countElement.textContent = `${filteredTransactions.length} transactions found`;
+            
+            filteredTransactions.forEach((transaction, index) => {
+                const transactionItem = createTransactionItem(transaction, index);
+                container.appendChild(transactionItem);
+            });
+        }
+
+        // Create transaction list item
+        function createTransactionItem(transaction, index) {
+            const div = document.createElement('div');
+            div.className = `transaction-item ${transaction.type}`;
+            
+            const isIncome = transaction.type === 'income';
+            const icon = isIncome ? '📥' : '📤';
+            const sign = isIncome ? '+' : '-';
+            
+            div.innerHTML = `
+                <div class="transaction-info">
+                    <div class="transaction-icon">${icon}</div>
+                    <div class="transaction-details">
+                        <h4>${transaction.description || 'No description'}</h4>
+                        <p>
+                            <span class="transaction-id">${transaction.id}</span>
+                            <span>${transaction.category}</span>
+                            <span>${transaction.balanceCategory}</span>
+                            <span>${new Date(transaction.date).toLocaleDateString()}</span>
+                        </p>
+                        ${transaction.notes ? `<p style="margin-top: 5px; font-style: italic;">${transaction.notes}</p>` : ''}
+                    </div>
+                </div>
+                <div class="transaction-amount">
+                    ${sign}${formatCurrency(transaction.amount, getCurrency())}
+                </div>
+                <div class="transaction-actions">
+                    <button class="action-btn edit-btn" data-index="${index}">✏️</button>
+                    <button class="action-btn delete-btn" data-index="${index}">🗑️</button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Get currency symbol
+        function getCurrency() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return '₹';
+            
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            return userData?.settings?.currency || '₹';
+        }
+
+        // Format currency
+        function formatCurrency(amount, currency) {
+            return `${currency}${parseFloat(amount).toLocaleString('en-IN')}`;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Apply filters
+            document.getElementById('applyFilters').addEventListener('click', applyFilters);
+            
+            // Clear filters
+            document.getElementById('clearFilters').addEventListener('click', function() {
+                document.getElementById('searchTransaction').value = '';
+                document.getElementById('filterType').value = 'all';
+                document.getElementById('filterCategory').value = 'all';
+                document.getElementById('filterBalance').value = 'all';
+                
+                // Set default date range (last 30 days)
+                const today = new Date();
+                const lastMonth = new Date();
+                lastMonth.setDate(today.getDate() - 30);
+                
+                document.getElementById('filterFromDate').value = lastMonth.toISOString().split('T')[0];
+                document.getElementById('filterToDate').value = today.toISOString().split('T')[0];
+                
+                applyFilters();
+            });
+            
+            // Search on enter key
+            document.getElementById('searchTransaction').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    applyFilters();
+                }
+            });
+            
+            // Save edit
+            document.getElementById('saveEdit').addEventListener('click', saveEdit);
+            
+            // Cancel edit
+            document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
+            
+            // Close modal
+            document.querySelector('.close-modal').addEventListener('click', closeEditModal);
+            
+            // Close modal when clicking outside
+            document.getElementById('editModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeEditModal();
+                }
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+            
+            // Action buttons (delegated)
+            document.addEventListener('click', function(e) {
+                // Edit transaction
+                if (e.target.classList.contains('edit-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    editTransaction(index);
+                }
+                
+                // Delete transaction
+                if (e.target.classList.contains('delete-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    deleteTransaction(index);
+                }
+            });
+        }
+
+        // Edit transaction
+        function editTransaction(index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const transaction = filteredTransactions[index];
+            
+            // Find the original index in allTransactions
+            const originalIndex = allTransactions.findIndex(t => t.id === transaction.id);
+            
+            if (originalIndex === -1) {
+                alert('Transaction not found');
+                return;
+            }
+            
+            // Open edit modal
+            openEditModal(transaction, originalIndex, userData);
+        }
+
+        // Open edit modal
+        function openEditModal(transaction, index, userData) {
+            const modal = document.getElementById('editModal');
+            
+            // Fill form with transaction data
+            document.getElementById('editDate').value = transaction.date;
+            document.getElementById('editAmount').value = transaction.amount;
+            document.getElementById('editType').value = transaction.type;
+            document.getElementById('editDescription').value = transaction.description || '';
+            document.getElementById('editNotes').value = transaction.notes || '';
+            
+            // Load categories based on type
+            const categorySelect = document.getElementById('editCategory');
+            categorySelect.innerHTML = '<option value="">Select Category</option>';
+            
+            const categories = userData.categories[transaction.type];
+            if (categories && categories.length > 0) {
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    option.selected = category === transaction.category;
+                    categorySelect.appendChild(option);
+                });
+            }
+            
+            // Load balance categories
+            const balanceSelect = document.getElementById('editBalance');
+            balanceSelect.innerHTML = '<option value="">Select Balance Category</option>';
+            
+            if (userData.balanceCategories && userData.balanceCategories.length > 0) {
+                userData.balanceCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.name;
+                    option.textContent = `${category.name} (${category.type})`;
+                    option.selected = category.name === transaction.balanceCategory;
+                    balanceSelect.appendChild(option);
+                });
+            }
+            
+            currentEditingTransaction = index;
+            modal.style.display = 'flex';
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editForm').reset();
+            currentEditingTransaction = null;
+        }
+
+        // Save edit
+        function saveEdit() {
+            const date = document.getElementById('editDate').value;
+            const amount = parseFloat(document.getElementById('editAmount').value);
+            const type = document.getElementById('editType').value;
+            const category = document.getElementById('editCategory').value;
+            const balanceCategory = document.getElementById('editBalance').value;
+            const description = document.getElementById('editDescription').value.trim();
+            const notes = document.getElementById('editNotes').value.trim();
+            
+            if (!date || !amount || !category || !balanceCategory) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            // Update transaction
+            userData.transactions[currentEditingTransaction] = {
+                ...userData.transactions[currentEditingTransaction],
+                date: date,
+                amount: amount,
+                type: type,
+                category: category,
+                balanceCategory: balanceCategory,
+                description: description || `${type} - ${category}`,
+                notes: notes,
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload transactions
+            loadTransactionsData(currentUser.voucherCode);
+            
+            // Close modal
+            closeEditModal();
+            
+            // Show success message
+            alert('Transaction updated successfully!');
+        }
+
+        // Delete transaction
+        function deleteTransaction(index) {
+            if (!confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const transaction = filteredTransactions[index];
+            
+            // Find the original index in allTransactions
+            const originalIndex = allTransactions.findIndex(t => t.id === transaction.id);
+            
+            if (originalIndex === -1) {
+                alert('Transaction not found');
+                return;
+            }
+            
+            // Remove transaction
+            userData.transactions.splice(originalIndex, 1);
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload transactions
+            loadTransactionsData(currentUser.voucherCode);
+            
+            // Show success message
+            alert('Transaction deleted successfully!');
+        }
+    </script>
+</body>
+</html>

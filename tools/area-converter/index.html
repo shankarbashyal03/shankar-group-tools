@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Area Converter with offline support and dark mode">
+    <meta name="theme-color" content="#4361ee">
+    <title>Professional Area Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --primary-light: #4895ef;
+            --secondary: #7209b7;
+            --secondary-light: #b5179e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --success: #4cc9f0;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+            
+            /* Light theme (default) */
+            --bg-color: #f5f7fa;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --input-bg: #ffffff;
+            --result-bg: linear-gradient(135deg, #f0f4ff, #e6f7ff);
+            --footer-color: #6c757d;
+            --border-color: #e9ecef;
+        }
+
+        /* Dark theme variables */
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --bg-gradient: linear-gradient(135deg, #121212 0%, #2d3748 100%);
+            --card-bg: #1e1e1e;
+            --text-color: #e9ecef;
+            --input-bg: #2d3748;
+            --result-bg: linear-gradient(135deg, #2d3748, #1a202c);
+            --footer-color: #a0aec0;
+            --border-color: #4a5568;
+            --gray-light: #4a5568;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Header with back button and theme toggle */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .back-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            flex-shrink: 0;
+        }
+
+        .back-button:hover {
+            background: var(--primary-dark);
+            transform: translateX(-3px);
+        }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            border-radius: 30px;
+            padding: 12px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            flex-shrink: 0;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+
+        .converter-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .converter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .converter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .unit-categories {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .converter-body {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 25px;
+            align-items: end;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+
+        input, select {
+            padding: 16px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .swap-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .swap-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .swap-btn:hover {
+            background: var(--primary-dark);
+            transform: rotate(180deg) scale(1.05);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .convert-btn, .clear-btn {
+            padding: 16px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .convert-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, var(--gray), #adb5bd);
+            color: white;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #5a6268, var(--gray));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .result-container {
+            background: var(--result-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            word-break: break-all;
+        }
+
+        .conversion-detail {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--footer-color);
+            font-size: 0.9rem;
+        }
+
+        .unit-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            max-width: 300px;
+            border: 2px solid var(--primary);
+            animation: slideInUp 0.3s ease;
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        .install-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .install-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .install-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .close-install {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .converter-body {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .swap-container {
+                order: 2;
+                margin: 10px 0;
+            }
+            
+            .swap-btn {
+                transform: rotate(90deg);
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .converter-card {
+                padding: 25px;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .back-button, .theme-toggle {
+                position: fixed;
+                z-index: 100;
+            }
+            
+            .back-button {
+                top: 20px;
+                left: 20px;
+            }
+            
+            .theme-toggle {
+                top: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .converter-card {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        button, .category-btn, select, input[type="number"] {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        /* Animation for result */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ff6b6b;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            z-index: 1001;
+            display: none;
+            font-weight: 600;
+        }
+
+        .offline-indicator.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        <i class="fas fa-wifi-slash"></i> You are currently offline. App is running in offline mode.
+    </div>
+
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <div class="install-header">
+            <h3>Install Area Converter</h3>
+            <button class="close-install" id="closeInstall">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <p>Install this app on your device for quick access and offline use.</p>
+        <button class="install-btn" id="installBtn">
+            <i class="fas fa-download"></i> Install App
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="header-container">
+            <button class="back-button" id="backButton" aria-label="Go back">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            
+            <div class="header-content">
+                <h1>Area Converter</h1>
+                <p class="subtitle">Convert between traditional land measurement units and international standards</p>
+            </div>
+            
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i> Dark Mode
+            </button>
+        </div>
+
+        <div class="converter-card">
+            <div class="converter-header">
+                <h2>Area Conversion</h2>
+                <div class="unit-categories">
+                    <button class="category-btn active" data-category="all">All Units</button>
+                    <button class="category-btn" data-category="traditional">Traditional</button>
+                    <button class="category-btn" data-category="international">International</button>
+                </div>
+            </div>
+
+            <div class="converter-body">
+                <div class="input-group">
+                    <label for="fromValue">From Value</label>
+                    <input type="number" id="fromValue" value="1" min="0" step="any">
+                    <div class="unit-info">Enter a positive number</div>
+                </div>
+
+                <div class="swap-container">
+                    <button class="swap-btn" id="swapBtn" aria-label="Swap units">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </div>
+
+                <div class="input-group">
+                    <label for="fromUnit">From Unit</label>
+                    <select id="fromUnit">
+                        <!-- Options populated by JavaScript -->
+                    </select>
+                    <div class="unit-info" id="fromUnitInfo"></div>
+                </div>
+            </div>
+
+            <div class="converter-body">
+                <div class="input-group">
+                    <label for="toUnit">To Unit</label>
+                    <select id="toUnit">
+                        <!-- Options populated by JavaScript -->
+                    </select>
+                    <div class="unit-info" id="toUnitInfo"></div>
+                </div>
+                
+                <div class="input-group">
+                    <!-- Empty for alignment -->
+                </div>
+                
+                <div class="input-group">
+                    <!-- Empty for alignment -->
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="convert-btn" id="convertBtn">
+                    <i class="fas fa-sync-alt"></i> Convert
+                </button>
+                <button class="clear-btn" id="clearBtn">
+                    <i class="fas fa-broom"></i> Clear
+                </button>
+            </div>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-label">Conversion Result</div>
+                <div class="result-value" id="resultValue">1</div>
+                <div class="conversion-detail" id="conversionDetail">1 Square Meter = 10.7639 Square Feet</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© <span id="currentYear"></span> Professional Area Converter | All conversion factors are based on standard measurements</p>
+            <p class="offline-status" id="offlineStatus"></p>
+        </footer>
+    </div>
+
+    <script>
+        // Area units with conversion factors to square meters
+        const areaUnits = [
+            // International Units
+            { name: "Square Meter", value: "sq_m", factor: 1, category: "international", symbol: "m²" },
+            { name: "Square Kilometer", value: "sq_km", factor: 1000000, category: "international", symbol: "km²" },
+            { name: "Square Centimeter", value: "sq_cm", factor: 0.0001, category: "international", symbol: "cm²" },
+            { name: "Square Millimeter", value: "sq_mm", factor: 0.000001, category: "international", symbol: "mm²" },
+            { name: "Square Foot", value: "sq_ft", factor: 0.092903, category: "international", symbol: "ft²" },
+            { name: "Square Inch", value: "sq_in", factor: 0.00064516, category: "international", symbol: "in²" },
+            { name: "Square Yard", value: "sq_yd", factor: 0.836127, category: "international", symbol: "yd²" },
+            { name: "Acre", value: "acre", factor: 4046.86, category: "international", symbol: "ac" },
+            { name: "Hectare", value: "hectare", factor: 10000, category: "international", symbol: "ha" },
+            
+            // Traditional Units (South Asia)
+            { name: "Bigha", value: "bigha", factor: 6772.63, category: "traditional", symbol: "bigha" },
+            { name: "Ropani", value: "ropani", factor: 508.74, category: "traditional", symbol: "ropani" },
+            { name: "Aana", value: "aana", factor: 31.80, category: "traditional", symbol: "aana" },
+            { name: "Kattha", value: "kattha", factor: 338.63, category: "traditional", symbol: "kattha" },
+            { name: "Dhur", value: "dhur", factor: 16.93, category: "traditional", symbol: "dhur" },
+            { name: "Paisa", value: "paisa", factor: 7.95, category: "traditional", symbol: "paisa" },
+            { name: "Daam", value: "daam", factor: 1.99, category: "traditional", symbol: "daam" }
+        ];
+
+        // DOM elements
+        const fromValueInput = document.getElementById('fromValue');
+        const fromUnitSelect = document.getElementById('fromUnit');
+        const toUnitSelect = document.getElementById('toUnit');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const resultValue = document.getElementById('resultValue');
+        const conversionDetail = document.getElementById('conversionDetail');
+        const resultContainer = document.getElementById('resultContainer');
+        const fromUnitInfo = document.getElementById('fromUnitInfo');
+        const toUnitInfo = document.getElementById('toUnitInfo');
+        const themeToggle = document.getElementById('themeToggle');
+        const backButton = document.getElementById('backButton');
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        const offlineStatus = document.getElementById('offlineStatus');
+        const currentYear = document.getElementById('currentYear');
+        const installPrompt = document.getElementById('installPrompt');
+        const installBtn = document.getElementById('installBtn');
+        const closeInstall = document.getElementById('closeInstall');
+        
+        let deferredPrompt;
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        // Initialize the application
+        function initApp() {
+            // Set current year in footer
+            currentYear.textContent = new Date().getFullYear();
+            
+            // Initialize theme
+            setTheme(currentTheme);
+            
+            // Initialize unit selects
+            initializeUnitSelects();
+            
+            // Perform initial conversion
+            convertArea();
+            
+            // Check online status
+            updateOnlineStatus();
+            
+            // Listen for online/offline events
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
+            // PWA installation prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                setTimeout(() => {
+                    if (!localStorage.getItem('installPromptClosed')) {
+                        installPrompt.classList.add('show');
+                    }
+                }, 3000);
+            });
+        }
+
+        // Initialize the unit select options
+        function initializeUnitSelects() {
+            fromUnitSelect.innerHTML = '';
+            toUnitSelect.innerHTML = '';
+            
+            areaUnits.forEach(unit => {
+                const fromOption = document.createElement('option');
+                fromOption.value = unit.value;
+                fromOption.textContent = `${unit.name} (${unit.symbol})`;
+                fromUnitSelect.appendChild(fromOption);
+                
+                const toOption = document.createElement('option');
+                toOption.value = unit.value;
+                toOption.textContent = `${unit.name} (${unit.symbol})`;
+                toUnitSelect.appendChild(toOption);
+            });
+            
+            fromUnitSelect.value = 'sq_m';
+            toUnitSelect.value = 'sq_ft';
+            
+            updateUnitInfo();
+        }
+
+        // Update unit information display
+        function updateUnitInfo() {
+            const fromUnitData = areaUnits.find(unit => unit.value === fromUnitSelect.value);
+            const toUnitData = areaUnits.find(unit => unit.value === toUnitSelect.value);
+            
+            if (fromUnitData) {
+                fromUnitInfo.textContent = `1 ${fromUnitData.symbol} = ${(fromUnitData.factor).toFixed(6)} m²`;
+            }
+            
+            if (toUnitData) {
+                toUnitInfo.textContent = `1 ${toUnitData.symbol} = ${(toUnitData.factor).toFixed(6)} m²`;
+            }
+        }
+
+        // Convert area from one unit to another
+        function convertArea() {
+            const fromValue = parseFloat(fromValueInput.value);
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+            
+            if (isNaN(fromValue) || fromValue < 0) {
+                resultValue.textContent = "Invalid input";
+                conversionDetail.textContent = "Please enter a valid positive number";
+                resultContainer.style.borderLeftColor = "#dc3545";
+                return;
+            }
+            
+            const fromUnitData = areaUnits.find(unit => unit.value === fromUnit);
+            const toUnitData = areaUnits.find(unit => unit.value === toUnit);
+            
+            if (!fromUnitData || !toUnitData) {
+                resultValue.textContent = "Conversion error";
+                conversionDetail.textContent = "Selected units not found";
+                resultContainer.style.borderLeftColor = "#dc3545";
+                return;
+            }
+            
+            const valueInSqMeters = fromValue * fromUnitData.factor;
+            const convertedValue = valueInSqMeters / toUnitData.factor;
+            
+            resultValue.textContent = formatNumber(convertedValue);
+            conversionDetail.textContent = `${fromValue} ${fromUnitData.symbol} = ${formatNumber(convertedValue)} ${toUnitData.symbol}`;
+            
+            resultContainer.style.borderLeftColor = "var(--primary)";
+            
+            resultContainer.classList.remove('fade-in');
+            void resultContainer.offsetWidth;
+            resultContainer.classList.add('fade-in');
+        }
+
+        // Format number for display
+        function formatNumber(num) {
+            if (num === 0) return "0";
+            
+            if (num < 0.0001) {
+                return num.toExponential(6);
+            } else if (num < 1) {
+                return num.toFixed(8).replace(/\.?0+$/, '');
+            } else if (num < 1000) {
+                return num.toFixed(4).replace(/\.?0+$/, '');
+            } else if (num < 1000000) {
+                return num.toFixed(2).replace(/\.?0+$/, '');
+            } else {
+                return num.toExponential(4);
+            }
+        }
+
+        // Swap the from and to units
+        function swapUnits() {
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+            
+            fromUnitSelect.value = toUnit;
+            toUnitSelect.value = fromUnit;
+            
+            updateUnitInfo();
+            convertArea();
+        }
+
+        // Clear all inputs and results
+        function clearAll() {
+            fromValueInput.value = "1";
+            fromUnitSelect.value = "sq_m";
+            toUnitSelect.value = "sq_ft";
+            resultValue.textContent = "1";
+            conversionDetail.textContent = "1 Square Meter = 10.7639 Square Feet";
+            resultContainer.style.borderLeftColor = "var(--primary)";
+            
+            updateUnitInfo();
+            
+            resultContainer.classList.remove('fade-in');
+            void resultContainer.offsetWidth;
+            resultContainer.classList.add('fade-in');
+        }
+
+        // Filter units by category
+        function filterUnits(category) {
+            categoryBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-category') === category) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            const currentFromUnit = fromUnitSelect.value;
+            const currentToUnit = toUnitSelect.value;
+            
+            fromUnitSelect.innerHTML = '';
+            toUnitSelect.innerHTML = '';
+            
+            areaUnits.forEach(unit => {
+                if (category === 'all' || unit.category === category) {
+                    const fromOption = document.createElement('option');
+                    fromOption.value = unit.value;
+                    fromOption.textContent = `${unit.name} (${unit.symbol})`;
+                    fromUnitSelect.appendChild(fromOption);
+                    
+                    const toOption = document.createElement('option');
+                    toOption.value = unit.value;
+                    toOption.textContent = `${unit.name} (${unit.symbol})`;
+                    toUnitSelect.appendChild(toOption);
+                }
+            });
+            
+            if (fromUnitSelect.querySelector(`option[value="${currentFromUnit}"]`)) {
+                fromUnitSelect.value = currentFromUnit;
+            }
+            
+            if (toUnitSelect.querySelector(`option[value="${currentToUnit}"]`)) {
+                toUnitSelect.value = currentToUnit;
+            }
+            
+            updateUnitInfo();
+            convertArea();
+        }
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(currentTheme);
+            localStorage.setItem('theme', currentTheme);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            if (theme === 'dark') {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+            }
+        }
+
+        // Back button functionality
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // If no history, just scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Update online/offline status
+        function updateOnlineStatus() {
+            const isOnline = navigator.onLine;
+            
+            if (isOnline) {
+                offlineIndicator.classList.remove('show');
+                offlineStatus.textContent = 'Online';
+                offlineStatus.style.color = '#4cc9f0';
+            } else {
+                offlineIndicator.classList.add('show');
+                offlineStatus.textContent = 'Offline - Using cached data';
+                offlineStatus.style.color = '#ff6b6b';
+            }
+        }
+
+        // PWA Installation
+        async function installPWA() {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('App installed successfully');
+            }
+            
+            deferredPrompt = null;
+            installPrompt.classList.remove('show');
+        }
+
+        // Event listeners
+        convertBtn.addEventListener('click', convertArea);
+        clearBtn.addEventListener('click', clearAll);
+        swapBtn.addEventListener('click', swapUnits);
+        themeToggle.addEventListener('click', toggleTheme);
+        backButton.addEventListener('click', goBack);
+        installBtn.addEventListener('click', installPWA);
+        closeInstall.addEventListener('click', () => {
+            installPrompt.classList.remove('show');
+            localStorage.setItem('installPromptClosed', 'true');
+        });
+
+        fromValueInput.addEventListener('input', convertArea);
+        fromUnitSelect.addEventListener('change', () => {
+            updateUnitInfo();
+            convertArea();
+        });
+        toUnitSelect.addEventListener('change', () => {
+            updateUnitInfo();
+            convertArea();
+        });
+
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterUnits(btn.getAttribute('data-category'));
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                convertArea();
+            } else if (e.key === 'Escape') {
+                clearAll();
+            } else if (e.key === 's' && e.ctrlKey) {
+                e.preventDefault();
+                swapUnits();
+            } else if (e.key === 't' && e.ctrlKey) {
+                e.preventDefault();
+                toggleTheme();
+            }
+        });
+
+        // Initialize the app
+        initApp();
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+
+    <!-- Service Worker Script (inlined) -->
+    <script id="sw-script">
+        // This would normally be in a separate sw.js file
+        const swCode = `
+            const CACHE_NAME = 'area-converter-v1';
+            const urlsToCache = [
+                '/',
+                './index.html'
+            ];
+
+            self.addEventListener('install', event => {
+                event.waitUntil(
+                    caches.open(CACHE_NAME)
+                        .then(cache => cache.addAll(urlsToCache))
+                );
+            });
+
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(response => response || fetch(event.request))
+                );
+            });
+
+            self.addEventListener('activate', event => {
+                event.waitUntil(
+                    caches.keys().then(cacheNames => {
+                        return Promise.all(
+                            cacheNames.filter(cacheName => {
+                                return cacheName !== CACHE_NAME;
+                            }).map(cacheName => caches.delete(cacheName))
+                        );
+                    })
+                );
+            });
+        `;
+
+        // Create and register service worker if browser supports it
+        if ('serviceWorker' in navigator) {
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swURL).then(registration => {
+                console.log('Service Worker registered with scope:', registration.scope);
+            }).catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+    </script>
+</body>
+</html>

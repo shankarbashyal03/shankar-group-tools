@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Balance - Income & Expenses Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            width: 50px;
+            height: 50px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+            min-height: 50px;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 18px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease, padding 0.3s ease;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5ee;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--dark);
+            line-height: 1.3;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clock, .calendar {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        /* Balance Overview */
+        .balance-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .balance-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border-top: 4px solid;
+            transition: transform 0.3s;
+            cursor: pointer;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .balance-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .balance-card.cash {
+            border-top-color: var(--success);
+        }
+
+        .balance-card.bank {
+            border-top-color: var(--info);
+        }
+
+        .balance-card.wallet {
+            border-top-color: var(--warning);
+        }
+
+        .balance-card.voucher {
+            border-top-color: #9b59b6;
+        }
+
+        .balance-card.net {
+            border-top-color: var(--secondary);
+        }
+
+        .balance-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .balance-card h3 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .balance-amount {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .balance-trend {
+            font-size: 12px;
+            color: #7f8c8d;
+            line-height: 1.3;
+        }
+
+        /* Balance Details Section */
+        .balance-details {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .section-header {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .section-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 44px;
+            min-width: 44px;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        /* Balance List */
+        .balance-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .balance-item {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--info);
+            transition: all 0.3s;
+        }
+
+        @media (min-width: 600px) {
+            .balance-item {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 15px;
+            }
+        }
+
+        .balance-item:hover {
+            background: #e9ecef;
+        }
+
+        .balance-item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .balance-item-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .balance-item-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .balance-item-details h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: var(--dark);
+            line-height: 1.3;
+        }
+
+        .balance-item-details p {
+            font-size: 13px;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+
+        .balance-item-amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .empty-state .small {
+            font-size: 14px;
+            line-height: 1.3;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #e1e5ee;
+            line-height: 1.4;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .balance-overview {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 12px;
+            }
+            
+            .balance-card {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .clock, .calendar {
+                font-size: 13px;
+                padding: 8px 12px;
+                min-width: 120px;
+            }
+            
+            .balance-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .balance-card {
+                min-height: 140px;
+                padding: 15px;
+            }
+            
+            .balance-icon {
+                font-size: 28px;
+            }
+            
+            .balance-amount {
+                font-size: 18px;
+            }
+            
+            .section-header {
+                gap: 12px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                width: 100%;
+            }
+            
+            .balance-item {
+                padding: 14px;
+            }
+            
+            .balance-item-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 12px;
+            }
+            
+            .header {
+                padding: 12px 0;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .header-info {
+                gap: 8px;
+            }
+            
+            .clock, .calendar {
+                font-size: 12px;
+                padding: 8px 10px;
+                min-width: calc(50% - 4px);
+            }
+            
+            .balance-overview {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .balance-card {
+                min-height: 130px;
+                padding: 15px;
+            }
+            
+            .balance-icon {
+                font-size: 24px;
+            }
+            
+            .balance-amount {
+                font-size: 16px;
+            }
+            
+            .balance-details {
+                padding: 15px;
+            }
+            
+            .balance-item {
+                padding: 12px;
+                gap: 10px;
+            }
+            
+            .balance-item-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .footer {
+                padding: 15px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .balance-card h3 {
+                font-size: 13px;
+            }
+            
+            .balance-trend {
+                font-size: 11px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) {
+            .btn:hover, .balance-card:hover {
+                transform: none;
+            }
+            
+            .balance-card:active {
+                background: #f8f9fa;
+            }
+            
+            .btn:active {
+                opacity: 0.9;
+            }
+        }
+
+        /* High contrast for accessibility */
+        @media (prefers-contrast: high) {
+            .btn, .balance-card {
+                border: 2px solid currentColor;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open menu">☰</button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="wallet-icon">💰</div>
+                <h2>Income & Expenses Tracker</h2>
+                <p id="userVoucher">Voucher: Loading...</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i>📊</i> <span>Dashboard</span></a></li>
+                    <li><a href="categories.html"><i>📂</i> <span>Categories</span></a></li>
+                    <li><a href="balance.html" class="active"><i>💰</i> <span>Balance</span></a></li>
+                    <li><a href="entries.html"><i>➕</i> <span>Entries</span></a></li>
+                    <li><a href="creditors.html"><i>👥</i> <span>Creditors</span></a></li>
+                    <li><a href="debtors.html"><i>👤</i> <span>Debtors</span></a></li>
+                    <li><a href="notes.html"><i>📝</i> <span>Notes</span></a></li>
+                    <li><a href="rectify.html"><i>✏️</i> <span>Rectify</span></a></li>
+                    <li><a href="reports.html"><i>📈</i> <span>Reports</span></a></li>
+                    <li><a href="admin.html"><i>⚙️</i> <span>Admin</span></a></li>
+                    <li><a href="settings.html"><i>🔧</i> <span>Settings</span></a></li>
+                    <li><a href="#" id="logoutBtn"><i>🚪</i> <span>Logout</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>Balance Management</h1>
+                <div class="header-info">
+                    <div class="calendar" id="currentDate">Loading...</div>
+                    <div class="clock" id="currentTime">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Balance Overview -->
+            <div class="balance-overview">
+                <div class="balance-card cash" onclick="showBalanceDetails('Cash')">
+                    <div class="balance-icon">💵</div>
+                    <h3>CASH IN HAND</h3>
+                    <div class="balance-amount" id="cashBalance">₹0</div>
+                    <div class="balance-trend">Available Balance</div>
+                </div>
+                <div class="balance-card bank" onclick="showBalanceDetails('Bank')">
+                    <div class="balance-icon">🏦</div>
+                    <h3>BANK BALANCE</h3>
+                    <div class="balance-amount" id="bankBalance">₹0</div>
+                    <div class="balance-trend">Total Across Banks</div>
+                </div>
+                <div class="balance-card wallet" onclick="showBalanceDetails('Wallet')">
+                    <div class="balance-icon">👛</div>
+                    <h3>WALLET BALANCE</h3>
+                    <div class="balance-amount" id="walletBalance">₹0</div>
+                    <div class="balance-trend">Digital Wallets</div>
+                </div>
+                <div class="balance-card voucher" onclick="showBalanceDetails('Voucher')">
+                    <div class="balance-icon">🎫</div>
+                    <h3>VOUCHER BALANCE</h3>
+                    <div class="balance-amount" id="voucherBalance">₹0</div>
+                    <div class="balance-trend">Gift Cards & Vouchers</div>
+                </div>
+                <div class="balance-card net" onclick="showBalanceDetails('All')">
+                    <div class="balance-icon">💰</div>
+                    <h3>NET BALANCE</h3>
+                    <div class="balance-amount" id="netBalance">₹0</div>
+                    <div class="balance-trend">Total All Balances</div>
+                </div>
+            </div>
+
+            <!-- Balance Details Section -->
+            <div class="balance-details" id="balanceDetails">
+                <div class="section-header">
+                    <h2><span>📋</span> <span id="detailsTitle">Balance Details</span></h2>
+                    <button class="btn" onclick="hideBalanceDetails()">
+                        <span>←</span> Back to Overview
+                    </button>
+                </div>
+                <div class="balance-list" id="detailedBalanceList">
+                    <!-- Detailed balance items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentEditingBalance = null;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.voucherCode) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user voucher
+            document.getElementById('userVoucher').textContent = `Voucher: ${currentUser.voucherCode}`;
+            
+            // Load balance data
+            loadBalanceData(currentUser.voucherCode);
+            
+            // Update clock and calendar
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Setup mobile menu
+            setupMobileMenu();
+        });
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.getElementById('mainContent');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+            });
+
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                this.classList.remove('active');
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside (mobile)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(event.target) &&
+                    !mobileMenuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                }
+            });
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Load balance data
+        function loadBalanceData(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            if (userData) {
+                // Calculate current balances
+                const balances = calculateCurrentBalances(userData);
+                
+                // Update overview cards
+                document.getElementById('cashBalance').textContent = formatCurrency(balances.cash, userData.settings.currency);
+                document.getElementById('bankBalance').textContent = formatCurrency(balances.bank, userData.settings.currency);
+                document.getElementById('walletBalance').textContent = formatCurrency(balances.wallet, userData.settings.currency);
+                document.getElementById('voucherBalance').textContent = formatCurrency(balances.voucher, userData.settings.currency);
+                document.getElementById('netBalance').textContent = formatCurrency(balances.net, userData.settings.currency);
+            }
+        }
+
+        // Calculate current balances - FIXED VERSION
+        function calculateCurrentBalances(userData) {
+            const balances = {
+                cash: 0,
+                bank: 0,
+                wallet: 0,
+                voucher: 0,
+                net: 0
+            };
+            
+            if (!userData.balanceCategories) {
+                return balances;
+            }
+            
+            // Calculate from balance categories and transactions
+            userData.balanceCategories.forEach(category => {
+                let balance = parseFloat(category.amount) || 0;
+                
+                // Add income transactions
+                if (userData.transactions) {
+                    userData.transactions
+                        .filter(t => t.balanceCategory === category.name && t.type === 'income')
+                        .forEach(t => balance += parseFloat(t.amount));
+                    
+                    // Subtract expense transactions
+                    userData.transactions
+                        .filter(t => t.balanceCategory === category.name && t.type === 'expense')
+                        .forEach(t => balance -= parseFloat(t.amount));
+                }
+                
+                // Add to appropriate type total
+                const type = category.type || 'other';
+                if (balances.hasOwnProperty(type.toLowerCase())) {
+                    balances[type.toLowerCase()] += balance;
+                }
+                
+                // Add to net balance
+                balances.net += balance;
+            });
+            
+            return balances;
+        }
+
+        // Show balance details
+        function showBalanceDetails(type) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            if (!userData || !userData.balanceCategories) {
+                return;
+            }
+            
+            // Hide overview and show details
+            document.querySelector('.balance-overview').style.display = 'none';
+            document.getElementById('balanceDetails').style.display = 'block';
+            
+            // Set title
+            const titles = {
+                'Cash': 'Cash Categories',
+                'Bank': 'Bank Accounts',
+                'Wallet': 'Digital Wallets',
+                'Voucher': 'Gift Cards & Vouchers',
+                'All': 'All Balance Categories'
+            };
+            
+            document.getElementById('detailsTitle').textContent = titles[type] || 'Balance Details';
+            
+            // Load detailed list
+            loadDetailedBalanceList(type, userData);
+            
+            // Scroll to details section
+            document.getElementById('balanceDetails').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Hide balance details
+        function hideBalanceDetails() {
+            document.querySelector('.balance-overview').style.display = 'grid';
+            document.getElementById('balanceDetails').style.display = 'none';
+            
+            // Scroll back to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Load detailed balance list
+        function loadDetailedBalanceList(type, userData) {
+            const container = document.getElementById('detailedBalanceList');
+            container.innerHTML = '';
+            
+            let categories = userData.balanceCategories;
+            
+            // Filter by type if not "All"
+            if (type !== 'All') {
+                categories = categories.filter(cat => cat.type === type);
+            }
+            
+            if (categories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>💰</div>
+                        <p>No balance categories found</p>
+                        <p class="small">Go to Admin section to add balance categories</p>
+                        <button class="btn btn-success" style="margin-top: 15px;" onclick="window.location.href='admin.html'">
+                            <span>⚙️</span> Go to Admin
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            categories.forEach(category => {
+                const balanceItem = createDetailedBalanceItem(category, userData);
+                container.appendChild(balanceItem);
+            });
+        }
+
+        // Create detailed balance list item
+        function createDetailedBalanceItem(category, userData) {
+            const div = document.createElement('div');
+            div.className = 'balance-item';
+            
+            // Calculate current balance for this category
+            let currentBalance = parseFloat(category.amount) || 0;
+            
+            // Add income transactions
+            if (userData.transactions) {
+                userData.transactions
+                    .filter(t => t.balanceCategory === category.name && t.type === 'income')
+                    .forEach(t => currentBalance += parseFloat(t.amount));
+                
+                // Subtract expense transactions
+                userData.transactions
+                    .filter(t => t.balanceCategory === category.name && t.type === 'expense')
+                    .forEach(t => currentBalance -= parseFloat(t.amount));
+            }
+            
+            // Use custom icon if available, otherwise use default
+            let iconHTML = '';
+            if (category.icon) {
+                iconHTML = `<img src="${category.icon}" alt="${category.name}">`;
+            } else {
+                // Default icons based on type
+                const defaultIcons = {
+                    'Cash': '💵',
+                    'Bank': '🏦',
+                    'Wallet': '👛',
+                    'Voucher': '🎫',
+                    'Other': '💰'
+                };
+                iconHTML = defaultIcons[category.type] || '💰';
+            }
+            
+            div.innerHTML = `
+                <div class="balance-item-info">
+                    <div class="balance-item-icon">${iconHTML}</div>
+                    <div class="balance-item-details">
+                        <h4>${category.name}</h4>
+                        <p>${category.type} • ${category.description || 'No description'}</p>
+                    </div>
+                </div>
+                <div class="balance-item-amount">${formatCurrency(currentBalance, userData.settings.currency)}</div>
+            `;
+            
+            return div;
+        }
+
+        // Format currency
+        function formatCurrency(amount, currency) {
+            return `${currency}${parseFloat(amount).toLocaleString('en-IN')}`;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+
+            // Balance card touch handling for mobile
+            document.querySelectorAll('.balance-card').forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+
+            // Handle keyboard navigation for balance cards
+            document.querySelectorAll('.balance-card').forEach((card, index) => {
+                card.setAttribute('tabindex', '0');
+                card.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+        }
+
+        // Handle back button for mobile
+        window.addEventListener('popstate', function(e) {
+            if (document.getElementById('balanceDetails').style.display === 'block') {
+                hideBalanceDetails();
+                history.pushState(null, null, window.location.pathname);
+            }
+        });
+    </script>
+</body>
+</html>

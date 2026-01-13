@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Gold Weight Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ffd700;
+            --primary-dark: #e6c200;
+            --primary-light: #ffdf4d;
+            --secondary: #d4af37;
+            --secondary-light: #f0e68c;
+            --light: #fffef7;
+            --dark: #2c2c2c;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --success: #4cc9f0;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffefc2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+
+        .converter-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .converter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .converter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .unit-categories {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .category-btn.active {
+            background: var(--primary);
+            color: var(--dark);
+            border-color: var(--primary);
+        }
+
+        .converter-body {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 25px;
+            align-items: end;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        input, select {
+            padding: 16px 18px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+        }
+
+        .swap-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .swap-btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .swap-btn:hover {
+            background: var(--primary-dark);
+            transform: rotate(180deg) scale(1.05);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .convert-btn, .clear-btn {
+            padding: 16px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--dark);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .convert-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, var(--gray), #adb5bd);
+            color: white;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #5a6268, var(--gray));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .result-container {
+            background: linear-gradient(135deg, #fffdf0, #fff9e6);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--secondary);
+            word-break: break-all;
+        }
+
+        .conversion-detail {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .unit-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .gold-icon {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .converter-body {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .swap-container {
+                order: 2;
+                margin: 10px 0;
+            }
+            
+            .swap-btn {
+                transform: rotate(90deg);
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .converter-card {
+                padding: 25px;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation for result */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-gem gold-icon"></i>Gold Weight Converter</h1>
+            <p class="subtitle">Convert between different gold weight units used worldwide</p>
+        </header>
+
+        <div class="converter-card">
+            <div class="converter-header">
+                <h2>Gold Weight Conversion</h2>
+                <div class="unit-categories">
+                    <button class="category-btn active" data-category="all">All Units</button>
+                    <button class="category-btn" data-category="traditional">Traditional</button>
+                    <button class="category-btn" data-category="international">International</button>
+                </div>
+            </div>
+
+            <div class="converter-body">
+                <div class="input-group">
+                    <label for="fromValue">From Value</label>
+                    <input type="number" id="fromValue" value="1" min="0" step="any">
+                    <div class="unit-info">Enter a positive number</div>
+                </div>
+
+                <div class="swap-container">
+                    <button class="swap-btn" id="swapBtn">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </div>
+
+                <div class="input-group">
+                    <label for="fromUnit">From Unit</label>
+                    <select id="fromUnit">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <div class="unit-info" id="fromUnitInfo"></div>
+                </div>
+            </div>
+
+            <div class="converter-body">
+                <div class="input-group">
+                    <label for="toUnit">To Unit</label>
+                    <select id="toUnit">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <div class="unit-info" id="toUnitInfo"></div>
+                </div>
+                
+                <div class="input-group">
+                    <!-- Empty for alignment -->
+                </div>
+                
+                <div class="input-group">
+                    <!-- Empty for alignment -->
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="convert-btn" id="convertBtn">
+                    <i class="fas fa-sync-alt"></i> Convert
+                </button>
+                <button class="clear-btn" id="clearBtn">
+                    <i class="fas fa-broom"></i> Clear
+                </button>
+            </div>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-label">Conversion Result</div>
+                <div class="result-value" id="resultValue">1</div>
+                <div class="conversion-detail" id="conversionDetail">1 Gram = 0.0857 Tola</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 Professional Gold Weight Converter | All conversion factors are based on standard measurements</p>
+        </footer>
+    </div>
+
+    <script>
+        // Gold weight units with conversion factors to grams
+        const goldUnits = [
+            // International Units
+            { name: "Gram", value: "gram", factor: 1, category: "international", symbol: "g" },
+            { name: "Kilogram", value: "kilogram", factor: 1000, category: "international", symbol: "kg" },
+            { name: "Milligram", value: "milligram", factor: 0.001, category: "international", symbol: "mg" },
+            { name: "Ounce", value: "ounce", factor: 31.1035, category: "international", symbol: "oz" },
+            { name: "Troy Ounce", value: "troy_ounce", factor: 31.1035, category: "international", symbol: "oz t" },
+            { name: "Pound", value: "pound", factor: 453.592, category: "international", symbol: "lb" },
+            
+            // Traditional Units (South Asia & Middle East)
+            { name: "Tola", value: "tola", factor: 11.6638, category: "traditional", symbol: "tola" },
+            { name: "Bhori", value: "bhori", factor: 11.6638, category: "traditional", symbol: "bhori" },
+            { name: "Chatak", value: "chatak", factor: 5.8319, category: "traditional", symbol: "chatak" },
+            { name: "Mithqal", value: "mithqal", factor: 4.25, category: "traditional", symbol: "mithqal" },
+            { name: "Vori", value: "vori", factor: 11.6638, category: "traditional", symbol: "vori" },
+            { name: "Tael", value: "tael", factor: 37.5, category: "traditional", symbol: "tael" },
+            { name: "Baht", value: "baht", factor: 15.244, category: "traditional", symbol: "baht" },
+            { name: "Mace", value: "mace", factor: 3.75, category: "traditional", symbol: "mace" },
+            { name: "Candy", value: "candy", factor: 254400, category: "traditional", symbol: "candy" }
+        ];
+
+        // DOM elements
+        const fromValueInput = document.getElementById('fromValue');
+        const fromUnitSelect = document.getElementById('fromUnit');
+        const toUnitSelect = document.getElementById('toUnit');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const resultValue = document.getElementById('resultValue');
+        const conversionDetail = document.getElementById('conversionDetail');
+        const resultContainer = document.getElementById('resultContainer');
+        const fromUnitInfo = document.getElementById('fromUnitInfo');
+        const toUnitInfo = document.getElementById('toUnitInfo');
+
+        // Initialize the unit select options
+        function initializeUnitSelects() {
+            // Clear existing options
+            fromUnitSelect.innerHTML = '';
+            toUnitSelect.innerHTML = '';
+            
+            // Add options for all units
+            goldUnits.forEach(unit => {
+                const fromOption = document.createElement('option');
+                fromOption.value = unit.value;
+                fromOption.textContent = `${unit.name} (${unit.symbol})`;
+                fromUnitSelect.appendChild(fromOption);
+                
+                const toOption = document.createElement('option');
+                toOption.value = unit.value;
+                toOption.textContent = `${unit.name} (${unit.symbol})`;
+                toUnitSelect.appendChild(toOption);
+            });
+            
+            // Set default selections
+            fromUnitSelect.value = 'gram';
+            toUnitSelect.value = 'tola';
+            
+            // Update unit info
+            updateUnitInfo();
+        }
+
+        // Update unit information display
+        function updateUnitInfo() {
+            const fromUnitData = goldUnits.find(unit => unit.value === fromUnitSelect.value);
+            const toUnitData = goldUnits.find(unit => unit.value === toUnitSelect.value);
+            
+            if (fromUnitData) {
+                fromUnitInfo.textContent = `1 ${fromUnitData.symbol} = ${(fromUnitData.factor).toFixed(6)} g`;
+            }
+            
+            if (toUnitData) {
+                toUnitInfo.textContent = `1 ${toUnitData.symbol} = ${(toUnitData.factor).toFixed(6)} g`;
+            }
+        }
+
+        // Convert gold weight from one unit to another
+        function convertGoldWeight() {
+            const fromValue = parseFloat(fromValueInput.value);
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+            
+            if (isNaN(fromValue) || fromValue < 0) {
+                resultValue.textContent = "Invalid input";
+                conversionDetail.textContent = "Please enter a valid positive number";
+                resultContainer.style.borderLeftColor = "#dc3545";
+                return;
+            }
+            
+            // Find the units in our array
+            const fromUnitData = goldUnits.find(unit => unit.value === fromUnit);
+            const toUnitData = goldUnits.find(unit => unit.value === toUnit);
+            
+            if (!fromUnitData || !toUnitData) {
+                resultValue.textContent = "Conversion error";
+                conversionDetail.textContent = "Selected units not found";
+                resultContainer.style.borderLeftColor = "#dc3545";
+                return;
+            }
+            
+            // Convert to grams first, then to target unit
+            const valueInGrams = fromValue * fromUnitData.factor;
+            const convertedValue = valueInGrams / toUnitData.factor;
+            
+            // Format the result
+            resultValue.textContent = formatNumber(convertedValue);
+            
+            // Update conversion detail
+            conversionDetail.textContent = `${fromValue} ${fromUnitData.symbol} = ${formatNumber(convertedValue)} ${toUnitData.symbol}`;
+            
+            // Reset border color to success
+            resultContainer.style.borderLeftColor = "var(--primary)";
+            
+            // Add animation
+            resultContainer.classList.remove('fade-in');
+            void resultContainer.offsetWidth; // Trigger reflow
+            resultContainer.classList.add('fade-in');
+        }
+
+        // Format number for display
+        function formatNumber(num) {
+            if (num === 0) return "0";
+            
+            if (num < 0.0001) {
+                return num.toExponential(6);
+            } else if (num < 1) {
+                return num.toFixed(8).replace(/\.?0+$/, '');
+            } else if (num < 1000) {
+                return num.toFixed(4).replace(/\.?0+$/, '');
+            } else if (num < 1000000) {
+                return num.toFixed(2).replace(/\.?0+$/, '');
+            } else {
+                return num.toExponential(4);
+            }
+        }
+
+        // Swap the from and to units
+        function swapUnits() {
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+            
+            fromUnitSelect.value = toUnit;
+            toUnitSelect.value = fromUnit;
+            
+            updateUnitInfo();
+            convertGoldWeight();
+        }
+
+        // Clear all inputs and results
+        function clearAll() {
+            fromValueInput.value = "1";
+            fromUnitSelect.value = "gram";
+            toUnitSelect.value = "tola";
+            resultValue.textContent = "1";
+            conversionDetail.textContent = "1 Gram = 0.0857 Tola";
+            resultContainer.style.borderLeftColor = "var(--primary)";
+            
+            updateUnitInfo();
+            
+            // Add animation
+            resultContainer.classList.remove('fade-in');
+            void resultContainer.offsetWidth; // Trigger reflow
+            resultContainer.classList.add('fade-in');
+        }
+
+        // Filter units by category
+        function filterUnits(category) {
+            // Update active button
+            categoryBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-category') === category) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Get current selections
+            const currentFromUnit = fromUnitSelect.value;
+            const currentToUnit = toUnitSelect.value;
+            
+            // Clear existing options
+            fromUnitSelect.innerHTML = '';
+            toUnitSelect.innerHTML = '';
+            
+            // Add filtered options
+            goldUnits.forEach(unit => {
+                if (category === 'all' || unit.category === category) {
+                    const fromOption = document.createElement('option');
+                    fromOption.value = unit.value;
+                    fromOption.textContent = `${unit.name} (${unit.symbol})`;
+                    fromUnitSelect.appendChild(fromOption);
+                    
+                    const toOption = document.createElement('option');
+                    toOption.value = unit.value;
+                    toOption.textContent = `${unit.name} (${unit.symbol})`;
+                    toUnitSelect.appendChild(toOption);
+                }
+            });
+            
+            // Try to maintain previous selections if they exist in filtered list
+            if (fromUnitSelect.querySelector(`option[value="${currentFromUnit}"]`)) {
+                fromUnitSelect.value = currentFromUnit;
+            }
+            
+            if (toUnitSelect.querySelector(`option[value="${currentToUnit}"]`)) {
+                toUnitSelect.value = currentToUnit;
+            }
+            
+            updateUnitInfo();
+            convertGoldWeight();
+        }
+
+        // Event listeners
+        convertBtn.addEventListener('click', convertGoldWeight);
+        clearBtn.addEventListener('click', clearAll);
+        swapBtn.addEventListener('click', swapUnits);
+
+        fromValueInput.addEventListener('input', convertGoldWeight);
+        fromUnitSelect.addEventListener('change', () => {
+            updateUnitInfo();
+            convertGoldWeight();
+        });
+        toUnitSelect.addEventListener('change', () => {
+            updateUnitInfo();
+            convertGoldWeight();
+        });
+
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterUnits(btn.getAttribute('data-category'));
+            });
+        });
+
+        // Initialize the application
+        initializeUnitSelects();
+        convertGoldWeight();
+    </script>
+</body>
+</html>

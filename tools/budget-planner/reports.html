@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetPro | Reports</title>
+    <meta name="theme-color" content="#0a0a0a">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #1a1a1a;
+            --surface-light: #2a2a2a;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text: #ffffff;
+            --text-secondary: #a1a1aa;
+            --border: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .main {
+            padding: 6rem 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .main {
+                padding-top: 5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo">
+                <span>💰</span>
+                <span>BudgetPro</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="budget.html" class="nav-link">Budget</a>
+                <a href="expenses.html" class="nav-link">Expenses</a>
+                <a href="reports.html" class="nav-link active">Reports</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="card">
+            <h1>Financial Reports</h1>
+        </div>
+
+        <div class="card">
+            <h2>Spending Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Budget</div>
+                    <div class="stat-value" id="totalBudget">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Spent</div>
+                    <div class="stat-value" id="totalSpent">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Remaining</div>
+                    <div class="stat-value" id="remainingBudget">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Utilization</div>
+                    <div class="stat-value" id="utilization">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Category Breakdown</h2>
+            <div id="categoryBreakdown" class="empty-state">
+                No budget categories set
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Expense Trends</h2>
+            <div id="expenseTrends" class="empty-state">
+                No expense data available
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Load reports data
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReportsData();
+        });
+
+        function loadReportsData() {
+            const budgetData = JSON.parse(localStorage.getItem('budgetData')) || {};
+            const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+            
+            // Calculate totals
+            const totalBudget = (budgetData.categories || []).reduce((sum, cat) => sum + cat.amount, 0);
+            const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const remainingBudget = totalBudget - totalSpent;
+            const utilization = totalBudget > 0 ? (totalSpent / totalBudget * 100) : 0;
+            
+            // Update overview
+            document.getElementById('totalBudget').textContent = `$${totalBudget.toFixed(2)}`;
+            document.getElementById('totalSpent').textContent = `$${totalSpent.toFixed(2)}`;
+            document.getElementById('remainingBudget').textContent = `$${remainingBudget.toFixed(2)}`;
+            document.getElementById('utilization').textContent = `${utilization.toFixed(1)}%`;
+            
+            // Update category breakdown
+            renderCategoryBreakdown(budgetData.categories || []);
+            
+            // Update expense trends
+            renderExpenseTrends(expenses);
+        }
+
+        function renderCategoryBreakdown(categories) {
+            const container = document.getElementById('categoryBreakdown');
+            
+            if (categories.length === 0) {
+                container.innerHTML = '<div class="empty-state">No budget categories set</div>';
+                return;
+            }
+            
+            const html = categories.map(cat => {
+                const spent = cat.spent || 0;
+                const percentage = cat.amount > 0 ? (spent / cat.amount * 100) : 0;
+                const remaining = cat.amount - spent;
+                
+                return `
+                    <div class="category-item">
+                        <div>
+                            <div style="font-weight: 600;">${cat.name}</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                                Spent: $${spent.toFixed(2)} / Budget: $${cat.amount.toFixed(2)}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="text-align: right; font-weight: 600;">${percentage.toFixed(1)}%</div>
+                            <div style="font-size: 0.875rem; color: ${remaining >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                                ${remaining >= 0 ? `+$${remaining.toFixed(2)}` : `-$${Math.abs(remaining).toFixed(2)}`}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function renderExpenseTrends(expenses) {
+            const container = document.getElementById('expenseTrends');
+            
+            if (expenses.length === 0) {
+                container.innerHTML = '<div class="empty-state">No expense data available</div>';
+                return;
+            }
+            
+            // Group expenses by category
+            const categoryTotals = {};
+            expenses.forEach(exp => {
+                categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+            });
+            
+            // Sort by amount (descending)
+            const sortedCategories = Object.entries(categoryTotals)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5); // Top 5 categories
+            
+            const maxAmount = Math.max(...Object.values(categoryTotals));
+            
+            const html = sortedCategories.map(([category, amount]) => {
+                const percentage = maxAmount > 0 ? (amount / maxAmount * 100) : 0;
+                
+                return `
+                    <div style="margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>${category}</span>
+                            <span style="font-weight: 600;">$${amount.toFixed(2)}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

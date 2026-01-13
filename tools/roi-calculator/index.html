@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROI Calculator | Multi-Currency</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Dark theme variables (default) */
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --primary-color: #6c8eff;
+            --secondary-color: #9d4edd;
+            --accent-color: #4cc9f0;
+            --border-color: #333333;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --input-bg: #2d2d2d;
+            --result-bg: #252525;
+            --toggle-bg: #333333;
+            --toggle-circle: #f8f9fa;
+            --back-btn-bg: #333333;
+            --modal-bg: #1a1a1a;
+        }
+
+        /* Light theme variables */
+        .light-mode {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #4cc9f0;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --input-bg: #ffffff;
+            --result-bg: #f1f8ff;
+            --toggle-bg: #e0e0e0;
+            --toggle-circle: #ffffff;
+            --back-btn-bg: #e0e0e0;
+            --modal-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--back-btn-bg);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(-3px);
+        }
+
+        .title-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 i {
+            color: var(--accent-color);
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .settings-button {
+            background-color: var(--back-btn-bg);
+            color: var(--text-color);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .settings-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: rotate(30deg);
+        }
+
+        .current-currency-indicator {
+            background-color: var(--back-btn-bg);
+            color: var(--text-color);
+            border: none;
+            height: 45px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            min-width: 60px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .current-currency-indicator:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-text {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--toggle-bg);
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--toggle-circle);
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            color: var(--accent-color);
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label i {
+            color: var(--primary-color);
+            width: 20px;
+        }
+
+        input {
+            padding: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .unit-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            right: 15px;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .calculate-btn {
+            background-color: var(--primary-color);
+            color: white;
+            flex: 2;
+        }
+
+        .calculate-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .reset-btn {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            flex: 1;
+        }
+
+        .reset-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .results {
+            background-color: var(--result-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .result-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: var(--card-bg);
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .positive {
+            color: #4ade80;
+        }
+
+        .negative {
+            color: #f87171;
+        }
+
+        .info-box {
+            background-color: var(--result-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #888;
+            border-left: 3px solid var(--primary-color);
+            text-align: center;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: var(--modal-bg);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            background-color: var(--border-color);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(80vh - 120px);
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 45px 14px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .search-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-option-btn {
+            padding: 8px 16px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-option-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px 5px;
+        }
+
+        .currency-item {
+            padding: 15px;
+            border-radius: 10px;
+            background-color: var(--input-bg);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .currency-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .currency-item.selected {
+            border-color: var(--accent-color);
+            background-color: rgba(76, 201, 240, 0.1);
+        }
+
+        .currency-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .currency-name {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .currency-code {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .currency-symbol-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: #888;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .header-controls {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .back-button {
+                align-self: flex-start;
+                width: auto;
+            }
+            
+            .header-right {
+                align-self: flex-end;
+                margin-top: -60px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .input-group {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .calculate-btn, .reset-btn {
+                width: 100%;
+            }
+            
+            .currency-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal {
+                width: 95%;
+                max-height: 90vh;
+            }
+            
+            .modal-body {
+                max-height: calc(90vh - 120px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.4rem;
+            }
+            
+            input {
+                padding: 12px;
+            }
+            
+            .header-right {
+                margin-top: -55px;
+            }
+            
+            .result-value {
+                font-size: 1.7rem;
+            }
+            
+            .modal-header {
+                padding: 15px 20px;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+            
+            .current-currency-indicator {
+                height: 40px;
+                font-size: 1rem;
+                min-width: 50px;
+            }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <div class="header-controls">
+            <button class="back-button" id="back-button">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            
+            <div class="title-area">
+                <h1><i class="fas fa-chart-line"></i> ROI Calculator</h1>
+                <div class="subtitle">Calculate Return on Investment</div>
+            </div>
+            
+            <div class="header-right">
+                <div class="current-currency-indicator" id="current-currency-indicator" title="Click to change currency">
+                    $
+                </div>
+                
+                <button class="settings-button" id="settings-button" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+                
+                <div class="theme-toggle">
+                    <span class="toggle-text">Dark</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-text">Light</span>
+                </div>
+            </div>
+        </div>
+
+        <main>
+            <div class="card">
+                <h2><i class="fas fa-calculator"></i> Investment Details</h2>
+                
+                <div class="input-group">
+                    <div class="input-container">
+                        <label for="initial-investment"><i class="fas fa-dollar-sign"></i> Initial Investment</label>
+                        <div class="unit-container">
+                            <input type="number" id="initial-investment" placeholder="0" min="0" step="100">
+                            <span class="currency-symbol" id="currency-symbol-initial">$</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-container">
+                        <label for="final-value"><i class="fas fa-coins"></i> Final Value</label>
+                        <div class="unit-container">
+                            <input type="number" id="final-value" placeholder="0" min="0" step="100">
+                            <span class="currency-symbol" id="currency-symbol-final">$</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-container">
+                        <label for="investment-period"><i class="fas fa-calendar-alt"></i> Investment Period</label>
+                        <input type="number" id="investment-period" placeholder="0" min="0" step="0.5">
+                        <span style="margin-top: 5px; font-size: 0.9rem; color: #888;">(in years)</span>
+                    </div>
+                    
+                    <div class="input-container">
+                        <label for="additional-costs"><i class="fas fa-tools"></i> Additional Costs</label>
+                        <div class="unit-container">
+                            <input type="number" id="additional-costs" placeholder="0" min="0" step="10">
+                            <span class="currency-symbol" id="currency-symbol-costs">$</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="calculate-btn" id="calculate-btn">
+                        <i class="fas fa-calculator"></i> Calculate ROI
+                    </button>
+                    <button class="reset-btn" id="reset-btn">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+                
+                <div class="results" id="results" style="display: none;">
+                    <h2><i class="fas fa-chart-bar"></i> ROI Results</h2>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">ROI Percentage</div>
+                            <div class="result-value" id="roi-percentage">0%</div>
+                            <div class="result-label">Return on Investment</div>
+                        </div>
+                        
+                        <div class="result-item">
+                            <div class="result-label">Net Profit</div>
+                            <div class="result-value" id="net-profit">$0</div>
+                            <div class="result-label">Total Profit/Loss</div>
+                        </div>
+                        
+                        <div class="result-item">
+                            <div class="result-label">Annualized ROI</div>
+                            <div class="result-value" id="annualized-roi">0%</div>
+                            <div class="result-label">Per Year</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div 
+                </div>
+            </div>
+        </main>
+        
+    
+    </div>
+
+    <!-- Currency Modal -->
+    <div class="modal-overlay" id="currency-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-globe-americas"></i> Select Currency</h3>
+                <button class="close-modal" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="currency-search" placeholder="Search by country or currency...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <div class="search-options">
+                    <button class="search-option-btn active" data-filter="all">All</button>
+                    <button class="search-option-btn" data-filter="country">By Country</button>
+                    <button class="search-option-btn" data-filter="currency">By Currency</button>
+                    <button class="search-option-btn" data-filter="both">Both</button>
+                </div>
+                
+                <div class="currency-grid" id="currency-list">
+                    <!-- Currency items will be populated here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Currency data - comprehensive list
+        const currencies = [
+            { country: "Afghanistan", currency: "Afghani", symbol: "؋" },
+            { country: "Albania", currency: "Lek", symbol: "L" },
+            { country: "Algeria", currency: "Dinar", symbol: "دج" },
+            { country: "Angola", currency: "Kwanza", symbol: "Kz" },
+            { country: "Argentina", currency: "Peso", symbol: "$" },
+            { country: "Armenia", currency: "Dram", symbol: "֏" },
+            { country: "Australia", currency: "Dollar", symbol: "$" },
+            { country: "Azerbaijan", currency: "Manat", symbol: "₼" },
+            { country: "Bahamas", currency: "Dollar", symbol: "$" },
+            { country: "Bahrain", currency: "Dinar", symbol: ".د.ب" },
+            { country: "Bangladesh", currency: "Taka", symbol: "৳" },
+            { country: "Barbados", currency: "Dollar", symbol: "$" },
+            { country: "Belarus", currency: "Ruble", symbol: "Br" },
+            { country: "Belize", currency: "Dollar", symbol: "$" },
+            { country: "Bhutan", currency: "Ngultrum", symbol: "Nu." },
+            { country: "Bolivia", currency: "Boliviano", symbol: "Bs." },
+            { country: "Botswana", currency: "Pula", symbol: "P" },
+            { country: "Brazil", currency: "Real", symbol: "R$" },
+            { country: "Brunei", currency: "Dollar", symbol: "$" },
+            { country: "Bulgaria", currency: "Lev", symbol: "лв" },
+            { country: "Cambodia", currency: "Riel", symbol: "៛" },
+            { country: "Canada", currency: "Dollar", symbol: "$" },
+            { country: "Chile", currency: "Peso", symbol: "$" },
+            { country: "China", currency: "Yuan", symbol: "¥" },
+            { country: "Colombia", currency: "Peso", symbol: "$" },
+            { country: "Costa Rica", currency: "Colón", symbol: "₡" },
+            { country: "Croatia", currency: "Euro", symbol: "€" },
+            { country: "Cuba", currency: "Peso", symbol: "$" },
+            { country: "Czech Republic", currency: "Koruna", symbol: "Kč" },
+            { country: "Denmark", currency: "Krone", symbol: "kr" },
+            { country: "Dominican Republic", currency: "Peso", symbol: "RD$" },
+            { country: "Egypt", currency: "Pound", symbol: "£" },
+            { country: "Ethiopia", currency: "Birr", symbol: "Br" },
+            { country: "Eurozone", currency: "Euro", symbol: "€" },
+            { country: "Fiji", currency: "Dollar", symbol: "$" },
+            { country: "Georgia", currency: "Lari", symbol: "₾" },
+            { country: "Ghana", currency: "Cedi", symbol: "₵" },
+            { country: "Guatemala", currency: "Quetzal", symbol: "Q" },
+            { country: "Haiti", currency: "Gourde", symbol: "G" },
+            { country: "Honduras", currency: "Lempira", symbol: "L" },
+            { country: "Hong Kong", currency: "Dollar", symbol: "$" },
+            { country: "Hungary", currency: "Forint", symbol: "Ft" },
+            { country: "Iceland", currency: "Króna", symbol: "kr" },
+            { country: "India", currency: "Rupee", symbol: "₹" },
+            { country: "Indonesia", currency: "Rupiah", symbol: "Rp" },
+            { country: "Iran", currency: "Rial", symbol: "﷼" },
+            { country: "Iraq", currency: "Dinar", symbol: "ع.د" },
+            { country: "Israel", currency: "Shekel", symbol: "₪" },
+            { country: "Jamaica", currency: "Dollar", symbol: "$" },
+            { country: "Japan", currency: "Yen", symbol: "¥" },
+            { country: "Jordan", currency: "Dinar", symbol: "د.ا" },
+            { country: "Kazakhstan", currency: "Tenge", symbol: "₸" },
+            { country: "Kenya", currency: "Shilling", symbol: "KSh" },
+            { country: "Kuwait", currency: "Dinar", symbol: "د.ك" },
+            { country: "Laos", currency: "Kip", symbol: "₭" },
+            { country: "Lebanon", currency: "Pound", symbol: "£" },
+            { country: "Liberia", currency: "Dollar", symbol: "$" },
+            { country: "Libya", currency: "Dinar", symbol: "ل.د" },
+            { country: "Malaysia", currency: "Ringgit", symbol: "RM" },
+            { country: "Mexico", currency: "Peso", symbol: "$" },
+            { country: "Mongolia", currency: "Tögrög", symbol: "₮" },
+            { country: "Morocco", currency: "Dirham", symbol: "د.م." },
+            { country: "Myanmar", currency: "Kyat", symbol: "Ks" },
+            { country: "Nepal", currency: "Rupee", symbol: "₨" },
+            { country: "New Zealand", currency: "Dollar", symbol: "$" },
+            { country: "Nigeria", currency: "Naira", symbol: "₦" },
+            { country: "Norway", currency: "Krone", symbol: "kr" },
+            { country: "Oman", currency: "Rial", symbol: "ر.ع." },
+            { country: "Pakistan", currency: "Rupee", symbol: "₨" },
+            { country: "Panama", currency: "Balboa", symbol: "B/." },
+            { country: "Paraguay", currency: "Guaraní", symbol: "₲" },
+            { country: "Peru", currency: "Sol", symbol: "S/" },
+            { country: "Philippines", currency: "Peso", symbol: "₱" },
+            { country: "Poland", currency: "Złoty", symbol: "zł" },
+            { country: "Qatar", currency: "Riyal", symbol: "ر.ق" },
+            { country: "Romania", currency: "Leu", symbol: "lei" },
+            { country: "Russia", currency: "Ruble", symbol: "₽" },
+            { country: "Saudi Arabia", currency: "Riyal", symbol: "﷼" },
+            { country: "Serbia", currency: "Dinar", symbol: "дин" },
+            { country: "Singapore", currency: "Dollar", symbol: "$" },
+            { country: "South Africa", currency: "Rand", symbol: "R" },
+            { country: "South Korea", currency: "Won", symbol: "₩" },
+            { country: "Sri Lanka", currency: "Rupee", symbol: "Rs" },
+            { country: "Sweden", currency: "Krona", symbol: "kr" },
+            { country: "Switzerland", currency: "Franc", symbol: "CHF" },
+            { country: "Thailand", currency: "Baht", symbol: "฿" },
+            { country: "Tunisia", currency: "Dinar", symbol: "د.ت" },
+            { country: "Turkey", currency: "Lira", symbol: "₺" },
+            { country: "Ukraine", currency: "Hryvnia", symbol: "₴" },
+            { country: "United Arab Emirates", currency: "Dirham", symbol: "د.إ" },
+            { country: "United Kingdom", currency: "Pound", symbol: "£" },
+            { country: "United States", currency: "Dollar", symbol: "$" },
+            { country: "Vietnam", currency: "Đồng", symbol: "₫" },
+            { country: "Zambia", currency: "Kwacha", symbol: "ZK" },
+            { country: "Zimbabwe", currency: "Dollar", symbol: "$" }
+        ];
+
+        // Current selected currency (default to USD)
+        let selectedCurrency = {
+            country: "United States",
+            currency: "Dollar",
+            symbol: "$"
+        };
+
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // Start with dark mode by default (toggle is off since dark mode is active)
+        themeToggle.checked = false;
+        
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('roi-calculator-theme') || 'dark';
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            themeToggle.checked = true;
+        }
+        
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                body.classList.add('light-mode');
+                localStorage.setItem('roi-calculator-theme', 'light');
+            } else {
+                body.classList.remove('light-mode');
+                localStorage.setItem('roi-calculator-theme', 'dark');
+            }
+        });
+        
+        // Back button functionality
+        document.getElementById('back-button').addEventListener('click', function() {
+            const goBack = confirm("Go back to previous page?");
+            if (goBack) {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+        
+        // Modal functionality
+        const settingsButton = document.getElementById('settings-button');
+        const currentCurrencyIndicator = document.getElementById('current-currency-indicator');
+        const currencyModal = document.getElementById('currency-modal');
+        const closeModal = document.getElementById('close-modal');
+        const currencySearch = document.getElementById('currency-search');
+        const currencyList = document.getElementById('currency-list');
+        const searchOptionBtns = document.querySelectorAll('.search-option-btn');
+        
+        // Open modal from settings button or currency indicator
+        settingsButton.addEventListener('click', openCurrencyModal);
+        currentCurrencyIndicator.addEventListener('click', openCurrencyModal);
+        
+        function openCurrencyModal() {
+            currencyModal.classList.add('active');
+            currencySearch.focus();
+            renderCurrencyList();
+        }
+        
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            currencyModal.classList.remove('active');
+        });
+        
+        // Close modal when clicking outside
+        currencyModal.addEventListener('click', (e) => {
+            if (e.target === currencyModal) {
+                currencyModal.classList.remove('active');
+            }
+        });
+        
+        // Search filter functionality
+        let currentFilter = 'all';
+        
+        searchOptionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                searchOptionBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderCurrencyList();
+            });
+        });
+        
+        // Real-time search functionality
+        currencySearch.addEventListener('input', () => {
+            renderCurrencyList();
+        });
+        
+        // Render currency list based on search and filter
+        function renderCurrencyList() {
+            const searchTerm = currencySearch.value.toLowerCase();
+            currencyList.innerHTML = '';
+            
+            const filteredCurrencies = currencies.filter(currency => {
+                // Apply search filter
+                if (searchTerm) {
+                    const matchesCountry = currency.country.toLowerCase().includes(searchTerm);
+                    const matchesCurrency = currency.currency.toLowerCase().includes(searchTerm);
+                    const matchesSymbol = currency.symbol.toLowerCase().includes(searchTerm);
+                    
+                    // Apply filter option
+                    if (currentFilter === 'country') return matchesCountry;
+                    if (currentFilter === 'currency') return matchesCurrency;
+                    if (currentFilter === 'both') return matchesCountry || matchesCurrency;
+                    if (currentFilter === 'all') return matchesCountry || matchesCurrency || matchesSymbol;
+                }
+                
+                return true;
+            });
+            
+            // Sort currencies alphabetically by country
+            filteredCurrencies.sort((a, b) => a.country.localeCompare(b.country));
+            
+            // Create currency items
+            filteredCurrencies.forEach(currency => {
+                const currencyItem = document.createElement('div');
+                currencyItem.className = 'currency-item';
+                if (currency.country === selectedCurrency.country) {
+                    currencyItem.classList.add('selected');
+                }
+                
+                currencyItem.innerHTML = `
+                    <div class="currency-details">
+                        <div class="currency-name">${currency.country}</div>
+                        <div class="currency-code">${currency.currency}</div>
+                    </div>
+                    <div class="currency-symbol-display">${currency.symbol}</div>
+                `;
+                
+                currencyItem.addEventListener('click', () => {
+                    selectCurrency(currency);
+                    currencyModal.classList.remove('active');
+                });
+                
+                currencyList.appendChild(currencyItem);
+            });
+            
+            // If no results found
+            if (filteredCurrencies.length === 0) {
+                currencyList.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #888;">
+                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>No currencies found matching "${searchTerm}"</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Select a currency
+        function selectCurrency(currency) {
+            selectedCurrency = currency;
+            
+            // Update all currency symbol displays
+            updateCurrencySymbols();
+            
+            // Update current currency indicator
+            currentCurrencyIndicator.textContent = currency.symbol;
+            currentCurrencyIndicator.title = `${currency.country} - ${currency.currency} (${currency.symbol})`;
+            
+            // Update results if they're showing
+            if (document.getElementById('results').style.display !== 'none') {
+                calculateROI();
+            }
+            
+            // Save to localStorage - this makes it permanent on the device
+            localStorage.setItem('roi-calculator-currency', JSON.stringify(currency));
+        }
+        
+        // Update currency symbols in all input fields
+        function updateCurrencySymbols() {
+            // Update currency symbol in input fields
+            document.querySelectorAll('.currency-symbol').forEach(el => {
+                el.textContent = selectedCurrency.symbol;
+            });
+            
+            // Update any existing results
+            const netProfitElement = document.getElementById('net-profit');
+            if (netProfitElement && netProfitElement.textContent !== '0%') {
+                // Extract the numeric value from the current net profit display
+                const currentValue = netProfitElement.textContent.replace(/[^0-9.-]+/g, '');
+                if (currentValue && !isNaN(parseFloat(currentValue))) {
+                    const formattedValue = parseFloat(currentValue).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    netProfitElement.textContent = `${selectedCurrency.symbol}${formattedValue}`;
+                }
+            }
+        }
+        
+        // Load saved currency from localStorage
+        function loadSavedCurrency() {
+            const savedCurrency = localStorage.getItem('roi-calculator-currency');
+            if (savedCurrency) {
+                try {
+                    const currency = JSON.parse(savedCurrency);
+                    selectCurrency(currency);
+                } catch (e) {
+                    console.log('Error loading saved currency:', e);
+                    // Default to USD if there's an error
+                    selectCurrency({
+                        country: "United States",
+                        currency: "Dollar",
+                        symbol: "$"
+                    });
+                }
+            } else {
+                // Default to USD if no saved currency
+                selectCurrency({
+                    country: "United States",
+                    currency: "Dollar",
+                    symbol: "$"
+                });
+            }
+        }
+        
+        // ROI Calculation function
+        function calculateROI() {
+            // Get input values
+            const initialInvestment = parseFloat(document.getElementById('initial-investment').value) || 0;
+            const finalValue = parseFloat(document.getElementById('final-value').value) || 0;
+            const additionalCosts = parseFloat(document.getElementById('additional-costs').value) || 0;
+            const investmentPeriod = parseFloat(document.getElementById('investment-period').value) || 1;
+            
+            // Calculate total cost (initial investment + additional costs)
+            const totalCost = initialInvestment + additionalCosts;
+            
+            // Calculate net profit
+            const netProfit = finalValue - totalCost;
+            
+            // Calculate ROI percentage
+            let roiPercentage = 0;
+            if (totalCost > 0) {
+                roiPercentage = (netProfit / totalCost) * 100;
+            }
+            
+            // Calculate annualized ROI
+            let annualizedROI = 0;
+            if (investmentPeriod > 0) {
+                annualizedROI = (Math.pow(1 + roiPercentage/100, 1/investmentPeriod) - 1) * 100;
+            }
+            
+            // Format numbers with commas
+            function formatNumber(num) {
+                return num.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+            
+            // Display results with selected currency symbol
+            document.getElementById('roi-percentage').textContent = `${formatNumber(roiPercentage)}%`;
+            document.getElementById('net-profit').textContent = `${selectedCurrency.symbol}${formatNumber(netProfit)}`;
+            document.getElementById('annualized-roi').textContent = `${formatNumber(annualizedROI)}%`;
+            
+            // Add color coding for positive/negative ROI
+            const roiPercentageElement = document.getElementById('roi-percentage');
+            const netProfitElement = document.getElementById('net-profit');
+            const annualizedRoiElement = document.getElementById('annualized-roi');
+            
+            // Remove existing classes
+            roiPercentageElement.classList.remove('positive', 'negative');
+            netProfitElement.classList.remove('positive', 'negative');
+            annualizedRoiElement.classList.remove('positive', 'negative');
+            
+            // Add appropriate class based on value
+            if (roiPercentage > 0) {
+                roiPercentageElement.classList.add('positive');
+            } else if (roiPercentage < 0) {
+                roiPercentageElement.classList.add('negative');
+            }
+            
+            if (netProfit > 0) {
+                netProfitElement.classList.add('positive');
+            } else if (netProfit < 0) {
+                netProfitElement.classList.add('negative');
+            }
+            
+            if (annualizedROI > 0) {
+                annualizedRoiElement.classList.add('positive');
+            } else if (annualizedROI < 0) {
+                annualizedRoiElement.classList.add('negative');
+            }
+            
+            // Show results section
+            document.getElementById('results').style.display = 'block';
+            
+            // Scroll to results for better UX on mobile
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Reset form function
+        function resetForm() {
+            document.getElementById('initial-investment').value = '';
+            document.getElementById('final-value').value = '';
+            document.getElementById('investment-period').value = '';
+            document.getElementById('additional-costs').value = '';
+            
+            // Hide results
+            document.getElementById('results').style.display = 'none';
+            
+            // Focus on first input
+            document.getElementById('initial-investment').focus();
+        }
+        
+        // Event listeners
+        document.getElementById('calculate-btn').addEventListener('click', calculateROI);
+        document.getElementById('reset-btn').addEventListener('click', resetForm);
+        
+        // Allow Enter key to trigger calculation
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    calculateROI();
+                }
+            });
+        });
+        
+        // Initialize with example values for demonstration
+        window.addEventListener('DOMContentLoaded', function() {
+            // Load saved currency (this will update all symbols)
+            loadSavedCurrency();
+            
+            // Only set example values if all fields are empty
+            const initialInvestment = document.getElementById('initial-investment').value;
+            if (!initialInvestment) {
+                document.getElementById('initial-investment').value = '10000';
+                document.getElementById('final-value').value = '15000';
+                document.getElementById('investment-period').value = '3';
+                document.getElementById('additional-costs').value = '500';
+                
+                // Calculate ROI with example values
+                setTimeout(calculateROI, 100);
+            }
+        });
+    </script>
+</body>
+</html>

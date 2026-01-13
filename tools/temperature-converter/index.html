@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Temperature Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #ef4444;
+            --primary-dark: #dc2626;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --card-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            --hover-shadow: 0 35px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(239, 68, 68, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 28px;
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            max-width: 600px;
+            padding: 52px 44px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .container:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 44px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+
+        .converter-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 15px 30px rgba(239, 68, 68, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .converter-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .converter-icon span {
+            font-size: 2.8rem;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--dark), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .input-section {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group label::before {
+            content: '🌡️';
+            font-size: 1.1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px 22px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            background: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .input-field::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .select-group {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 24px;
+            align-items: end;
+            margin-bottom: 36px;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            pointer-events: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .select-box {
+            width: 100%;
+            padding: 18px 22px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            background: white;
+            appearance: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .select-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .swap-btn {
+            background: linear-gradient(135deg, var(--accent), #d97706);
+            border: none;
+            border-radius: 16px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 8px;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .swap-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .swap-btn:hover {
+            transform: rotate(180deg) scale(1.15);
+            box-shadow: 0 12px 25px rgba(245, 158, 11, 0.5);
+        }
+
+        .swap-btn:hover::before {
+            opacity: 1;
+        }
+
+        .swap-btn span {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-section {
+            margin-bottom: 36px;
+            position: relative;
+        }
+
+        .convert-btn {
+            width: 100%;
+            padding: 20px 28px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 18px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .convert-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.5);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .convert-btn:hover::before {
+            left: 100%;
+        }
+
+        .convert-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 20px;
+            padding: 36px;
+            text-align: center;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        .result-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--success));
+        }
+
+        .result-section.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            display: block;
+        }
+
+        .result-label {
+            color: var(--secondary);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .result-label::before {
+            content: '🔥';
+            font-size: 1.2rem;
+        }
+
+        .result-value {
+            color: var(--success);
+            font-size: 2.4rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--success), #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .result-detail {
+            color: var(--secondary);
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .unit-badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .unit-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 36px 28px;
+                max-width: 100%;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .select-group {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .swap-btn {
+                order: 3;
+                justify-self: center;
+                margin: 12px 0;
+            }
+
+            .result-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animation for result */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Floating animation for container */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .container {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="converter-icon">
+                <span>🌡️</span>
+            </div>
+            <h1>Temperature Converter</h1>
+            <p>Professional tool for precise temperature conversions</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="inputValue">Temperature Value</label>
+                <input type="number" id="inputValue" class="input-field" placeholder="Enter temperature to convert" value="0" step="any">
+            </div>
+        </div>
+
+        <div class="select-group">
+            <div class="select-wrapper">
+                <label for="fromUnit">From Unit</label>
+                <select id="fromUnit" class="select-box">
+                    <option value="celsius">Celsius (°C)</option>
+                    <option value="fahrenheit">Fahrenheit (°F)</option>
+                    <option value="kelvin">Kelvin (K)</option>
+                    <option value="rankine">Rankine (°R)</option>
+                    <option value="reaumur">Réaumur (°Ré)</option>
+                    <option value="delisle">Delisle (°De)</option>
+                    <option value="newton">Newton (°N)</option>
+                    <option value="romer">Rømer (°Rø)</option>
+                </select>
+            </div>
+
+            <button class="swap-btn" onclick="swapUnits()">
+                <span>⇄</span>
+            </button>
+
+            <div class="select-wrapper">
+                <label for="toUnit">To Unit</label>
+                <select id="toUnit" class="select-box">
+                    <option value="fahrenheit">Fahrenheit (°F)</option>
+                    <option value="celsius">Celsius (°C)</option>
+                    <option value="kelvin">Kelvin (K)</option>
+                    <option value="rankine">Rankine (°R)</option>
+                    <option value="reaumur">Réaumur (°Ré)</option>
+                    <option value="delisle">Delisle (°De)</option>
+                    <option value="newton">Newton (°N)</option>
+                    <option value="romer">Rømer (°Rø)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="action-section">
+            <button class="convert-btn" onclick="convertTemperature()">
+                Convert Temperature
+            </button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-label">Conversion Result</div>
+            <div class="result-value" id="result">0°C = 32°F</div>
+            <div class="result-detail" id="resultDetail">Precise temperature conversion completed</div>
+            
+            <div class="unit-badges">
+                <span class="unit-badge" id="fromBadge">Celsius</span>
+                <span class="unit-badge" id="toBadge">Fahrenheit</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Temperature conversion functions
+        const temperatureConversions = {
+            // To Celsius first
+            toCelsius: {
+                'celsius': (val) => val,
+                'fahrenheit': (val) => (val - 32) * 5/9,
+                'kelvin': (val) => val - 273.15,
+                'rankine': (val) => (val - 491.67) * 5/9,
+                'reaumur': (val) => val * 1.25,
+                'delisle': (val) => 100 - val * 2/3,
+                'newton': (val) => val * 100/33,
+                'romer': (val) => (val - 7.5) * 40/21
+            },
+            
+            // From Celsius to target
+            fromCelsius: {
+                'celsius': (val) => val,
+                'fahrenheit': (val) => (val * 9/5) + 32,
+                'kelvin': (val) => val + 273.15,
+                'rankine': (val) => (val + 273.15) * 9/5,
+                'reaumur': (val) => val * 0.8,
+                'delisle': (val) => (100 - val) * 3/2,
+                'newton': (val) => val * 33/100,
+                'romer': (val) => (val * 21/40) + 7.5
+            }
+        };
+
+        const unitNames = {
+            'celsius': 'Celsius',
+            'fahrenheit': 'Fahrenheit',
+            'kelvin': 'Kelvin',
+            'rankine': 'Rankine',
+            'reaumur': 'Réaumur',
+            'delisle': 'Delisle',
+            'newton': 'Newton',
+            'romer': 'Rømer'
+        };
+
+        const unitSymbols = {
+            'celsius': '°C',
+            'fahrenheit': '°F',
+            'kelvin': 'K',
+            'rankine': '°R',
+            'reaumur': '°Ré',
+            'delisle': '°De',
+            'newton': '°N',
+            'romer': '°Rø'
+        };
+
+        function convertTemperature() {
+            const inputValue = parseFloat(document.getElementById('inputValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const resultElement = document.getElementById('result');
+            const resultDetail = document.getElementById('resultDetail');
+            const resultSection = document.getElementById('resultSection');
+            const fromBadge = document.getElementById('fromBadge');
+            const toBadge = document.getElementById('toBadge');
+
+            if (isNaN(inputValue) || inputValue === '') {
+                resultElement.textContent = 'Invalid Input';
+                resultDetail.textContent = 'Please enter a valid number';
+                resultSection.classList.add('show');
+                return;
+            }
+
+            if (fromUnit === toUnit) {
+                resultElement.textContent = 'Same Units Selected';
+                resultDetail.textContent = 'Please select different units for conversion';
+                resultSection.classList.add('show');
+                return;
+            }
+
+            // Convert to Celsius first
+            const valueInCelsius = temperatureConversions.toCelsius[fromUnit](inputValue);
+            
+            // Convert from Celsius to target unit
+            const result = temperatureConversions.fromCelsius[toUnit](valueInCelsius);
+            
+            // Format the result
+            const formattedResult = result.toFixed(2);
+            
+            // Update result display
+            resultElement.textContent = `${inputValue}${unitSymbols[fromUnit]} = ${formattedResult}${unitSymbols[toUnit]}`;
+            resultDetail.textContent = 'Precise temperature conversion completed';
+            
+            // Update badges
+            fromBadge.textContent = unitNames[fromUnit];
+            toBadge.textContent = unitNames[toUnit];
+            
+            // Show result with animation
+            resultSection.style.display = 'block';
+            setTimeout(() => {
+                resultSection.classList.add('show');
+                resultSection.classList.add('fade-in-up');
+            }, 10);
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            
+            const tempValue = fromUnit.value;
+            fromUnit.value = toUnit.value;
+            toUnit.value = tempValue;
+        }
+
+        // Add enter key support
+        document.getElementById('inputValue').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertTemperature();
+            }
+        });
+
+        // Initial state - hide result section
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('resultSection').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

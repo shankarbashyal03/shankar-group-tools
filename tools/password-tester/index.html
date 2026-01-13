@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Tester</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        body.light-mode {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .light-mode .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-button {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mode-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .light-mode .mode-toggle {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        
+        .mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .light-mode .mode-toggle:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.8rem;
+            background: linear-gradient(to right, #00b4db, #0083b0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .light-mode h1 {
+            background: linear-gradient(to right, #0083b0, #00b4db);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .light-mode .subtitle {
+            color: #666;
+        }
+        
+        /* Infinity Badge */
+        .infinity-badge {
+            text-align: center;
+            margin: 15px 0 25px 0;
+            font-size: 1.2rem;
+        }
+        
+        .infinity-icon {
+            font-size: 2rem;
+            color: #00b4db;
+            margin: 0 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .light-mode .infinity-icon {
+            color: #0083b0;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Password Input Section */
+        .password-input-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .password-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .password-input {
+            flex: 1;
+            padding: 18px 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .light-mode .password-input {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: #00b4db;
+            box-shadow: 0 0 0 3px rgba(0, 180, 219, 0.3);
+        }
+        
+        .light-mode .password-input:focus {
+            border-color: #0083b0;
+            box-shadow: 0 0 0 3px rgba(0, 131, 176, 0.3);
+        }
+        
+        .toggle-password {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .light-mode .toggle-password {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        
+        .toggle-password:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .light-mode .toggle-password:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Strength Meter */
+        .strength-meter {
+            margin: 30px 0;
+        }
+        
+        .strength-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .strength-text {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .strength-value {
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        
+        .meter-bar {
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .light-mode .meter-bar {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.5s ease, background-color 0.5s ease;
+        }
+        
+        /* Strength Colors */
+        .strength-0 {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            width: 20%;
+        }
+        
+        .strength-1 {
+            background: linear-gradient(to right, #ff416c, #ff7a45);
+            width: 40%;
+        }
+        
+        .strength-2 {
+            background: linear-gradient(to right, #ff9a00, #ff7a45);
+            width: 60%;
+        }
+        
+        .strength-3 {
+            background: linear-gradient(to right, #ff9a00, #f5d020);
+            width: 80%;
+        }
+        
+        .strength-4 {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            width: 100%;
+        }
+        
+        .strength-description {
+            font-size: 0.9rem;
+            color: #aaa;
+            text-align: center;
+        }
+        
+        .light-mode .strength-description {
+            color: #666;
+        }
+        
+        /* Criteria Section */
+        .criteria-container {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .light-mode .criteria-container {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .criteria-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #00b4db;
+            font-weight: 600;
+        }
+        
+        .light-mode .criteria-title {
+            color: #0083b0;
+        }
+        
+        .criteria-list {
+            list-style: none;
+        }
+        
+        .criterion {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .criterion-icon {
+            margin-right: 15px;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .criterion-met {
+            color: #00b09b;
+        }
+        
+        .criterion-not-met {
+            color: #ff416c;
+        }
+        
+        .light-mode .criterion-met {
+            color: #008c8c;
+        }
+        
+        .light-mode .criterion-not-met {
+            color: #ff416c;
+        }
+        
+        /* Time to Crack */
+        .time-to-crack {
+            background: linear-gradient(135deg, rgba(0, 180, 219, 0.2), rgba(0, 131, 176, 0.2));
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .light-mode .time-to-crack {
+            background: linear-gradient(135deg, rgba(0, 180, 219, 0.1), rgba(0, 131, 176, 0.1));
+        }
+        
+        .time-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .time-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00b4db;
+        }
+        
+        .light-mode .time-value {
+            color: #0083b0;
+        }
+        
+        /* Action Buttons */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 16px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            color: white;
+        }
+        
+        .clear-btn {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .action-btn:active {
+            transform: translateY(1px);
+        }
+        
+        /* Generation Counter */
+        .generation-counter {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #aaa;
+        }
+        
+        .light-mode .generation-counter {
+            color: #666;
+        }
+        
+        .counter-value {
+            font-weight: bold;
+            color: #00b4db;
+            font-size: 1.2rem;
+        }
+        
+        .light-mode .counter-value {
+            color: #0083b0;
+        }
+        
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ff4757;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .light-mode .offline-indicator {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .password-input-wrapper {
+                flex-direction: column;
+            }
+            
+            .toggle-password {
+                width: 100%;
+                height: 50px;
+                margin-top: 10px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .header-controls {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .back-button, .mode-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .password-input {
+                font-size: 1rem;
+                padding: 15px;
+            }
+            
+            .strength-text, .strength-value {
+                font-size: 1rem;
+            }
+            
+            .time-value {
+                font-size: 1.5rem;
+            }
+            
+            .criteria-container {
+                padding: 15px;
+            }
+            
+            .criterion {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        <i class="fas fa-wifi-slash"></i> You're offline
+    </div>
+    
+    <div class="container">
+        <!-- Header with back button and theme toggle -->
+        <div class="header-controls">
+            <a href="index.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <button class="mode-toggle" id="modeToggle">
+                <i class="fas fa-moon"></i> Dark Mode
+            </button>
+        </div>
+        
+        <h1><i class="fas fa-shield-alt"></i> Password Strength Tester</h1>
+        <p class="subtitle">Test your password security and get suggestions for improvement</p>
+        
+        <!-- Infinity Badge -->
+        <div 
+        </div>
+        
+        <!-- Password Input Section -->
+        <div class="password-input-container">
+            <div class="password-input-wrapper">
+                <input type="password" id="passwordInput" class="password-input" 
+                       placeholder="Enter your password to test its strength" 
+                       autocomplete="off">
+                <button class="toggle-password" id="togglePassword">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Strength Meter -->
+        <div class="strength-meter">
+            <div class="strength-label">
+                <span class="strength-text">STRENGTH:</span>
+                <span class="strength-value" id="strengthValue">Very Weak</span>
+            </div>
+            <div class="meter-bar">
+                <div class="meter-fill" id="meterFill"></div>
+            </div>
+            <div class="strength-description" id="strengthDescription">
+                Password not entered yet
+            </div>
+        </div>
+        
+        <!-- Criteria Section -->
+        <div class="criteria-container">
+            <div class="criteria-title">Password Requirements</div>
+            <ul class="criteria-list">
+                <li class="criterion">
+                    <span class="criterion-icon" id="lengthIcon">○</span>
+                    <span>At least 12 characters long</span>
+                </li>
+                <li class="criterion">
+                    <span class="criterion-icon" id="lowercaseIcon">○</span>
+                    <span>Contains lowercase letters</span>
+                </li>
+                <li class="criterion">
+                    <span class="criterion-icon" id="uppercaseIcon">○</span>
+                    <span>Contains uppercase letters</span>
+                </li>
+                <li class="criterion">
+                    <span class="criterion-icon" id="numbersIcon">○</span>
+                    <span>Contains numbers</span>
+                </li>
+                <li class="criterion">
+                    <span class="criterion-icon" id="symbolsIcon">○</span>
+                    <span>Contains symbols (!@#$%^&* etc.)</span>
+                </li>
+                <li class="criterion">
+                    <span class="criterion-icon" id="commonIcon">○</span>
+                    <span>Not a common password</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Time to Crack -->
+        <div class="time-to-crack">
+            <div class="time-title">Estimated time to crack this password:</div>
+            <div class="time-value" id="timeToCrack">Instantly</div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="button-group">
+            <button class="action-btn generate-btn" id="generateBtn">
+                <i class="fas fa-key"></i> Generate Strong Password
+            </button>
+            <button class="action-btn copy-btn" id="copyBtn" disabled>
+                <i class="fas fa-copy"></i> Copy Password
+            </button>
+            <button class="action-btn clear-btn" id="clearBtn">
+                <i class="fas fa-trash"></i> Clear
+            </button>
+        </div>
+        
+        <!-- Generation Counter -->
+        <div class="generation-counter">
+            Passwords generated in this session: <span class="counter-value" id="generationCounter">0</span>
+            <br>
+            <small>Total possible unique passwords: 18.5 nonillion (∞)</small>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const passwordInput = document.getElementById('passwordInput');
+        const togglePassword = document.getElementById('togglePassword');
+        const strengthValue = document.getElementById('strengthValue');
+        const meterFill = document.getElementById('meterFill');
+        const strengthDescription = document.getElementById('strengthDescription');
+        const timeToCrack = document.getElementById('timeToCrack');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const modeToggle = document.getElementById('modeToggle');
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        const generationCounter = document.getElementById('generationCounter');
+        const body = document.body;
+        
+        // Criteria icons
+        const lengthIcon = document.getElementById('lengthIcon');
+        const lowercaseIcon = document.getElementById('lowercaseIcon');
+        const uppercaseIcon = document.getElementById('uppercaseIcon');
+        const numbersIcon = document.getElementById('numbersIcon');
+        const symbolsIcon = document.getElementById('symbolsIcon');
+        const commonIcon = document.getElementById('commonIcon');
+        
+        // Common passwords list (for checking)
+        const commonPasswords = [
+            'password', '123456', '12345678', '123456789', '12345',
+            'qwerty', 'abc123', 'password1', 'admin', 'letmein',
+            'welcome', 'monkey', 'dragon', 'football', 'baseball',
+            'mustang', 'master', 'hello', 'sunshine', 'loveme'
+        ];
+        
+        // Session variables
+        let generationCount = 0;
+        
+        // Initialize the app
+        function initApp() {
+            // Load theme preference from localStorage
+            const savedTheme = localStorage.getItem('passwordTesterTheme');
+            if (savedTheme === 'light') {
+                enableLightMode();
+            }
+            
+            // Load generation count
+            const savedCount = localStorage.getItem('passwordGenerationCount');
+            generationCount = savedCount ? parseInt(savedCount) : 0;
+            generationCounter.textContent = generationCount.toLocaleString();
+            
+            // Check online status
+            updateOnlineStatus();
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
+            // Add event listeners
+            passwordInput.addEventListener('input', testPasswordStrength);
+            togglePassword.addEventListener('click', togglePasswordVisibility);
+            generateBtn.addEventListener('click', generateStrongPassword);
+            copyBtn.addEventListener('click', copyPassword);
+            clearBtn.addEventListener('click', clearPassword);
+            modeToggle.addEventListener('click', toggleTheme);
+            
+            // Test empty password initially
+            testPasswordStrength();
+        }
+        
+        // Update online/offline indicator
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineIndicator.style.display = 'none';
+            } else {
+                offlineIndicator.style.display = 'block';
+            }
+        }
+        
+        // Theme toggle functionality
+        function toggleTheme() {
+            if (body.classList.contains('light-mode')) {
+                disableLightMode();
+            } else {
+                enableLightMode();
+            }
+        }
+        
+        function enableLightMode() {
+            body.classList.add('light-mode');
+            modeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+            localStorage.setItem('passwordTesterTheme', 'light');
+        }
+        
+        function disableLightMode() {
+            body.classList.remove('light-mode');
+            modeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+            localStorage.setItem('passwordTesterTheme', 'dark');
+        }
+        
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Update icon
+            const icon = togglePassword.querySelector('i');
+            icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        }
+        
+        // Test password strength
+        function testPasswordStrength() {
+            const password = passwordInput.value;
+            let score = 0;
+            let criteriaMet = 0;
+            let feedback = '';
+            
+            // Reset criteria icons
+            resetCriteriaIcons();
+            
+            // Check length (12+ characters = 2 points, 8-11 = 1 point)
+            if (password.length >= 12) {
+                score += 2;
+                criteriaMet++;
+                updateCriterionIcon(lengthIcon, true);
+            } else if (password.length >= 8) {
+                score += 1;
+                updateCriterionIcon(lengthIcon, false);
+            } else {
+                updateCriterionIcon(lengthIcon, false);
+            }
+            
+            // Check for lowercase letters
+            if (/[a-z]/.test(password)) {
+                score += 1;
+                criteriaMet++;
+                updateCriterionIcon(lowercaseIcon, true);
+            } else {
+                updateCriterionIcon(lowercaseIcon, false);
+            }
+            
+            // Check for uppercase letters
+            if (/[A-Z]/.test(password)) {
+                score += 1;
+                criteriaMet++;
+                updateCriterionIcon(uppercaseIcon, true);
+            } else {
+                updateCriterionIcon(uppercaseIcon, false);
+            }
+            
+            // Check for numbers
+            if (/[0-9]/.test(password)) {
+                score += 1;
+                criteriaMet++;
+                updateCriterionIcon(numbersIcon, true);
+            } else {
+                updateCriterionIcon(numbersIcon, false);
+            }
+            
+            // Check for symbols
+            if (/[^A-Za-z0-9]/.test(password)) {
+                score += 2; // Symbols add more security
+                criteriaMet++;
+                updateCriterionIcon(symbolsIcon, true);
+            } else {
+                updateCriterionIcon(symbolsIcon, false);
+            }
+            
+            // Check if it's a common password
+            const isCommon = commonPasswords.includes(password.toLowerCase());
+            if (!isCommon && password.length > 0) {
+                score += 1;
+                criteriaMet++;
+                updateCriterionIcon(commonIcon, true);
+            } else if (password.length > 0) {
+                score = Math.max(score - 2, 0); // Penalize common passwords
+                updateCriterionIcon(commonIcon, false);
+                feedback = 'This is a very common password. Avoid using common words.';
+            }
+            
+            // Additional scoring factors
+            if (password.length > 16) score += 1;
+            if (password.length > 20) score += 1;
+            
+            // Cap the score at 10
+            score = Math.min(score, 10);
+            
+            // Determine strength level
+            let strengthLevel, strengthText, strengthClass;
+            
+            if (password.length === 0) {
+                strengthLevel = 0;
+                strengthText = 'No Password';
+                strengthClass = 'strength-0';
+                feedback = 'Enter a password to test its strength';
+                copyBtn.disabled = true;
+            } else if (score <= 3) {
+                strengthLevel = 1;
+                strengthText = 'Very Weak';
+                strengthClass = 'strength-0';
+                feedback = feedback || 'Easy to crack. Consider adding more characters, numbers, and symbols.';
+                copyBtn.disabled = false;
+            } else if (score <= 5) {
+                strengthLevel = 2;
+                strengthText = 'Weak';
+                strengthClass = 'strength-1';
+                feedback = feedback || 'Can be improved. Add more character types and length.';
+                copyBtn.disabled = false;
+            } else if (score <= 7) {
+                strengthLevel = 3;
+                strengthText = 'Good';
+                strengthClass = 'strength-2';
+                feedback = feedback || 'Moderately secure. Consider adding more complexity.';
+                copyBtn.disabled = false;
+            } else if (score <= 9) {
+                strengthLevel = 4;
+                strengthText = 'Strong';
+                strengthClass = 'strength-3';
+                feedback = 'Secure password. Good job!';
+                copyBtn.disabled = false;
+            } else {
+                strengthLevel = 5;
+                strengthText = 'Very Strong';
+                strengthClass = 'strength-4';
+                feedback = 'Excellent password! Very secure.';
+                copyBtn.disabled = false;
+            }
+            
+            // Update UI
+            strengthValue.textContent = strengthText;
+            meterFill.className = 'meter-fill ' + strengthClass;
+            strengthDescription.textContent = feedback;
+            
+            // Calculate and update time to crack
+            updateTimeToCrack(score, password.length, criteriaMet);
+            
+            // Save last tested password to localStorage
+            if (password.length > 0) {
+                localStorage.setItem('lastTestedPassword', password);
+            }
+        }
+        
+        // Reset criteria icons
+        function resetCriteriaIcons() {
+            [lengthIcon, lowercaseIcon, uppercaseIcon, numbersIcon, symbolsIcon, commonIcon].forEach(icon => {
+                icon.textContent = '○';
+                icon.className = 'criterion-icon';
+            });
+        }
+        
+        // Update criterion icon
+        function updateCriterionIcon(icon, met) {
+            icon.textContent = met ? '✓' : '✗';
+            icon.className = 'criterion-icon ' + (met ? 'criterion-met' : 'criterion-not-met');
+        }
+        
+        // Calculate time to crack
+        function updateTimeToCrack(score, length, criteriaMet) {
+            let time;
+            
+            if (length === 0) {
+                time = 'Instantly';
+            } else if (score <= 3) {
+                time = 'Instantly';
+            } else if (score <= 5) {
+                time = 'Less than an hour';
+            } else if (score <= 7) {
+                if (length < 10) {
+                    time = 'A few hours';
+                } else {
+                    time = 'Several days';
+                }
+            } else if (score <= 9) {
+                if (length < 12) {
+                    time = 'A few months';
+                } else {
+                    time = 'Several years';
+                }
+            } else {
+                time = 'Centuries';
+            }
+            
+            timeToCrack.textContent = time;
+        }
+        
+        // Generate a strong password
+        function generateStrongPassword() {
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            let password = '';
+            
+            // Ensure at least one of each type
+            password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+            password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+            password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            password += symbols.charAt(Math.floor(Math.random() * symbols.length));
+            
+            // Add more random characters to reach 16 characters
+            const allChars = lowercase + uppercase + numbers + symbols;
+            for (let i = password.length; i < 16; i++) {
+                password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+            }
+            
+            // Shuffle the password
+            password = password.split('').sort(() => Math.random() - 0.5).join('');
+            
+            // Set the password and test it
+            passwordInput.value = password;
+            testPasswordStrength();
+            
+            // Increment and update generation counter
+            generationCount++;
+            generationCounter.textContent = generationCount.toLocaleString();
+            localStorage.setItem('passwordGenerationCount', generationCount);
+            
+            // Show a message
+            strengthDescription.textContent = `Strong password generated! (Total: ${generationCount.toLocaleString()})`;
+            
+            // Show infinity animation
+            showInfinityAnimation();
+        }
+        
+        // Show infinity animation
+        function showInfinityAnimation() {
+            const infinityIcon = document.querySelector('.infinity-icon');
+            infinityIcon.style.animation = 'none';
+            setTimeout(() => {
+                infinityIcon.style.animation = 'pulse 2s infinite';
+            }, 10);
+        }
+        
+        // Copy password to clipboard
+        function copyPassword() {
+            const password = passwordInput.value;
+            
+            if (password.length === 0) {
+                strengthDescription.textContent = 'No password to copy';
+                return;
+            }
+            
+            navigator.clipboard.writeText(password).then(() => {
+                // Visual feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                copyBtn.style.background = 'linear-gradient(to right, #00b09b, #96c93d)';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.background = 'linear-gradient(to right, #8e2de2, #4a00e0)';
+                }, 2000);
+                
+                strengthDescription.textContent = 'Password copied to clipboard!';
+            }).catch(err => {
+                console.error('Failed to copy password: ', err);
+                strengthDescription.textContent = 'Failed to copy password';
+            });
+        }
+        
+        // Clear password field
+        function clearPassword() {
+            passwordInput.value = '';
+            testPasswordStrength();
+            passwordInput.focus();
+        }
+        
+        // Initialize the app
+        initApp();
+    </script>
+</body>
+</html>

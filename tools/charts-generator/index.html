@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Generator - Works Offline</title>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- SheetJS for Excel parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Reset and Variables */
+        :root {
+            /* Dark Mode Variables (Default) */
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-card: #242424;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #888888;
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --danger: #e71d36;
+            --warning: #ff9f1c;
+            --border: #333333;
+            --border-light: #444444;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --radius: 12px;
+        }
+
+        /* Light Mode Variables */
+        .light-mode {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #495057;
+            --text-muted: #6c757d;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Header and Navigation */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateX(-3px);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Mode Toggle */
+        .mode-toggle {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .mode-toggle:hover {
+            border-color: var(--primary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: calc(100vh - 40px);
+        }
+
+        /* Card Sections */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            margin-bottom: 25px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed var(--primary);
+            border-radius: var(--radius);
+            padding: 60px 20px;
+            text-align: center;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: var(--bg-card);
+            border-color: var(--primary-dark);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .upload-area p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .formats {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 25px !important;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn.secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn.secondary:hover {
+            border-color: var(--primary);
+            background: var(--bg-card);
+        }
+
+        .btn.danger {
+            background: var(--danger);
+        }
+
+        .btn.danger:hover {
+            background: #c1121f;
+        }
+
+        /* File Info */
+        .file-info {
+            background: rgba(67, 97, 238, 0.1);
+            padding: 15px;
+            border-radius: var(--radius);
+            margin-top: 20px;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-info-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-info i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        /* Data Controls */
+        .data-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown {
+            padding: 14px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* Performance Controls */
+        .performance-controls {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--warning);
+            margin: 25px 0;
+        }
+
+        .performance-controls h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .performance-control {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 500px;
+            width: 100%;
+            margin: 30px 0;
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        /* Button Groups */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* Data Preview */
+        .data-preview-container {
+            margin-top: 30px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        thead {
+            background: var(--primary);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 600;
+        }
+
+        tbody tr:hover {
+            background-color: var(--bg-primary);
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        /* Status Messages */
+        .status {
+            padding: 12px;
+            border-radius: var(--radius);
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status.success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-left: 4px solid #28a745;
+        }
+
+        .status.error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-left: 4px solid #dc3545;
+        }
+
+        .status.info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .status.warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border-left: 4px solid #ffc107;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-left {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .data-controls, .performance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 400px;
+                padding: 15px;
+            }
+
+            .upload-area {
+                padding: 40px 15px;
+            }
+
+            .upload-icon {
+                font-size: 3rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .chart-container {
+                height: 300px;
+                padding: 10px;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Range Slider */
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: var(--border-light);
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Back Button and Mode Toggle -->
+        <header class="header">
+            <div class="header-left">
+                <button class="back-btn" id="back-btn" style="display: none;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1><i class="fas fa-chart-line"></i> Chart Generator</h1>
+            </div>
+            <button class="mode-toggle" id="mode-toggle">
+                <i class="fas fa-moon"></i> Dark Mode
+            </button>
+        </header>
+
+        <main>
+            <!-- Step 1: File Upload -->
+            <section class="card" id="upload-section">
+                <h2><i class="fas fa-file-upload"></i> Step 1: Upload Your Excel/CSV File</h2>
+                <div class="upload-area" id="drop-area">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <p>Drag & drop your file here or click to browse</p>
+                    <p class="formats">Supports: .xlsx, .xls, .csv</p>
+                    <input type="file" id="file-input" accept=".xlsx,.xls,.csv" hidden>
+                    <button class="btn" id="browse-btn">
+                        <i class="fas fa-folder-open"></i> Browse Files
+                    </button>
+                </div>
+                <div class="file-info" id="file-info" style="display: none;">
+                    <div class="file-info-content">
+                        <i class="fas fa-file-excel"></i>
+                        <div>
+                            <strong id="file-name">No file selected</strong>
+                            <p id="file-details">Select an Excel or CSV file to begin</p>
+                        </div>
+                    </div>
+                    <button class="btn danger" id="remove-file-btn">
+                        <i class="fas fa-times"></i> Remove
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 2: Data Selection -->
+            <section class="card" id="data-section" style="display: none;">
+                <h2><i class="fas fa-table"></i> Step 2: Select Your Data</h2>
+                
+                <div class="data-controls">
+                    <div class="control-group">
+                        <label for="column-select">
+                            <i class="fas fa-columns"></i> Select Column to Chart:
+                        </label>
+                        <select id="column-select" class="dropdown">
+                            <option value="">-- Select a column --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="chart-type">
+                            <i class="fas fa-chart-bar"></i> Chart Type:
+                        </label>
+                        <select id="chart-type" class="dropdown">
+                            <option value="line">Line Chart</option>
+                            <option value="bar">Bar Chart</option>
+                            <option value="pie">Pie Chart</option>
+                            <option value="doughnut">Doughnut Chart</option>
+                            <option value="radar">Radar Chart</option>
+                            <option value="polarArea">Polar Area Chart</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="color-scheme">
+                            <i class="fas fa-palette"></i> Color Scheme:
+                        </label>
+                        <select id="color-scheme" class="dropdown">
+                            <option value="vibrant">Vibrant</option>
+                            <option value="pastel">Pastel</option>
+                            <option value="monochrome">Monochrome</option>
+                            <option value="rainbow">Rainbow</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="performance-controls">
+                    <h4><i class="fas fa-tachometer-alt"></i> Performance Settings</h4>
+                    <div class="performance-grid">
+                        <div class="performance-control">
+                            <label><i class="fas fa-chart-line"></i> Max Chart Points:</label>
+                            <input type="range" id="chart-points-slider" min="10" max="500" value="200">
+                            <span id="points-value">200 points</span>
+                        </div>
+                        <div class="performance-control">
+                            <label><i class="fas fa-filter"></i> Data Sampling:</label>
+                            <select id="sampling-method" class="dropdown">
+                                <option value="average">Average Sampling</option>
+                                <option value="first">First N Points</option>
+                                <option value="last">Last N Points</option>
+                                <option value="random">Random Sampling</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn secondary" id="preview-data-btn">
+                        <i class="fas fa-eye"></i> Show Data Preview
+                    </button>
+                    <button class="btn" id="generate-chart-btn">
+                        <i class="fas fa-chart-pie"></i> Generate Chart
+                    </button>
+                </div>
+
+                <div class="data-preview-container" id="data-preview-container" style="display: none;">
+                    <h3><i class="fas fa-table"></i> Data Preview</h3>
+                    <div class="table-container">
+                        <table id="data-table">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: Chart Display -->
+            <section class="card" id="chart-section" style="display: none;">
+                <h2><i class="fas fa-chart-pie"></i> Step 3: Your Generated Chart</h2>
+                <div class="chart-container">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+                <div class="button-group">
+                    <button class="btn secondary" id="download-chart-btn">
+                        <i class="fas fa-download"></i> Download Chart
+                    </button>
+                    <button class="btn secondary" id="new-chart-btn">
+                        <i class="fas fa-redo"></i> New Chart
+                    </button>
+                    <button class="btn danger" id="reset-all-btn">
+                        <i class="fas fa-trash"></i> Reset All
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Chart Generator - FIXED VERSION
+        let uploadedData = [];
+        let columns = [];
+        let currentChart = null;
+        let currentFile = null;
+        let MAX_ROWS_PROCESS = 10000;
+        let MAX_CHART_POINTS = 200;
+        let IS_DARK_MODE = true;
+        let currentStep = 1;
+
+        // Color schemes
+        const colorSchemes = {
+            vibrant: ['#4361ee', '#3a0ca3', '#7209b7', '#f72585', '#4cc9f0', '#2ec4b6', '#e71d36', '#ff9f1c'],
+            pastel: ['#a2d2ff', '#ffafcc', '#bde0fe', '#ffc8dd', '#cdb4db', '#ffddd2', '#c1fba4', '#7bf1a8'],
+            monochrome: ['#2d3142', '#4f5d75', '#bfc0c0', '#ffffff', '#ef8354'],
+            rainbow: ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3']
+        };
+
+        // DOM Elements
+        const elements = {
+            backBtn: document.getElementById('back-btn'),
+            modeToggle: document.getElementById('mode-toggle'),
+            fileInput: document.getElementById('file-input'),
+            browseBtn: document.getElementById('browse-btn'),
+            dropArea: document.getElementById('drop-area'),
+            fileInfo: document.getElementById('file-info'),
+            fileName: document.getElementById('file-name'),
+            fileDetails: document.getElementById('file-details'),
+            removeFileBtn: document.getElementById('remove-file-btn'),
+            dataSection: document.getElementById('data-section'),
+            columnSelect: document.getElementById('column-select'),
+            chartTypeSelect: document.getElementById('chart-type'),
+            colorSchemeSelect: document.getElementById('color-scheme'),
+            chartSection: document.getElementById('chart-section'),
+            dataTable: document.getElementById('data-table'),
+            chartCanvas: document.getElementById('chartCanvas'),
+            previewDataBtn: document.getElementById('preview-data-btn'),
+            generateChartBtn: document.getElementById('generate-chart-btn'),
+            downloadChartBtn: document.getElementById('download-chart-btn'),
+            newChartBtn: document.getElementById('new-chart-btn'),
+            resetAllBtn: document.getElementById('reset-all-btn'),
+            dataPreviewContainer: document.getElementById('data-preview-container'),
+            chartPointsSlider: document.getElementById('chart-points-slider'),
+            pointsValue: document.getElementById('points-value'),
+            samplingMethod: document.getElementById('sampling-method')
+        };
+
+        // Initialize App
+        function initApp() {
+            setupEventListeners();
+            loadSettings();
+            updateUIForStep(1);
+            console.log("Chart Generator initialized");
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            elements.backBtn.addEventListener('click', goBack);
+            elements.modeToggle.addEventListener('click', toggleTheme);
+            
+            elements.browseBtn.addEventListener('click', () => elements.fileInput.click());
+            elements.fileInput.addEventListener('change', handleFileUpload);
+            elements.removeFileBtn.addEventListener('click', removeFile);
+            
+            elements.dropArea.addEventListener('dragover', handleDragOver);
+            elements.dropArea.addEventListener('dragleave', handleDragLeave);
+            elements.dropArea.addEventListener('drop', handleDrop);
+            
+            elements.previewDataBtn.addEventListener('click', toggleDataPreview);
+            elements.generateChartBtn.addEventListener('click', generateChart);
+            
+            elements.chartPointsSlider.addEventListener('input', updateChartPoints);
+            elements.samplingMethod.addEventListener('change', () => {
+                if (elements.columnSelect.value) generateChart();
+            });
+            
+            elements.downloadChartBtn.addEventListener('click', downloadChart);
+            elements.newChartBtn.addEventListener('click', () => {
+                showSection('data-section');
+                updateUIForStep(2);
+            });
+            elements.resetAllBtn.addEventListener('click', resetApp);
+            
+            elements.columnSelect.addEventListener('change', () => {
+                if (elements.columnSelect.value) {
+                    elements.generateChartBtn.disabled = false;
+                }
+            });
+        }
+
+        // Theme Management
+        function toggleTheme() {
+            IS_DARK_MODE = !IS_DARK_MODE;
+            document.body.classList.toggle('light-mode', !IS_DARK_MODE);
+            
+            const icon = elements.modeToggle.querySelector('i');
+            const text = elements.modeToggle.querySelector('span') || document.createElement('span');
+            
+            if (!elements.modeToggle.contains(text)) {
+                elements.modeToggle.appendChild(text);
+            }
+            
+            if (IS_DARK_MODE) {
+                icon.className = 'fas fa-moon';
+                text.textContent = 'Dark Mode';
+            } else {
+                icon.className = 'fas fa-sun';
+                text.textContent = 'Light Mode';
+            }
+            
+            saveSettings();
+            
+            if (currentChart) {
+                setTimeout(() => generateChart(), 100);
+            }
+        }
+
+        // Step Navigation
+        function goBack() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateUIForStep(currentStep);
+            }
+        }
+
+        function updateUIForStep(step) {
+            currentStep = step;
+            
+            switch(step) {
+                case 1:
+                    showSection('upload-section');
+                    elements.backBtn.style.display = 'none';
+                    break;
+                case 2:
+                    showSection('data-section');
+                    elements.backBtn.style.display = 'flex';
+                    break;
+                case 3:
+                    showSection('chart-section');
+                    elements.backBtn.style.display = 'flex';
+                    break;
+            }
+        }
+
+        function showSection(sectionId) {
+            ['upload-section', 'data-section', 'chart-section'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        // File Handling
+        function handleFileUpload() {
+            const file = elements.fileInput.files[0];
+            if (!file) return;
+            
+            currentFile = file;
+            showFileInfo(file);
+            parseExcelFile(file);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            elements.dropArea.style.borderColor = 'var(--primary-dark)';
+            elements.dropArea.style.backgroundColor = 'var(--bg-card)';
+        }
+
+        function handleDragLeave() {
+            elements.dropArea.style.borderColor = 'var(--primary)';
+            elements.dropArea.style.backgroundColor = 'var(--bg-secondary)';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            handleDragLeave();
+            
+            if (e.dataTransfer.files.length) {
+                elements.fileInput.files = e.dataTransfer.files;
+                handleFileUpload();
+            }
+        }
+
+        function showFileInfo(file) {
+            elements.fileInfo.style.display = 'flex';
+            elements.fileName.textContent = file.name;
+            elements.fileDetails.textContent = 
+                `Size: ${(file.size / (1024 * 1024)).toFixed(2)} MB | Type: ${file.type || file.name.split('.').pop().toUpperCase()}`;
+        }
+
+        function removeFile() {
+            elements.fileInput.value = '';
+            currentFile = null;
+            uploadedData = [];
+            columns = [];
+            elements.fileInfo.style.display = 'none';
+            elements.dataSection.style.display = 'none';
+            elements.dataPreviewContainer.style.display = 'none';
+            updateUIForStep(1);
+            
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+            
+            showStatus('File removed successfully', 'success');
+        }
+
+        // Excel Parsing
+        function parseExcelFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    console.log("Parsing Excel file...");
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Convert to JSON
+                    const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    if (!rawData || rawData.length === 0) {
+                        throw new Error('No data found in file');
+                    }
+                    
+                    const headers = rawData[0].filter(h => h !== null && h !== undefined);
+                    let rows = rawData.slice(1).filter(row => row.some(cell => cell !== null));
+                    
+                    // Limit rows
+                    if (rows.length > MAX_ROWS_PROCESS) {
+                        rows = rows.slice(0, MAX_ROWS_PROCESS);
+                        showStatus(`Large file detected. Processing first ${MAX_ROWS_PROCESS} rows.`, 'warning');
+                    }
+                    
+                    // Convert to array of objects
+                    uploadedData = rows.map((row) => {
+                        const obj = {};
+                        headers.forEach((header, colIndex) => {
+                            let value = row[colIndex];
+                            
+                            // Convert to number if possible
+                            if (typeof value === 'string') {
+                                const num = parseFloat(value);
+                                if (!isNaN(num)) {
+                                    value = num;
+                                }
+                            }
+                            
+                            obj[header] = value;
+                        });
+                        return obj;
+                    });
+                    
+                    columns = headers;
+                    
+                    console.log(`Loaded ${uploadedData.length} rows, ${columns.length} columns`, uploadedData[0]);
+                    
+                    showStatus(`Successfully loaded ${uploadedData.length} rows with ${columns.length} columns`, 'success');
+                    
+                    updateUIForStep(2);
+                    populateDataControls();
+                    
+                } catch (error) {
+                    console.error('Error parsing file:', error);
+                    showStatus(`Error: ${error.message}`, 'error');
+                    removeFile();
+                }
+            };
+            
+            reader.onerror = function() {
+                showStatus('Error reading file. File may be corrupted.', 'error');
+                removeFile();
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Data Controls
+        function populateDataControls() {
+            elements.columnSelect.innerHTML = '<option value="">-- Select a column --</option>';
+            
+            columns.forEach(column => {
+                const option = document.createElement('option');
+                option.value = column;
+                option.textContent = column;
+                elements.columnSelect.appendChild(option);
+            });
+            
+            // Auto-select first numeric column
+            if (uploadedData.length > 0) {
+                for (let col of columns) {
+                    const sampleValue = uploadedData[0][col];
+                    if (typeof sampleValue === 'number' && !isNaN(sampleValue)) {
+                        elements.columnSelect.value = col;
+                        break;
+                    }
+                }
+            }
+            
+            elements.generateChartBtn.disabled = false;
+        }
+
+        function toggleDataPreview() {
+            const isVisible = elements.dataPreviewContainer.style.display === 'block';
+            
+            if (!isVisible) {
+                showDataPreview();
+                elements.dataPreviewContainer.style.display = 'block';
+                elements.previewDataBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Data Preview';
+            } else {
+                elements.dataPreviewContainer.style.display = 'none';
+                elements.previewDataBtn.innerHTML = '<i class="fas fa-eye"></i> Show Data Preview';
+            }
+        }
+
+        function showDataPreview() {
+            const thead = elements.dataTable.querySelector('thead');
+            const tbody = elements.dataTable.querySelector('tbody');
+            
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+            
+            // Header row
+            const headerRow = document.createElement('tr');
+            columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = column;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            
+            // Show limited rows
+            const rowsToShow = Math.min(50, uploadedData.length);
+            for (let i = 0; i < rowsToShow; i++) {
+                const row = document.createElement('tr');
+                columns.forEach(column => {
+                    const td = document.createElement('td');
+                    const value = uploadedData[i][column];
+                    td.textContent = value !== null && value !== undefined ? String(value) : '';
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            }
+            
+            if (uploadedData.length > 50) {
+                const infoRow = document.createElement('tr');
+                const infoCell = document.createElement('td');
+                infoCell.colSpan = columns.length;
+                infoCell.style.textAlign = 'center';
+                infoCell.style.padding = '20px';
+                infoCell.style.color = 'var(--text-muted)';
+                infoCell.innerHTML = `<i class="fas fa-info-circle"></i> Showing 50 of ${uploadedData.length} rows`;
+                infoRow.appendChild(infoCell);
+                tbody.appendChild(infoRow);
+            }
+        }
+
+        // Chart Generation - FIXED
+        function updateChartPoints() {
+            MAX_CHART_POINTS = parseInt(elements.chartPointsSlider.value);
+            elements.pointsValue.textContent = `${MAX_CHART_POINTS} points`;
+            
+            if (elements.columnSelect.value && currentChart) {
+                generateChart();
+            }
+        }
+
+        function sampleData(labels, dataValues, maxPoints, method) {
+            if (labels.length <= maxPoints) {
+                return { labels, dataValues };
+            }
+            
+            const sampledLabels = [];
+            const sampledData = [];
+            
+            switch(method) {
+                case 'first':
+                    return {
+                        labels: labels.slice(0, maxPoints),
+                        dataValues: dataValues.slice(0, maxPoints)
+                    };
+                    
+                case 'last':
+                    return {
+                        labels: labels.slice(-maxPoints),
+                        dataValues: dataValues.slice(-maxPoints)
+                    };
+                    
+                case 'random':
+                    const indices = new Set();
+                    while (indices.size < maxPoints) {
+                        indices.add(Math.floor(Math.random() * labels.length));
+                    }
+                    Array.from(indices).sort((a, b) => a - b).forEach(idx => {
+                        sampledLabels.push(labels[idx]);
+                        sampledData.push(dataValues[idx]);
+                    });
+                    return { labels: sampledLabels, dataValues: sampledData };
+                    
+                case 'average':
+                default:
+                    const step = Math.ceil(labels.length / maxPoints);
+                    for (let i = 0; i < labels.length; i += step) {
+                        const chunkLabels = labels.slice(i, i + step);
+                        const chunkData = dataValues.slice(i, i + step);
+                        
+                        if (chunkData.length > 0) {
+                            sampledLabels.push(chunkLabels[0]);
+                            const avg = chunkData.reduce((a, b) => a + b, 0) / chunkData.length;
+                            sampledData.push(avg);
+                        }
+                    }
+                    return { labels: sampledLabels, dataValues: sampledData };
+            }
+        }
+
+        function generateChart() {
+            console.log("Generating chart...");
+            
+            const selectedColumn = elements.columnSelect.value;
+            const chartType = elements.chartTypeSelect.value;
+            const colorScheme = elements.colorSchemeSelect.value;
+            const samplingMethod = elements.samplingMethod.value;
+            
+            if (!selectedColumn || uploadedData.length === 0) {
+                showStatus('Please select a column to chart', 'error');
+                return;
+            }
+            
+            // Update step
+            updateUIForStep(3);
+            
+            // Destroy previous chart
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+            
+            try {
+                // Extract data
+                let labels = [];
+                let dataValues = [];
+                
+                for (let i = 0; i < uploadedData.length; i++) {
+                    const row = uploadedData[i];
+                    
+                    // Use first column for labels, or row number
+                    const label = row[columns[0]] !== undefined ? String(row[columns[0]]) : `Row ${i + 1}`;
+                    labels.push(label);
+                    
+                    // Get the selected column value
+                    let value = row[selectedColumn];
+                    if (value === undefined || value === null) {
+                        value = 0;
+                    } else if (typeof value === 'string') {
+                        value = parseFloat(value) || 0;
+                    }
+                    dataValues.push(value);
+                }
+                
+                console.log(`Original data: ${labels.length} points`);
+                
+                // Apply sampling for large datasets
+                if (labels.length > MAX_CHART_POINTS) {
+                    const sampled = sampleData(labels, dataValues, MAX_CHART_POINTS, samplingMethod);
+                    labels = sampled.labels;
+                    dataValues = sampled.dataValues;
+                    console.log(`Sampled to: ${labels.length} points`);
+                }
+                
+                // Prepare colors
+                const colors = colorSchemes[colorScheme] || colorSchemes.vibrant;
+                let backgroundColor, borderColor;
+                
+                if (chartType === 'line') {
+                    backgroundColor = IS_DARK_MODE ? 'rgba(67, 97, 238, 0.1)' : 'rgba(67, 97, 238, 0.2)';
+                    borderColor = colors[0];
+                } else {
+                    backgroundColor = colors.slice(0, Math.min(dataValues.length, colors.length));
+                    borderColor = IS_DARK_MODE ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                }
+                
+                // Create chart configuration
+                const config = {
+                    type: chartType,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: selectedColumn,
+                            data: dataValues,
+                            backgroundColor: backgroundColor,
+                            borderColor: chartType === 'line' ? borderColor : backgroundColor,
+                            borderWidth: chartType === 'line' ? 2 : 1,
+                            fill: chartType === 'line',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: IS_DARK_MODE ? '#ffffff' : '#212529'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: `${selectedColumn} - ${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart`,
+                                color: IS_DARK_MODE ? '#ffffff' : '#212529',
+                                font: {
+                                    size: 16
+                                }
+                            }
+                        },
+                        scales: (chartType === 'line' || chartType === 'bar') ? {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: IS_DARK_MODE ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                                },
+                                ticks: {
+                                    color: IS_DARK_MODE ? '#b0b0b0' : '#495057'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: IS_DARK_MODE ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                                },
+                                ticks: {
+                                    color: IS_DARK_MODE ? '#b0b0b0' : '#495057',
+                                    maxTicksLimit: 10
+                                }
+                            }
+                        } : undefined
+                    }
+                };
+                
+                // Create chart
+                const ctx = elements.chartCanvas.getContext('2d');
+                currentChart = new Chart(ctx, config);
+                
+                console.log("Chart generated successfully!");
+                showStatus('Chart generated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error generating chart:', error);
+                showStatus(`Error generating chart: ${error.message}`, 'error');
+            }
+        }
+
+        // Chart Actions
+        function downloadChart() {
+            if (!currentChart) {
+                showStatus('No chart to download', 'error');
+                return;
+            }
+            
+            try {
+                const link = document.createElement('a');
+                link.download = `chart-${new Date().getTime()}.png`;
+                link.href = elements.chartCanvas.toDataURL('image/png');
+                link.click();
+                showStatus('Chart downloaded successfully', 'success');
+            } catch (error) {
+                showStatus('Error downloading chart', 'error');
+            }
+        }
+
+        // Reset App
+        function resetApp() {
+            uploadedData = [];
+            columns = [];
+            currentFile = null;
+            
+            elements.fileInput.value = '';
+            elements.fileInfo.style.display = 'none';
+            elements.columnSelect.innerHTML = '<option value="">-- Select a column --</option>';
+            elements.dataPreviewContainer.style.display = 'none';
+            elements.previewDataBtn.innerHTML = '<i class="fas fa-eye"></i> Show Data Preview';
+            
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+            
+            updateUIForStep(1);
+            showStatus('Application reset successfully', 'success');
+        }
+
+        // Utility Functions
+        function showStatus(message, type = 'info') {
+            // Remove existing status
+            const existingStatus = document.querySelector('.status-message');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            // Create new status
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status status-${type} status-message`;
+            const iconClass = type === 'success' ? 'check-circle' : 
+                            type === 'error' ? 'exclamation-circle' : 
+                            type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+            statusDiv.innerHTML = `<i class="fas fa-${iconClass}"></i><span>${message}</span>`;
+            
+            // Add to upload section
+            const uploadSection = document.getElementById('upload-section');
+            uploadSection.insertBefore(statusDiv, uploadSection.querySelector('.card'));
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Settings Management
+        function saveSettings() {
+            const settings = {
+                darkMode: IS_DARK_MODE,
+                maxChartPoints: MAX_CHART_POINTS,
+                samplingMethod: elements.samplingMethod.value
+            };
+            localStorage.setItem('chartGeneratorSettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('chartGeneratorSettings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    
+                    IS_DARK_MODE = settings.darkMode !== undefined ? settings.darkMode : true;
+                    MAX_CHART_POINTS = settings.maxChartPoints || 200;
+                    
+                    // Apply theme
+                    document.body.classList.toggle('light-mode', !IS_DARK_MODE);
+                    
+                    // Update toggle button
+                    const icon = elements.modeToggle.querySelector('i');
+                    const text = elements.modeToggle.querySelector('span') || document.createElement('span');
+                    
+                    if (!elements.modeToggle.contains(text)) {
+                        elements.modeToggle.appendChild(text);
+                    }
+                    
+                    if (IS_DARK_MODE) {
+                        icon.className = 'fas fa-moon';
+                        text.textContent = 'Dark Mode';
+                    } else {
+                        icon.className = 'fas fa-sun';
+                        text.textContent = 'Light Mode';
+                    }
+                    
+                    // Update performance controls
+                    elements.chartPointsSlider.value = MAX_CHART_POINTS;
+                    elements.pointsValue.textContent = `${MAX_CHART_POINTS} points`;
+                    elements.samplingMethod.value = settings.samplingMethod || 'average';
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            saveSettings();
+            if (currentChart) {
+                currentChart.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

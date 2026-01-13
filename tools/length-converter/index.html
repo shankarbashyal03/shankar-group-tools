@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Length Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            max-width: 560px;
+            padding: 48px 40px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .converter-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .converter-icon span {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--dark), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .input-section {
+            background: var(--light);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--dark);
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .input-field::placeholder {
+            color: #94a3b8;
+        }
+
+        .select-group {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: end;
+            margin-bottom: 32px;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            pointer-events: none;
+            font-size: 0.8rem;
+        }
+
+        .select-box {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--dark);
+            background: white;
+            appearance: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .select-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .swap-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .swap-btn:hover {
+            background: #d97706;
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        .swap-btn span {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .action-section {
+            margin-bottom: 32px;
+        }
+
+        .convert-btn {
+            width: 100%;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .convert-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .convert-btn:hover::before {
+            left: 100%;
+        }
+
+        .convert-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, var(--light), #f1f5f9);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .result-section.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-label {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .result-value {
+            color: var(--success);
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .result-detail {
+            color: var(--secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .unit-badges {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .unit-badge {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 32px 24px;
+                max-width: 100%;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .select-group {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .swap-btn {
+                order: 3;
+                justify-self: center;
+                margin: 8px 0;
+            }
+
+            .result-value {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Animation for result */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="converter-icon">
+                <span>📏</span>
+            </div>
+            <h1>Length Converter</h1>
+            <p>Professional tool for precise length conversions</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="inputValue">Length Value</label>
+                <input type="number" id="inputValue" class="input-field" placeholder="Enter length to convert" value="1" step="any">
+            </div>
+        </div>
+
+        <div class="select-group">
+            <div class="select-wrapper">
+                <label for="fromUnit">From Unit</label>
+                <select id="fromUnit" class="select-box">
+                    <option value="meter">Meter (m)</option>
+                    <option value="kilometer">Kilometer (km)</option>
+                    <option value="centimeter">Centimeter (cm)</option>
+                    <option value="millimeter">Millimeter (mm)</option>
+                    <option value="micrometer">Micrometer (μm)</option>
+                    <option value="nanometer">Nanometer (nm)</option>
+                    <option value="mile">Mile (mi)</option>
+                    <option value="yard">Yard (yd)</option>
+                    <option value="foot">Foot (ft)</option>
+                    <option value="inch">Inch (in)</option>
+                    <option value="nautical-mile">Nautical Mile (nmi)</option>
+                </select>
+            </div>
+
+            <button class="swap-btn" onclick="swapUnits()">
+                <span>⇄</span>
+            </button>
+
+            <div class="select-wrapper">
+                <label for="toUnit">To Unit</label>
+                <select id="toUnit" class="select-box">
+                    <option value="inch">Inch (in)</option>
+                    <option value="foot">Foot (ft)</option>
+                    <option value="yard">Yard (yd)</option>
+                    <option value="mile">Mile (mi)</option>
+                    <option value="meter">Meter (m)</option>
+                    <option value="kilometer">Kilometer (km)</option>
+                    <option value="centimeter">Centimeter (cm)</option>
+                    <option value="millimeter">Millimeter (mm)</option>
+                    <option value="micrometer">Micrometer (μm)</option>
+                    <option value="nanometer">Nanometer (nm)</option>
+                    <option value="nautical-mile">Nautical Mile (nmi)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="action-section">
+            <button class="convert-btn" onclick="convertLength()">
+                Convert Length
+            </button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-label">Conversion Result</div>
+            <div class="result-value" id="result">1 Meter = 39.3701 Inches</div>
+            <div class="result-detail" id="resultDetail">Precise conversion completed</div>
+            <div class="unit-badges">
+                <span class="unit-badge" id="fromBadge">Meter</span>
+                <span class="unit-badge" id="toBadge">Inch</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Length conversion factors (to meters)
+        const lengthUnits = {
+            'meter': 1,
+            'kilometer': 1000,
+            'centimeter': 0.01,
+            'millimeter': 0.001,
+            'micrometer': 0.000001,
+            'nanometer': 0.000000001,
+            'mile': 1609.344,
+            'yard': 0.9144,
+            'foot': 0.3048,
+            'inch': 0.0254,
+            'nautical-mile': 1852
+        };
+
+        const unitNames = {
+            'meter': 'Meter',
+            'kilometer': 'Kilometer',
+            'centimeter': 'Centimeter',
+            'millimeter': 'Millimeter',
+            'micrometer': 'Micrometer',
+            'nanometer': 'Nanometer',
+            'mile': 'Mile',
+            'yard': 'Yard',
+            'foot': 'Foot',
+            'inch': 'Inch',
+            'nautical-mile': 'Nautical Mile'
+        };
+
+        function convertLength() {
+            const inputValue = parseFloat(document.getElementById('inputValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const resultElement = document.getElementById('result');
+            const resultDetail = document.getElementById('resultDetail');
+            const resultSection = document.getElementById('resultSection');
+            const fromBadge = document.getElementById('fromBadge');
+            const toBadge = document.getElementById('toBadge');
+
+            if (isNaN(inputValue) || inputValue === '') {
+                resultElement.textContent = 'Invalid Input';
+                resultDetail.textContent = 'Please enter a valid number';
+                resultSection.classList.add('show');
+                return;
+            }
+
+            if (fromUnit === toUnit) {
+                resultElement.textContent = 'Same Units Selected';
+                resultDetail.textContent = 'Please select different units for conversion';
+                resultSection.classList.add('show');
+                return;
+            }
+
+            // Convert to meters first
+            const valueInMeters = inputValue * lengthUnits[fromUnit];
+            
+            // Convert from meters to target unit
+            const result = valueInMeters / lengthUnits[toUnit];
+            
+            // Format the result based on its size
+            let formattedResult;
+            if (Math.abs(result) >= 1000) {
+                formattedResult = result.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            } else if (Math.abs(result) >= 1) {
+                formattedResult = result.toFixed(4).replace(/\.?0+$/, '');
+            } else {
+                formattedResult = result.toFixed(8).replace(/\.?0+$/, '');
+            }
+
+            // Update result display
+            resultElement.textContent = `${inputValue} ${getUnitDisplay(fromUnit)} = ${formattedResult} ${getUnitDisplay(toUnit)}`;
+            resultDetail.textContent = `1 ${getUnitDisplay(fromUnit)} = ${(lengthUnits[fromUnit] / lengthUnits[toUnit]).toFixed(6)} ${getUnitDisplay(toUnit)}`;
+            
+            // Update badges
+            fromBadge.textContent = getUnitDisplay(fromUnit);
+            toBadge.textContent = getUnitDisplay(toUnit);
+            
+            // Show result with animation
+            resultSection.classList.remove('show');
+            setTimeout(() => {
+                resultSection.classList.add('show');
+                resultSection.classList.add('fade-in-up');
+            }, 10);
+        }
+
+        function getUnitDisplay(unit) {
+            return unitNames[unit];
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            
+            const tempValue = fromUnit.value;
+            fromUnit.value = toUnit.value;
+            toUnit.value = tempValue;
+            
+            // Don't convert automatically - wait for button click
+        }
+
+        // Add enter key support
+        document.getElementById('inputValue').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertLength();
+            }
+        });
+
+        // Initial state - hide result section
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('resultSection').classList.remove('show');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income & Expenses Tracker - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .wallet-icon {
+            font-size: 60px;
+            color: #4a6cf7;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e1e5ee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+            <button type="submit" class="btn">Access Finance Dashboard</button>
+            
+            <!-- Add this new button -->
+            <button type="button" id="driveSaveBtn" class="btn" style="background: #34a853; margin-top: 15px; display: none;">
+                💾 Save to Google Drive (Optional)
+            </button>
+            
+            <div id="errorMessage" class="error-message">
+        input:focus {
+            border-color: #4a6cf7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+        }
+
+        .btn {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #3a5bd9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="wallet-icon">💰</div>
+            <h1>Income & Expenses Tracker</h1>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="voucherCode">Enter Voucher Code</label>
+                <input type="text" id="voucherCode" placeholder="Enter voucher code" required maxlength="10">
+            </div>
+
+            <button type="submit" class="btn">Access Finance Dashboard</button>
+            
+            <div id="errorMessage" class="error-message">
+                Invalid voucher code. Please contact administrator.
+            </div>
+        </form>
+
+        <div class="footer">
+            <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const voucherCode = document.getElementById('voucherCode').value.trim().toUpperCase();
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (!voucherCode) {
+                errorMessage.textContent = 'Please enter a voucher code';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Store user session
+            localStorage.setItem('currentUser', JSON.stringify({
+                voucherCode: voucherCode,
+                loginTime: new Date().toISOString()
+            }));
+            
+            // Create user data structure if it doesn't exist
+            let userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            if (!userData) {
+                userData = {
+                    voucherCode: voucherCode,
+                    created: new Date().toISOString(),
+                    settings: {
+                        currency: '₹',
+                        businessName: '',
+                        address: '',
+                        pan: '',
+                        email: ''
+                    },
+                    categories: {
+                        income: ['Salary', 'Business', 'Investment', 'Other'],
+                        expense: ['Food', 'Transport', 'Rent', 'Utilities', 'Entertainment', 'Other']
+                    },
+                    balanceCategories: [
+                        { name: 'Cash', amount: 0, type: 'Cash' },
+                        { name: 'Bank', amount: 0, type: 'Bank' },
+                        { name: 'Wallet', amount: 0, type: 'Wallet' },
+                        { name: 'Voucher', amount: 0, type: 'Voucher' }
+                    ],
+                    transactions: [],
+                    creditors: [],
+                    debtors: [],
+                    notes: []
+                };
+                localStorage.setItem(`userData_${voucherCode}`, JSON.stringify(userData));
+            }
+            
+            // Redirect to dashboard
+            window.location.href = 'dashboard.html';
+        });
+
+        // Auto-uppercase and hide error message when typing
+        document.getElementById('voucherCode').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+            document.getElementById('errorMessage').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - Income & Expenses Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .wallet-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5ee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clock, .calendar {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        /* Categories Section */
+        .categories-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .category-type {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f1f1;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category-header h2 {
+            font-size: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .income-header h2 {
+            color: var(--success);
+        }
+
+        .expense-header h2 {
+            color: var(--danger);
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .categories-list {
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid;
+            transition: all 0.3s;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .income-item {
+            border-left-color: var(--success);
+        }
+
+        .expense-item {
+            border-left-color: var(--danger);
+        }
+
+        .category-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .category-name {
+            font-weight: 600;
+            font-size: 16px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .edit-btn {
+            color: var(--info);
+        }
+
+        .edit-btn:hover {
+            background: rgba(23, 162, 184, 0.1);
+        }
+
+        .delete-btn {
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .small {
+            font-size: 14px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e1e5ee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #e1e5ee;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .categories-section {
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .header-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .clock, .calendar {
+                flex: 1;
+                text-align: center;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .categories-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .category-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .category-header h2 {
+                min-width: auto;
+            }
+
+            .category-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .category-name {
+                width: 100%;
+            }
+
+            .category-actions {
+                align-self: flex-end;
+            }
+
+            .modal-content {
+                margin: 10px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .category-type {
+                padding: 15px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .form-control, .form-select {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .category-item {
+                padding: 12px;
+            }
+
+            .empty-state i {
+                font-size: 40px;
+            }
+
+            .empty-state p {
+                font-size: 14px;
+            }
+
+            .empty-state .small {
+                font-size: 12px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) {
+            .btn:hover, .category-item:hover {
+                transform: none;
+                background: inherit;
+            }
+
+            .action-btn:hover {
+                background: none;
+            }
+        }
+
+        /* High contrast for better accessibility */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid currentColor;
+            }
+
+            .form-control, .form-select {
+                border-width: 2px;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="wallet-icon">💰</div>
+                <h2>Income & Expenses Tracker</h2>
+                <p id="userVoucher">Voucher: Loading...</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i>📊</i> Dashboard</a></li>
+                    <li><a href="categories.html" class="active"><i>📂</i> Categories</a></li>
+                    <li><a href="balance.html"><i>💰</i> Balance</a></li>
+                    <li><a href="entries.html"><i>➕</i> Entries</a></li>
+                    <li><a href="creditors.html"><i>👥</i> Creditors</a></li>
+                    <li><a href="debtors.html"><i>👤</i> Debtors</a></li>
+                    <li><a href="notes.html"><i>📝</i> Notes</a></li>
+                    <li><a href="rectify.html"><i>✏️</i> Rectify</a></li>
+                    <li><a href="reports.html"><i>📈</i> Reports</a></li>
+                    <li><a href="admin.html"><i>⚙️</i> Admin</a></li>
+                    <li><a href="settings.html"><i>🔧</i> Settings</a></li>
+                    <li><a href="#" id="logoutBtn"><i>🚪</i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>Categories Management</h1>
+                <div class="header-info">
+                    <div class="calendar" id="currentDate">Loading...</div>
+                    <div class="clock" id="currentTime">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div class="categories-section">
+                <!-- Income Categories -->
+                <div class="category-type">
+                    <div class="category-header income-header">
+                        <h2><span>📥</span> Income Categories</h2>
+                        <button class="btn btn-success" id="addIncomeCategory">
+                            <span>➕</span> Add Category
+                        </button>
+                    </div>
+                    <ul class="categories-list" id="incomeCategoriesList">
+                        <!-- Income categories will be loaded here -->
+                    </ul>
+                </div>
+
+                <!-- Expense Categories -->
+                <div class="category-type">
+                    <div class="category-header expense-header">
+                        <h2><span>📤</span> Expense Categories</h2>
+                        <button class="btn btn-danger" id="addExpenseCategory">
+                            <span>➕</span> Add Category
+                        </button>
+                    </div>
+                    <ul class="categories-list" id="expenseCategoriesList">
+                        <!-- Expense categories will be loaded here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2023 Income & Expenses Tracker | Made by Shankar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Category Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Category</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    <div class="form-group">
+                        <label for="categoryType">Category Type</label>
+                        <select class="form-select" id="categoryType" required>
+                            <option value="">Select Type</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryName">Category Name</label>
+                        <input type="text" class="form-control" id="categoryName" placeholder="Enter category name" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelCategory">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveCategory">Save Category</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentEditingCategory = null;
+        let currentEditingType = null;
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside (mobile)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(event.target) &&
+                    !mobileMenuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.voucherCode) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user voucher
+            document.getElementById('userVoucher').textContent = `Voucher: ${currentUser.voucherCode}`;
+            
+            // Setup mobile menu
+            setupMobileMenu();
+            
+            // Load categories
+            loadCategories(currentUser.voucherCode);
+            
+            // Update clock and calendar
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Load categories
+        function loadCategories(voucherCode) {
+            const userData = JSON.parse(localStorage.getItem(`userData_${voucherCode}`));
+            
+            if (userData && userData.categories) {
+                // Load income categories
+                const incomeList = document.getElementById('incomeCategoriesList');
+                incomeList.innerHTML = '';
+                
+                if (userData.categories.income && userData.categories.income.length > 0) {
+                    userData.categories.income.forEach((category, index) => {
+                        const li = createCategoryItem(category, 'income', index);
+                        incomeList.appendChild(li);
+                    });
+                } else {
+                    incomeList.innerHTML = `
+                        <div class="empty-state">
+                            <div>📥</div>
+                            <p>No income categories yet</p>
+                            <p class="small">Add your first income category to get started</p>
+                        </div>
+                    `;
+                }
+                
+                // Load expense categories
+                const expenseList = document.getElementById('expenseCategoriesList');
+                expenseList.innerHTML = '';
+                
+                if (userData.categories.expense && userData.categories.expense.length > 0) {
+                    userData.categories.expense.forEach((category, index) => {
+                        const li = createCategoryItem(category, 'expense', index);
+                        expenseList.appendChild(li);
+                    });
+                } else {
+                    expenseList.innerHTML = `
+                        <div class="empty-state">
+                            <div>📤</div>
+                            <p>No expense categories yet</p>
+                            <p class="small">Add your first expense category to get started</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Create category list item
+        function createCategoryItem(categoryName, type, index) {
+            const li = document.createElement('li');
+            li.className = `category-item ${type}-item`;
+            
+            li.innerHTML = `
+                <span class="category-name">${categoryName}</span>
+                <div class="category-actions">
+                    <button class="action-btn edit-btn" data-type="${type}" data-index="${index}">✏️</button>
+                    <button class="action-btn delete-btn" data-type="${type}" data-index="${index}">🗑️</button>
+                </div>
+            `;
+            
+            return li;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add category buttons
+            document.getElementById('addIncomeCategory').addEventListener('click', function() {
+                openCategoryModal('income');
+            });
+            
+            document.getElementById('addExpenseCategory').addEventListener('click', function() {
+                openCategoryModal('expense');
+            });
+            
+            // Save category
+            document.getElementById('saveCategory').addEventListener('click', saveCategory);
+            
+            // Cancel category
+            document.getElementById('cancelCategory').addEventListener('click', closeCategoryModal);
+            
+            // Close modal
+            document.querySelector('.close-modal').addEventListener('click', closeCategoryModal);
+            
+            // Close modal when clicking outside
+            document.getElementById('categoryModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCategoryModal();
+                }
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+            
+            // Edit and delete buttons (delegated)
+            document.addEventListener('click', function(e) {
+                // Edit category
+                if (e.target.classList.contains('edit-btn') || e.target.closest('.edit-btn')) {
+                    const btn = e.target.classList.contains('edit-btn') ? e.target : e.target.closest('.edit-btn');
+                    const type = btn.getAttribute('data-type');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    editCategory(type, index);
+                }
+                
+                // Delete category
+                if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+                    const btn = e.target.classList.contains('delete-btn') ? e.target : e.target.closest('.delete-btn');
+                    const type = btn.getAttribute('data-type');
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    deleteCategory(type, index);
+                }
+            });
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+        }
+
+        // Open category modal
+        function openCategoryModal(type = null, categoryName = '', index = null) {
+            const modal = document.getElementById('categoryModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('categoryForm');
+            
+            if (type && index !== null) {
+                // Editing existing category
+                title.textContent = 'Edit Category';
+                document.getElementById('categoryType').value = type;
+                document.getElementById('categoryType').disabled = true;
+                document.getElementById('categoryName').value = categoryName;
+                currentEditingCategory = index;
+                currentEditingType = type;
+            } else {
+                // Adding new category
+                title.textContent = 'Add Category';
+                form.reset();
+                document.getElementById('categoryType').disabled = false;
+                if (type) {
+                    document.getElementById('categoryType').value = type;
+                }
+                currentEditingCategory = null;
+                currentEditingType = null;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Close category modal
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').style.display = 'none';
+            document.getElementById('categoryForm').reset();
+            currentEditingCategory = null;
+            currentEditingType = null;
+        }
+
+        // Save category
+        function saveCategory() {
+            const categoryType = document.getElementById('categoryType').value;
+            const categoryName = document.getElementById('categoryName').value.trim();
+            
+            if (!categoryType || !categoryName) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            if (!userData.categories[categoryType]) {
+                userData.categories[categoryType] = [];
+            }
+            
+            if (currentEditingCategory !== null) {
+                // Update existing category
+                userData.categories[currentEditingType][currentEditingCategory] = categoryName;
+            } else {
+                // Add new category
+                if (userData.categories[categoryType].includes(categoryName)) {
+                    alert('This category already exists');
+                    return;
+                }
+                userData.categories[categoryType].push(categoryName);
+            }
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload categories
+            loadCategories(currentUser.voucherCode);
+            
+            // Close modal
+            closeCategoryModal();
+            
+            // Show success message
+            alert(`Category "${categoryName}" ${currentEditingCategory !== null ? 'updated' : 'added'} successfully!`);
+        }
+
+        // Edit category
+        function editCategory(type, index) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const categoryName = userData.categories[type][index];
+            openCategoryModal(type, categoryName, index);
+        }
+
+        // Delete category
+        function deleteCategory(type, index) {
+            if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userData = JSON.parse(localStorage.getItem(`userData_${currentUser.voucherCode}`));
+            
+            const categoryName = userData.categories[type][index];
+            
+            // Check if category is used in transactions
+            const isUsed = userData.transactions.some(transaction => 
+                transaction.category === categoryName && transaction.type === type.slice(0, -1)
+            );
+            
+            if (isUsed) {
+                alert(`Cannot delete "${categoryName}" because it is used in existing transactions.`);
+                return;
+            }
+            
+            // Remove category
+            userData.categories[type].splice(index, 1);
+            
+            // Save data
+            localStorage.setItem(`userData_${currentUser.voucherCode}`, JSON.stringify(userData));
+            
+            // Reload categories
+            loadCategories(currentUser.voucherCode);
+            
+            // Show success message
+            alert(`Category "${categoryName}" deleted successfully!`);
+        }
+    </script>
+</body>
+</html>
