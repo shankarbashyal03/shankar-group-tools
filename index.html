@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Shankar Group - Professional All-in-One Tools Dashboard">
+    <title>Shankar Group Tools</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SG Tools">
+    <link rel="apple-touch-icon" href="icons/icon-144x144.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#0f172a">
+    <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===== CSS RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --surface: #1e293b;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            --gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --icon-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --header-bg: rgba(15, 23, 42, 0.95);
+            --sidebar-bg: rgba(15, 23, 42, 0.98);
+            --footer-bg: rgba(15, 23, 42, 0.9);
+            --glow: 0 0 20px rgba(59, 130, 246, 0.3);
+            --glow-hover: 0 0 40px rgba(59, 130, 246, 0.5);
+        }
+
+        body {
+            background: var(--gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-top: 80px;
+            position: relative;
+        }
+
+        /* ===== ANIMATED BACKGROUND TOOLS ===== */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-tool {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.08;
+            color: var(--accent);
+            animation: float 20s infinite linear;
+            filter: blur(0.5px);
+        }
+
+        .floating-tool:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+        .floating-tool:nth-child(2) { top: 20%; right: 10%; animation-delay: -4s; }
+        .floating-tool:nth-child(3) { top: 40%; left: 15%; animation-delay: -8s; }
+        .floating-tool:nth-child(4) { top: 60%; right: 15%; animation-delay: -12s; }
+        .floating-tool:nth-child(5) { top: 80%; left: 10%; animation-delay: -16s; }
+        .floating-tool:nth-child(6) { top: 30%; right: 5%; animation-delay: -2s; }
+        .floating-tool:nth-child(7) { top: 70%; left: 20%; animation-delay: -6s; }
+        .floating-tool:nth-child(8) { top: 50%; right: 20%; animation-delay: -10s; }
+        .floating-tool:nth-child(9) { top: 90%; right: 30%; animation-delay: -14s; }
+        .floating-tool:nth-child(10) { top: 15%; left: 25%; animation-delay: -18s; }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 0.08;
+            }
+            25% { 
+                transform: translate(20px, -30px) rotate(90deg) scale(1.2);
+                opacity: 0.12;
+            }
+            50% { 
+                transform: translate(-15px, 20px) rotate(180deg) scale(0.9);
+                opacity: 0.06;
+            }
+            75% { 
+                transform: translate(10px, -10px) rotate(270deg) scale(1.1);
+                opacity: 0.1;
+            }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--header-bg);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--card-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Logo */
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logo-area:hover {
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: var(--icon-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: var(--glow);
+            transition: var(--transition);
+        }
+
+        .logo-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 40px;
+            height: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1002;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: var(--text-primary);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: translateY(13.5px) rotate(45deg);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: translateY(-13.5px) rotate(-45deg);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--card-border);
+            z-index: 1001;
+            padding: 6rem 1.5rem 2rem;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .sidebar-nav-links .nav-link {
+            padding: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-radius: 12px;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .sidebar-nav-links .nav-link:hover {
+            background: var(--card-bg);
+            transform: translateX(10px);
+            color: var(--text-primary);
+        }
+
+        /* Desktop Navigation */
+        .desktop-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--card-bg);
+            transform: translateY(-2px);
+            box-shadow: var(--glow);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Tools Counter */
+        .tools-counter {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent);
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        /* ===== SEARCH BAR ===== */
+        .search-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            padding-left: 3.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: var(--glow-hover);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 1.2rem;
+        }
+
+        /* ===== CATEGORY FILTERS ===== */
+        .category-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 3rem auto;
+            max-width: 1000px;
+            padding: 0 1rem;
+        }
+
+        .category-btn {
+            padding: 0.9rem 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .category-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: var(--glow);
+        }
+
+        .category-btn.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: var(--glow-hover);
+            transform: translateY(-2px);
+        }
+
+        /* ===== TOOLS GRID - FIXED FOR MOBILE ===== */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* ===== TOOL CARD ===== */
+        .tool-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            min-height: 200px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-hover), var(--glow-hover);
+        }
+
+        /* Pin Button */
+        .pin-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 0.5rem;
+            border-radius: 10px;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 2;
+        }
+
+        .pin-btn:hover {
+            color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+            transform: scale(1.1);
+        }
+
+        .pin-btn.pinned {
+            color: var(--warning);
+        }
+
+        /* Tool Icon */
+        .tool-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--icon-gradient);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: white;
+            transition: var(--transition);
+            box-shadow: var(--glow);
+        }
+
+        /* Tool Content */
+        .tool-content h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 0.8rem;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .tool-content p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* Category Tag */
+        .tool-tag {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        /* Section Title */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 1400px;
+            margin: 3rem auto 1.5rem;
+            padding: 0 1.5rem;
+        }
+
+        .section-title h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .section-title i {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--footer-bg);
+            border-top: 1px solid var(--card-border);
+            padding: 3rem 1.5rem;
+            margin-top: 5rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-section h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            transform: translateX(10px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 3rem;
+            margin-top: 3rem;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-tertiary);
+            font-size: 0.95rem;
+        }
+
+        /* Install Button */
+        .install-btn {
+            background: linear-gradient(45deg, var(--accent), var(--accent-hover));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem auto;
+            display: none;
+        }
+
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-hover);
+        }
+
+        /* ===== RESPONSIVE DESIGN - UPDATED ===== */
+        @media (max-width: 1200px) {
+            .tools-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            
+            .header {
+                padding: 0.8rem 1rem;
+            }
+            
+            .desktop-nav {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .tools-counter {
+                display: none;
+            }
+            
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            /* MOBILE GRID VIEW - 3 COLUMNS */
+            .tools-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 0.8rem !important;
+                padding: 1rem !important;
+            }
+            
+            .tool-card {
+                padding: 1rem !important;
+                min-height: 160px !important;
+                border-radius: 12px !important;
+            }
+            
+            .tool-icon {
+                width: 40px !important;
+                height: 40px !important;
+                font-size: 1.2rem !important;
+                margin-bottom: 0.8rem !important;
+                border-radius: 10px !important;
+            }
+            
+            .tool-content h3 {
+                font-size: 0.85rem !important;
+                margin-bottom: 0.4rem !important;
+                line-height: 1.2 !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+            }
+            
+            .tool-content p {
+                font-size: 0.75rem !important;
+                line-height: 1.3 !important;
+                margin-bottom: 0.6rem !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+            }
+            
+            .pin-btn {
+                top: 0.5rem !important;
+                right: 0.5rem !important;
+                font-size: 0.9rem !important;
+                padding: 0.3rem !important;
+            }
+            
+            .tool-tag {
+                padding: 0.3rem 0.6rem !important;
+                font-size: 0.7rem !important;
+            }
+            
+            .category-btn {
+                padding: 0.7rem 1.2rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .category-filters {
+                gap: 0.5rem !important;
+                padding: 0 0.5rem !important;
+                margin: 2rem auto !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.7rem !important;
+            }
+            
+            .tool-card {
+                min-height: 150px !important;
+            }
+            
+            .tool-content h3 {
+                font-size: 0.8rem !important;
+            }
+            
+            .tool-content p {
+                font-size: 0.7rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.6rem !important;
+                padding: 0.8rem !important;
+            }
+            
+            .tool-card {
+                padding: 0.8rem !important;
+                min-height: 140px !important;
+            }
+            
+            .tool-icon {
+                width: 35px !important;
+                height: 35px !important;
+                font-size: 1rem !important;
+                margin-bottom: 0.6rem !important;
+            }
+            
+            .tool-content h3 {
+                font-size: 0.75rem !important;
+            }
+            
+            .tool-content p {
+                font-size: 0.65rem !important;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.1rem !important;
+            }
+            
+            .logo {
+                width: 40px !important;
+                height: 40px !important;
+                font-size: 1.2rem !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            .tool-card {
+                min-height: 130px !important;
+            }
+            
+            .tool-content h3 {
+                font-size: 0.7rem !important;
+            }
+            
+            .tool-content p {
+                font-size: 0.6rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="floating-tool"><i class="fas fa-calculator"></i></div>
+        <div class="floating-tool"><i class="fas fa-calendar-alt"></i></div>
+        <div class="floating-tool"><i class="fas fa-chart-line"></i></div>
+        <div class="floating-tool"><i class="fas fa-clock"></i></div>
+        <div class="floating-tool"><i class="fas fa-exchange-alt"></i></div>
+        <div class="floating-tool"><i class="fas fa-tasks"></i></div>
+        <div class="floating-tool"><i class="fas fa-qrcode"></i></div>
+        <div class="floating-tool"><i class="fas fa-image"></i></div>
+        <div class="floating-tool"><i class="fas fa-wifi"></i></div>
+        <div class="floating-tool"><i class="fas fa-file-export"></i></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <!-- Logo -->
+            <div class="logo-area" id="homeBtn">
+                <div class="logo">SG</div>
+                <div class="logo-text">
+                    <h1>Shankar Group Tools</h1>
+                </div>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav">
+                <div class="nav-links">
+                    <a href="#" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+                    <a href="other/contact-us/index.html" class="nav-link"><i class="fas fa-phone-alt"></i> Contact Us</a>
+                    <a href="other/privacy-policy/index.html" class="nav-link"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                </div>
+            </nav>
+            
+            <!-- Tools Counter -->
+            <div class="tools-counter">
+                <i class="fas fa-tools"></i> 52 Tools
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-nav-links">
+            <a href="#" class="nav-link active">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="other/contact-us/index.html" class="nav-link">
+                <i class="fas fa-phone-alt"></i> Contact Us
+            </a>
+            <a href="other/privacy-policy/index.html" class="nav-link">
+                <i class="fas fa-shield-alt"></i> Privacy Policy
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h2>Your Ultimate Productivity Suite</h2>
+        <p>Transform your workflow with 52 essential tools for finance, calculations, conversions, and productivity.</p>
+        
+        <div class="search-container">
+            <div class="search-icon"><i class="fas fa-search"></i></div>
+            <input type="text" class="search-box" id="searchBox" 
+                   placeholder="Search tools...">
+        </div>
+        
+        <!-- PWA Install Button -->
+        <button class="install-btn" id="installButton" style="display: none;">
+            <i class="fas fa-download"></i> Install App
+        </button>
+    </section>
+
+    <!-- Category Filters -->
+    <div class="category-filters">
+        <button class="category-btn active" data-category="all"><i class="fas fa-layer-group"></i> All</button>
+        <button class="category-btn" data-category="productivity"><i class="fas fa-rocket"></i> Productivity</button>
+        <button class="category-btn" data-category="finance"><i class="fas fa-chart-line"></i> Finance</button>
+        <button class="category-btn" data-category="calculator"><i class="fas fa-calculator"></i> Calculators</button>
+        <button class="category-btn" data-category="converter"><i class="fas fa-exchange-alt"></i> Converters</button>
+        <button class="category-btn" data-category="health"><i class="fas fa-heartbeat"></i> Health</button>
+        <button class="category-btn" data-category="utility"><i class="fas fa-tools"></i> Utilities</button>
+    </div>
+
+    <!-- Pinned Tools Section -->
+    <div class="pinned-section" id="pinnedSection" style="display: none;">
+        <div class="section-title">
+            <i class="fas fa-star"></i>
+            <h3>Pinned Tools</h3>
+        </div>
+        <div class="tools-grid" id="pinnedGrid">
+            <!-- Pinned tools will appear here -->
+        </div>
+    </div>
+
+    <!-- All Tools Section -->
+    <div class="pinned-section">
+        <div class="section-title">
+            <i class="fas fa-toolbox"></i>
+            <h3>All Tools</h3>
+        </div>
+    </div>
+
+    <!-- All Tools Grid -->
+    <div class="tools-grid" id="toolsGrid">
+        <!-- Tools will be dynamically inserted here -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-compass"></i> Navigation</h4>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="other/contact-us/index.html"><i class="fas fa-envelope"></i> Contact</a></li>
+                    <li><a href="other/privacy-policy/index.html"><i class="fas fa-shield-alt"></i> Privacy</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-crown"></i> Popular Tools</h4>
+                <ul class="footer-links">
+                    <li><a href="tools/calculator/index.html" data-tool="calculator"><i class="fas fa-calculator"></i> Calculator</a></li>
+                    <li><a href="tools/currency-converter/index.html" data-tool="currency-converter"><i class="fas fa-exchange-alt"></i> Currency Converter</a></li>
+                    <li><a href="tools/to-do-list/index.html" data-tool="to-do-list"><i class="fas fa-tasks"></i> To-Do List</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-handshake"></i> Connect</h4>
+                <ul class="footer-links">
+                    <li><a href="#" id="shareLink"><i class="fas fa-share-alt"></i> Share</a></li>
+                    <li><a href="#" id="feedbackLink"><i class="fas fa-comment-dots"></i> Feedback</a></li>
+                    <li><a href="#" id="rateLink"><i class="fas fa-star"></i> Rate</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2024 Shankar Group Tools | PWA Ready</p>
+        </div>
+    </footer>
+
+    <script>
+        // ===== TOOLS DATA WITH CORRECT PATHS =====
+        const toolsData = [
+            // A
+            { 
+                name: "Age Calculator", 
+                description: "Calculate age from birth date", 
+                category: "calculator", 
+                icon: '<i class="fas fa-birthday-cake"></i>', 
+                path: "tools/age-calculator/index.html"
+            },
+            { 
+                name: "Area Converter", 
+                description: "Convert area units", 
+                category: "converter", 
+                icon: '<i class="fas fa-expand-arrows-alt"></i>', 
+                path: "tools/area-converter/index.html"
+            },
+            { 
+                name: "Assignment Tracker", 
+                description: "Track assignments", 
+                category: "productivity", 
+                icon: '<i class="fas fa-tasks"></i>', 
+                path: "tools/assignment-tracker/index.html"
+            },
+            
+            // B
+            { 
+                name: "Barcode Generator", 
+                description: "Create barcodes", 
+                category: "utility", 
+                icon: '<i class="fas fa-barcode"></i>', 
+                path: "tools/barcode-generator/index.html"
+            },
+            { 
+                name: "BMI Calculator", 
+                description: "Calculate BMI", 
+                category: "health", 
+                icon: '<i class="fas fa-weight"></i>', 
+                path: "tools/bmi-calculator/index.html"
+            },
+            { 
+                name: "Budget Planner", 
+                description: "Plan budget", 
+                category: "finance", 
+                icon: '<i class="fas fa-chart-pie"></i>', 
+                path: "tools/budget-planner/index.html"
+            },
+            
+            // C
+            { 
+                name: "Calculator", 
+                description: "Basic calculator", 
+                category: "calculator", 
+                icon: '<i class="fas fa-calculator"></i>', 
+                path: "tools/calculator/index.html"
+            },
+            { 
+                name: "Calendar", 
+                description: "Monthly calendar", 
+                category: "productivity", 
+                icon: '<i class="fas fa-calendar-alt"></i>', 
+                path: "tools/calendar/index.html"
+            },
+            { 
+                name: "Calories Calculator", 
+                description: "Calculate daily calories", 
+                category: "health", 
+                icon: '<i class="fas fa-fire"></i>', 
+                path: "tools/calories-calculator/index.html"
+            },
+            { 
+                name: "Charts Generator", 
+                description: "Create beautiful charts", 
+                category: "utility", 
+                icon: '<i class="fas fa-chart-bar"></i>', 
+                path: "tools/charts-generator/index.html"
+            },
+            { 
+                name: "Coin Flip Simulator", 
+                description: "Flip virtual coins", 
+                category: "utility", 
+                icon: '<i class="fas fa-coins"></i>', 
+                path: "tools/coin-flip-simulator/index.html"
+            },
+            { 
+                name: "Countdown Timer", 
+                description: "Set countdown timers", 
+                category: "time", 
+                icon: '<i class="fas fa-hourglass-half"></i>', 
+                path: "tools/countdown-timer/index.html"
+            },
+            { 
+                name: "Currency Converter", 
+                description: "Convert currencies", 
+                category: "converter", 
+                icon: '<i class="fas fa-money-bill-wave"></i>', 
+                path: "tools/currency-converter/index.html"
+            },
+            
+            // D
+            { 
+                name: "Daily Planner", 
+                description: "Plan your day", 
+                category: "productivity", 
+                icon: '<i class="fas fa-clipboard-list"></i>', 
+                path: "tools/daily-planner/index.html"
+            },
+            { 
+                name: "Data Converter", 
+                description: "Convert between data formats", 
+                category: "converter", 
+                icon: '<i class="fas fa-database"></i>', 
+                path: "tools/data-converter/index.html"
+            },
+            { 
+                name: "Date Converter (AD to BS)", 
+                description: "Convert dates AD to BS", 
+                category: "converter", 
+                icon: '<i class="fas fa-calendar-day"></i>', 
+                path: "tools/date-converter-ad-to-bs/index.html"
+            },
+            { 
+                name: "Depreciation Calculator", 
+                description: "Calculate asset depreciation", 
+                category: "finance", 
+                icon: '<i class="fas fa-chart-line"></i>', 
+                path: "tools/depreciation-calculator/index.html"
+            },
+            
+            // E
+            { 
+                name: "EMI Calculator", 
+                description: "Calculate EMI", 
+                category: "finance", 
+                icon: '<i class="fas fa-file-invoice-dollar"></i>', 
+                path: "tools/emi-calculator/index.html"
+            },
+            { 
+                name: "Emergencies Contacts", 
+                description: "World emergency contacts", 
+                category: "utility", 
+                icon: '<i class="fas fa-phone-square"></i>', 
+                path: "tools/emergencies-contacts-world/index.html"
+            },
+            { 
+                name: "Expenses Tracker", 
+                description: "Track daily expenses", 
+                category: "finance", 
+                icon: '<i class="fas fa-wallet"></i>', 
+                path: "tools/expenses-tracker/index.html"
+            },
+            
+            // F
+            { 
+                name: "Fat Calculator", 
+                description: "Calculate body fat percentage", 
+                category: "health", 
+                icon: '<i class="fas fa-weight"></i>', 
+                path: "tools/fat-calculator/index.html"
+            },
+            { 
+                name: "File Resizer", 
+                description: "Resize files easily", 
+                category: "utility", 
+                icon: '<i class="fas fa-compress-alt"></i>', 
+                path: "tools/file-resizer/index.html"
+            },
+            
+            // H
+            { 
+                name: "Habit Tracker", 
+                description: "Track habits", 
+                category: "productivity", 
+                icon: '<i class="fas fa-chart-line"></i>', 
+                path: "tools/habit-tracker/index.html"
+            },
+            
+            // I
+            { 
+                name: "Image Compressor", 
+                description: "Compress images", 
+                category: "utility", 
+                icon: '<i class="fas fa-compress-alt"></i>', 
+                path: "tools/image-compressor/index.html"
+            },
+            { 
+                name: "Image Converter", 
+                description: "convert images", 
+                category: "utility", 
+                icon: '<i class="fas fa-image"></i>', 
+                path: "tools/image-converter/index.html"
+            },
+            
+            // J
+            { 
+                name: "Jewellery Converter", 
+                description: "Convert jewellery units", 
+                category: "converter", 
+                icon: '<i class="fas fa-gem"></i>', 
+                path: "tools/jewellery-converter/index.html"
+            },
+            
+            // L
+            { 
+                name: "Length Converter", 
+                description: "Convert length", 
+                category: "converter", 
+                icon: '<i class="fas fa-ruler-combined"></i>', 
+                path: "tools/length-converter/index.html"
+            },
+            { 
+                name: "Loan Calculator", 
+                description: "Calculate loans", 
+                category: "finance", 
+                icon: '<i class="fas fa-hand-holding-usd"></i>', 
+                path: "tools/loan-calculator/index.html"
+            },
+            
+            // N
+            { 
+                name: "Notes", 
+                description: "Take notes", 
+                category: "productivity", 
+                icon: '<i class="fas fa-sticky-note"></i>', 
+                path: "tools/notes/index.html"
+            },
+            
+            // P
+            { 
+                name: "Password Tester", 
+                description: "Test passwords", 
+                category: "security", 
+                icon: '<i class="fas fa-lock"></i>', 
+                path: "tools/password-tester/index.html"
+            },
+            { 
+                name: "Pomodoro Timer", 
+                description: "Focus timer", 
+                category: "time", 
+                icon: '<i class="fas fa-clock"></i>', 
+                path: "tools/pomodoro-timer/index.html"
+            },
+            
+            // Q
+            { 
+                name: "QR Code Generator", 
+                description: "Generate QR codes", 
+                category: "utility", 
+                icon: '<i class="fas fa-qrcode"></i>', 
+                path: "tools/qr-code-generator/index.html"
+            },
+            
+            // R
+            { 
+                name: "Random Data Generator", 
+                description: "Generate random data", 
+                category: "utility", 
+                icon: '<i class="fas fa-random"></i>', 
+                path: "tools/random-data-generator/index.html"
+            },
+            { 
+                name: "Random Text Generator", 
+                description: "Generate random text", 
+                category: "utility", 
+                icon: '<i class="fas fa-font"></i>', 
+                path: "tools/random-text-generator/index.html"
+            },
+            { 
+                name: "ROI Calculator", 
+                description: "Calculate ROI", 
+                category: "finance", 
+                icon: '<i class="fas fa-percentage"></i>', 
+                path: "tools/roi-calculator/index.html"
+            },
+            
+            // S
+            { 
+                name: "Speed Converter", 
+                description: "Convert speed units", 
+                category: "converter", 
+                icon: '<i class="fas fa-tachometer-alt"></i>', 
+                path: "tools/speed-converter/index.html"
+            },
+            { 
+                name: "Stopwatch", 
+                description: "Precision stopwatch", 
+                category: "time", 
+                icon: '<i class="fas fa-stopwatch"></i>', 
+                path: "tools/stopwatch/index.html"
+            },
+            
+            // T
+            { 
+                name: "Temperature Converter", 
+                description: "Convert temperature", 
+                category: "converter", 
+                icon: '<i class="fas fa-thermometer-half"></i>', 
+                path: "tools/temperature-converter/index.html"
+            },
+            { 
+                name: "Text Cleanup", 
+                description: "Clean and format text", 
+                category: "utility", 
+                icon: '<i class="fas fa-broom"></i>', 
+                path: "tools/text-cleanup/index.html"
+            },
+            { 
+                name: "To Do List", 
+                description: "Task lists", 
+                category: "productivity", 
+                icon: '<i class="fas fa-list-check"></i>', 
+                path: "tools/to-do-list/index.html"
+            },
+            
+            // V
+            { 
+                name: "Volume Converter", 
+                description: "Convert volume units", 
+                category: "converter", 
+                icon: '<i class="fas fa-wine-glass-alt"></i>', 
+                path: "tools/volume-converter/index.html"
+            },
+            
+            // W
+            { 
+                name: "Weight Converter", 
+                description: "Convert weight", 
+                category: "converter", 
+                icon: '<i class="fas fa-weight-hanging"></i>', 
+                path: "tools/weight-converter/index.html"
+            },
+            { 
+                name: "World Clock", 
+                description: "World time zones", 
+                category: "time", 
+                icon: '<i class="fas fa-globe"></i>', 
+                path: "tools/world-clock/index.html"
+            }
+        ];
+
+        // Sort alphabetically
+        toolsData.sort((a, b) => a.name.localeCompare(b.name));
+
+        // ===== PINNING FUNCTIONALITY =====
+        const PINNED_TOOLS_KEY = 'shankar_tools_pinned';
+        let pinnedTools = JSON.parse(localStorage.getItem(PINNED_TOOLS_KEY)) || [];
+
+        // ===== DOM ELEMENTS =====
+        const toolsGrid = document.getElementById('toolsGrid');
+        const pinnedGrid = document.getElementById('pinnedGrid');
+        const pinnedSection = document.getElementById('pinnedSection');
+        const searchBox = document.getElementById('searchBox');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const installButton = document.getElementById('installButton');
+
+        // ===== PWA INSTALL PROMPT =====
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            
+            // Show install button
+            installButton.style.display = 'flex';
+            
+            // Log for debugging
+            console.log('📱 PWA installable - install button shown');
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('✅ User accepted the install prompt');
+                installButton.style.display = 'none';
+            } else {
+                console.log('❌ User dismissed the install prompt');
+            }
+            
+            // Clear the deferredPrompt variable
+            deferredPrompt = null;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            // Log install
+            console.log('🎉 PWA installed successfully');
+            installButton.style.display = 'none';
+            deferredPrompt = null;
+            
+            // Show notification
+            showNotification('App installed successfully!', 'success');
+        });
+
+        // ===== MOBILE MENU FUNCTIONALITY =====
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            mobileMenuBtn.classList.remove('active');
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // ===== RENDER TOOLS =====
+        function renderTools(filteredTools = toolsData) {
+            // Clear grids
+            toolsGrid.innerHTML = '';
+            pinnedGrid.innerHTML = '';
+            
+            // Render all tools
+            filteredTools.forEach(tool => {
+                const isPinned = pinnedTools.includes(tool.name);
+                const toolCard = createToolCard(tool, isPinned);
+                toolsGrid.appendChild(toolCard);
+                
+                // Add to pinned grid if pinned
+                if (isPinned) {
+                    const pinnedCard = createToolCard(tool, true);
+                    pinnedGrid.appendChild(pinnedCard);
+                }
+            });
+            
+            // Show/hide pinned section
+            if (pinnedTools.length > 0) {
+                pinnedSection.style.display = 'block';
+            } else {
+                pinnedSection.style.display = 'none';
+            }
+        }
+
+        // ===== CREATE TOOL CARD =====
+        function createToolCard(tool, isPinned) {
+            const toolCard = document.createElement('a');
+            toolCard.className = 'tool-card';
+            toolCard.href = tool.path;
+            toolCard.setAttribute('data-category', tool.category);
+            toolCard.target = "_blank"; // Open in new tab
+            
+            toolCard.innerHTML = `
+                <button class="pin-btn ${isPinned ? 'pinned' : ''}" data-name="${tool.name}">
+                    <i class="fas fa-thumbtack"></i>
+                </button>
+                <div class="tool-icon">${tool.icon}</div>
+                <div class="tool-content">
+                    <h3>${tool.name}</h3>
+                    <p>${tool.description}</p>
+                    <span class="tool-tag">${tool.category}</span>
+                </div>
+            `;
+            
+            // Add pin button event (prevents navigation when clicking pin)
+            const pinBtn = toolCard.querySelector('.pin-btn');
+            pinBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                togglePinTool(tool.name);
+            });
+            
+            return toolCard;
+        }
+
+        // ===== FILTER TOOLS =====
+        let activeCategory = 'all';
+        let searchTerm = '';
+
+        function filterTools() {
+            let filteredTools = toolsData;
+            
+            // Filter by category
+            if (activeCategory !== 'all') {
+                filteredTools = filteredTools.filter(tool => tool.category === activeCategory);
+            }
+            
+            // Filter by search term
+            if (searchTerm.trim() !== '') {
+                const term = searchTerm.toLowerCase();
+                filteredTools = filteredTools.filter(tool =>
+                    tool.name.toLowerCase().includes(term) ||
+                    tool.description.toLowerCase().includes(term) ||
+                    tool.category.toLowerCase().includes(term)
+                );
+            }
+            
+            renderTools(filteredTools);
+        }
+
+        // ===== TOGGLE PIN TOOL =====
+        function togglePinTool(toolName) {
+            const index = pinnedTools.indexOf(toolName);
+            
+            if (index === -1) {
+                pinnedTools.push(toolName);
+                localStorage.setItem(PINNED_TOOLS_KEY, JSON.stringify(pinnedTools));
+                filterTools();
+                showNotification(`${toolName} pinned`, 'success');
+            } else {
+                pinnedTools.splice(index, 1);
+                localStorage.setItem(PINNED_TOOLS_KEY, JSON.stringify(pinnedTools));
+                filterTools();
+                showNotification(`${toolName} unpinned`, 'info');
+            }
+        }
+
+        // ===== NOTIFICATION =====
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? 'var(--success)' : 
+                           type === 'error' ? 'var(--danger)' : 'var(--accent)';
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${bgColor};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ===== EVENT LISTENERS =====
+        searchBox.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            filterTools();
+        });
+
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeCategory = btn.dataset.category;
+                filterTools();
+            });
+        });
+
+        document.getElementById('homeBtn').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            searchBox.value = '';
+            searchTerm = '';
+            categoryBtns[0].click();
+        });
+
+        // ===== PWA SERVICE WORKER REGISTRATION =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered with scope:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('🔄 New Service Worker found!');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🆕 New content is available!');
+                                    showNotification('New update available! Refresh the page.', 'info');
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // ===== OFFLINE DETECTION =====
+        window.addEventListener('online', () => {
+            showNotification('You are back online!', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            showNotification('You are offline. Some features may not work.', 'warning');
+        });
+
+        // Check initial connection status
+        if (!navigator.onLine) {
+            showNotification('You are offline. Some features may not work.', 'warning');
+        }
+
+        // ===== SHARE FUNCTIONALITY =====
+        document.getElementById('shareLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Shankar Group Tools',
+                        text: 'Check out this amazing all-in-one tools dashboard!',
+                        url: window.location.href,
+                    });
+                } catch (err) {
+                    console.log('Error sharing:', err);
+                }
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => {
+                        showNotification('Link copied to clipboard!', 'success');
+                    })
+                    .catch(() => {
+                        prompt('Copy this link:', window.location.href);
+                    });
+            }
+        });
+
+        // ===== INITIAL RENDER =====
+        renderTools();
+    </script>
+</body>
+</html>
