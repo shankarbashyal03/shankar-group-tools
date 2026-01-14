@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Text Generator</title>
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --light-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --light-container-bg: #ffffff;
+            --light-text: #333333;
+            --light-secondary-text: #666666;
+            --light-border: #e0e0e0;
+            --light-input-bg: #ffffff;
+            --light-output-bg: #f8f9fa;
+            --light-btn-bg: #667eea;
+            --light-btn-hover: #764ba2;
+            --light-copy-btn: #f0f0f0;
+            --light-copy-btn-hover: #e0e0e0;
+            --light-copied-bg: #4CAF50;
+            --light-header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --light-word-count-bg: #f0f4ff;
+            --light-word-count-text: #667eea;
+        }
+        
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --light-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --light-container-bg: #222831;
+            --light-text: #e0e0e0;
+            --light-secondary-text: #aaaaaa;
+            --light-border: #393e46;
+            --light-input-bg: #2d4059;
+            --light-output-bg: #1a1a2e;
+            --light-btn-bg: #00adb5;
+            --light-btn-hover: #0097a7;
+            --light-copy-btn: #393e46;
+            --light-copy-btn-hover: #4a4f57;
+            --light-copied-bg: #388e3c;
+            --light-header-bg: linear-gradient(135deg, #00adb5 0%, #393e46 100%);
+            --light-word-count-bg: rgba(0, 173, 181, 0.2);
+            --light-word-count-text: #00adb5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: var(--light-bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .container {
+            background-color: var(--light-container-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .header {
+            background: var(--light-header-bg);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(30deg);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 30px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content {
+                padding: 20px;
+                gap: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: var(--light-text);
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        input[type="number"], select {
+            padding: 14px;
+            background-color: var(--light-input-bg);
+            border: 2px solid var(--light-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: var(--light-text);
+        }
+        
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--light-btn-bg);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--light-btn-bg);
+        }
+        
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        button {
+            padding: 16px;
+            background-color: var(--light-btn-bg);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+        }
+        
+        .generate-btn {
+            background-color: var(--light-btn-bg);
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            background-color: var(--light-btn-hover);
+        }
+        
+        .copy-btn {
+            background-color: var(--light-copy-btn);
+            color: var(--light-text);
+        }
+        
+        .copy-btn:hover {
+            background-color: var(--light-copy-btn-hover);
+        }
+        
+        .copy-btn.copied {
+            background-color: var(--light-copied-bg);
+            color: white;
+        }
+        
+        .output-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .output-header h3 {
+            color: var(--light-text);
+            font-size: 1.3rem;
+        }
+        
+        .word-count {
+            color: var(--light-word-count-text);
+            font-weight: 600;
+            background-color: var(--light-word-count-bg);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: var(--light-border);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--light-btn-bg);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .output {
+            background-color: var(--light-output-bg);
+            border-radius: 10px;
+            padding: 25px;
+            height: 350px;
+            overflow-y: auto;
+            border: 2px solid var(--light-border);
+            line-height: 1.6;
+            font-size: 1.05rem;
+            color: var(--light-text);
+            transition: all 0.3s ease;
+        }
+        
+        .output p {
+            margin-bottom: 20px;
+        }
+        
+        .output p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: var(--light-btn-bg);
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        /* Status Indicator for Offline/Online */
+        .status-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--light-copied-bg);
+            color: white;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .status-indicator.offline {
+            background: #f44336;
+        }
+        
+        /* Scrollbar Styling */
+        .output::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .output::-webkit-scrollbar-track {
+            background: var(--light-output-bg);
+            border-radius: 4px;
+        }
+        
+        .output::-webkit-scrollbar-thumb {
+            background: var(--light-btn-bg);
+            border-radius: 4px;
+        }
+        
+        .output::-webkit-scrollbar-thumb:hover {
+            background: var(--light-btn-hover);
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator" id="statusIndicator"></div>
+    
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                🌙
+            </button>
+            <h1>📝 Random Text Generator</h1>
+        </div>
+        
+        <div class="content">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="wordCount">Number of Words (Unlimited)</label>
+                    <input type="number" id="wordCount" min="1" value="1000" step="100">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="paragraphOption" checked>
+                        <label for="paragraphOption">Generate Paragraphs</label>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="paragraphCount">Number of Paragraphs (if enabled)</label>
+                    <input type="number" id="paragraphCount" min="1" max="1000" value="5">
+                </div>
+                
+                <div class="control-group">
+                    <label for="textType">Text Type</label>
+                    <select id="textType">
+                        <option value="lorem">Lorem Ipsum (Classic)</option>
+                        <option value="tech">Tech Terminology</option>
+                        <option value="creative">Creative Writing</option>
+                        <option value="business">Business Vocabulary</option>
+                    </select>
+                </div>
+                
+                <div class="buttons">
+                    <button class="generate-btn" id="generateBtn">
+                        <span>⚡</span> Generate Unlimited Text
+                    </button>
+                    <button class="copy-btn" id="copyBtn">
+                        <span>📋</span> Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+            
+            <div class="output-section">
+                <div class="output-header">
+                    <h3>Generated Text</h3>
+                    <div class="word-count">Words: <span id="currentWordCount">0</span></div>
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                <div class="loading" id="loadingMessage">Generating text... Please wait</div>
+                <div class="output" id="textOutput">
+                    <p>Enter the number of words you want to generate and click "Generate Unlimited Text".</p>
+                    <p>You can generate any number of words - from 1 to millions!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Service Worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered: ', registration);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+
+        // Enhanced word banks with more vocabulary
+        const wordBanks = {
+            lorem: [
+                "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", 
+                "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", 
+                "magna", "aliqua", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", 
+                "ullamco", "laboris", "nisi", "aliquip", "ex", "ea", "commodo", "consequat", 
+                "duis", "aute", "irure", "dolor", "in", "reprehenderit", "voluptate", "velit", 
+                "esse", "cillum", "eu", "fugiat", "nulla", "pariatur", "excepteur", "sint", 
+                "occaecat", "cupidatat", "non", "proident", "sunt", "culpa", "qui", "officia", 
+                "deserunt", "mollit", "anim", "id", "est", "laborum", "sed", "ut", "perspiciatis", 
+                "unde", "omnis", "iste", "natus", "error", "voluptatem", "accusantium", 
+                "doloremque", "laudantium", "totam", "rem", "aperiam", "eaque", "ipsa", "quae", 
+                "ab", "illo", "inventore", "veritatis", "et", "quasi", "architecto", "beatae", 
+                "vitae", "dicta", "sunt", "explicabo", "nemo", "enim", "ipsam", "voluptatem", 
+                "quia", "voluptas", "sit", "aspernatur", "aut", "odit", "aut", "fugit", "sed", 
+                "quia", "consequuntur", "magni", "dolores", "eos", "qui", "ratione", "voluptatem", 
+                "sequi", "nesciunt", "neque", "porro", "quisquam", "est", "qui", "dolorem"
+            ],
+            
+            tech: [
+                "algorithm", "bandwidth", "cache", "database", "encryption", "firewall", "gateway", 
+                "hardware", "interface", "javascript", "kernel", "latency", "microservice", "network", 
+                "optimization", "protocol", "query", "responsive", "scalability", "template", 
+                "utility", "virtualization", "workflow", "xml", "yaml", "backend", "frontend", 
+                "framework", "container", "deployment", "authentication", "authorization", 
+                "blockchain", "cloud", "debugging", "encryption", "firewall", "iteration", 
+                "javascript", "kubernetes", "machine", "learning", "natural", "language", 
+                "processing", "open", "source", "platform", "quantum", "repository", "serverless", 
+                "transpiler", "unicode", "version", "control", "webassembly", "zero", "day", 
+                "artificial", "intelligence", "big", "data", "cybersecurity", "devops", 
+                "edge", "computing", "full", "stack", "git", "hub", "integration", "json", 
+                "key", "value", "load", "balancing", "middleware", "node", "object", "oriented", 
+                "package", "manager", "quality", "assurance", "rest", "api", "software", 
+                "technical", "debt", "unit", "testing", "visual", "studio", "wireless", 
+                "xss", "cross", "site", "scripting", "yarn", "package", "manager", "zip"
+            ],
+            
+            creative: [
+                "whisper", "cascade", "embers", "luminous", "solitude", "ethereal", "melancholy", 
+                "serendipity", "eloquence", "nostalgia", "velvet", "tranquil", "azure", "crimson", 
+                "gossamer", "harmony", "infinity", "jubilant", "kaleidoscope", "labyrinth", 
+                "mystical", "nebula", "oblivion", "paradox", "quintessence", "resonance", 
+                "symphony", "twilight", "umbra", "vivid", "whimsical", "yearning", "zenith", 
+                "aurora", "bliss", "celestial", "dawn", "effervescent", "fragrance", "glimmer", 
+                "harbinger", "illuminate", "journey", "kismet", "luminescent", "meander", 
+                "nirvana", "oasis", "panorama", "quiescent", "radiance", "savor", "talisman", 
+                "unveil", "vortex", "wanderlust", "xanadu", "yonder", "zephyr", "abyss", 
+                "breathtaking", "cascade", "delicate", "enchantment", "flourish", "glisten", 
+                "halcyon", "iridescent", "jubilation", "knight", "lullaby", "murmur", "nautical", 
+                "opalescent", "petrichor", "quaint", "reverie", "silhouette", "tendril", 
+                "undulate", "verdant", "wistful", "xenial", "yesteryear", "zeal"
+            ],
+            
+            business: [
+                "strategy", "revenue", "quarter", "stakeholder", "leverage", "paradigm", 
+                "synergy", "bandwidth", "onboarding", "streamline", "optimize", "initiative", 
+                "milestone", "benchmark", "scalable", "disruptive", "innovative", "alignment", 
+                "roadmap", "deliverable", "incentivize", "empower", "facilitate", "streamline", 
+                "monetize", "ecosystem", "pivot", "holistic", "agile", "granular", "actionable", 
+                "impactful", "robust", "seamless", "dynamic", "proactive", "value", "proposition", 
+                "competitive", "advantage", "market", "penetration", "brand", "equity", "customer", 
+                "retention", "key", "performance", "indicator", "return", "on", "investment", 
+                "cost", "benefit", "analysis", "supply", "chain", "logistics", "procurement", 
+                "merger", "acquisition", "due", "diligence", "venture", "capital", "private", 
+                "equity", "cash", "flow", "balance", "sheet", "profit", "margin", "break", "even", 
+                "market", "share", "brand", "awareness", "target", "audience", "conversion", "rate", 
+                "search", "engine", "optimization", "social", "media", "marketing", "influencer", 
+                "campaign", "engagement", "analytics", "metrics", "dashboard", "forecast", 
+                "projection", "quarterly", "report", "fiscal", "year", "compliance", "regulation", 
+                "governance", "transparency", "accountability", "sustainability", "corporate", 
+                "social", "responsibility"
+            ]
+        };
+
+        // DOM elements
+        const wordCountInput = document.getElementById('wordCount');
+        const paragraphOption = document.getElementById('paragraphOption');
+        const paragraphCountInput = document.getElementById('paragraphCount');
+        const textTypeSelect = document.getElementById('textType');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const textOutput = document.getElementById('textOutput');
+        const currentWordCount = document.getElementById('currentWordCount');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const themeToggle = document.getElementById('themeToggle');
+        const statusIndicator = document.getElementById('statusIndicator');
+
+        // Theme management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        // Network status monitoring
+        function updateNetworkStatus() {
+            if (!navigator.onLine) {
+                statusIndicator.textContent = 'Offline Mode';
+                statusIndicator.classList.add('offline');
+                statusIndicator.style.display = 'block';
+            } else {
+                statusIndicator.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        updateNetworkStatus();
+
+        // Local storage for last settings
+        function saveSettings() {
+            const settings = {
+                wordCount: wordCountInput.value,
+                paragraphOption: paragraphOption.checked,
+                paragraphCount: paragraphCountInput.value,
+                textType: textTypeSelect.value,
+                theme: document.documentElement.getAttribute('data-theme')
+            };
+            localStorage.setItem('textGeneratorSettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('textGeneratorSettings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                wordCountInput.value = settings.wordCount || 1000;
+                paragraphOption.checked = settings.paragraphOption !== false;
+                paragraphCountInput.value = settings.paragraphCount || 5;
+                textTypeSelect.value = settings.textType || 'lorem';
+            }
+        }
+
+        // Optimized word generation
+        function getRandomWord(type) {
+            const words = wordBanks[type];
+            return words[Math.floor(Math.random() * words.length)];
+        }
+
+        function capitalizeWord(word) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+
+        // Efficient sentence generator
+        function generateSentence(type) {
+            const sentenceLength = Math.floor(Math.random() * 12) + 8;
+            let sentence = '';
+            
+            for (let i = 0; i < sentenceLength; i++) {
+                let word = getRandomWord(type);
+                if (i === 0) word = capitalizeWord(word);
+                sentence += word + (i < sentenceLength - 1 ? ' ' : '');
+            }
+            
+            sentence += ['.', '!', '?'][Math.floor(Math.random() * 3)];
+            return sentence;
+        }
+
+        // Stream text generation to prevent memory issues
+        async function generateTextStream(totalWords, useParagraphs, numParagraphs, textType) {
+            const CHUNK_SIZE = 5000; // Generate in chunks of 5000 words
+            let generatedText = '';
+            let wordCounter = 0;
+            let chunkCounter = 0;
+            
+            textOutput.innerHTML = '';
+            loadingMessage.style.display = 'block';
+            progressBar.style.display = 'block';
+            
+            if (useParagraphs) {
+                const wordsPerParagraph = Math.floor(totalWords / numParagraphs);
+                let remainingWords = totalWords;
+                
+                for (let p = 0; p < numParagraphs; p++) {
+                    let paragraphWords = (p === numParagraphs - 1) ? remainingWords : wordsPerParagraph;
+                    remainingWords -= paragraphWords;
+                    
+                    let paragraphText = '';
+                    let paragraphWordCount = 0;
+                    
+                    while (paragraphWordCount < paragraphWords) {
+                        const sentence = generateSentence(textType);
+                        const sentenceWordCount = sentence.split(' ').length;
+                        
+                        if (paragraphWordCount + sentenceWordCount > paragraphWords && paragraphWordCount > 0) {
+                            break;
+                        }
+                        
+                        paragraphText += (paragraphWordCount === 0 ? '' : ' ') + sentence;
+                        paragraphWordCount += sentenceWordCount;
+                        wordCounter += sentenceWordCount;
+                        
+                        // Update progress for every 100 words
+                        if (wordCounter % 100 === 0) {
+                            updateProgress(wordCounter, totalWords);
+                            currentWordCount.textContent = wordCounter.toLocaleString();
+                            
+                            // Yield to prevent blocking
+                            if (wordCounter % 1000 === 0) {
+                                await new Promise(resolve => setTimeout(resolve, 0));
+                            }
+                        }
+                    }
+                    
+                    generatedText += '<p>' + paragraphText + '</p>';
+                    
+                    // Display progress as we generate
+                    textOutput.innerHTML = generatedText;
+                    textOutput.scrollTop = textOutput.scrollHeight;
+                }
+            } else {
+                while (wordCounter < totalWords) {
+                    const sentence = generateSentence(textType);
+                    const sentenceWordCount = sentence.split(' ').length;
+                    
+                    if (wordCounter + sentenceWordCount > totalWords && wordCounter > 0) {
+                        break;
+                    }
+                    
+                    generatedText += (wordCounter === 0 ? '' : ' ') + sentence;
+                    wordCounter += sentenceWordCount;
+                    
+                    if (wordCounter % 500 === 0) {
+                        updateProgress(wordCounter, totalWords);
+                        currentWordCount.textContent = wordCounter.toLocaleString();
+                        
+                        // Display current progress
+                        textOutput.innerHTML = '<p>' + generatedText + '</p>';
+                        textOutput.scrollTop = textOutput.scrollHeight;
+                        
+                        // Yield to prevent blocking
+                        if (wordCounter % 5000 === 0) {
+                            await new Promise(resolve => setTimeout(resolve, 0));
+                        }
+                    }
+                }
+                
+                textOutput.innerHTML = '<p>' + generatedText + '</p>';
+            }
+            
+            return wordCounter;
+        }
+
+        function updateProgress(current, total) {
+            const percentage = Math.min((current / total) * 100, 100);
+            progressFill.style.width = percentage + '%';
+        }
+
+        // Main generation function
+        async function generateText() {
+            const totalWords = parseInt(wordCountInput.value);
+            const useParagraphs = paragraphOption.checked;
+            const numParagraphs = parseInt(paragraphCountInput.value);
+            const textType = textTypeSelect.value;
+            
+            if (totalWords < 1) {
+                alert('Please enter a valid number of words');
+                wordCountInput.focus();
+                return;
+            }
+            
+            // Save settings before generation
+            saveSettings();
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span>⏳</span> Generating...';
+            
+            try {
+                const actualWordCount = await generateTextStream(totalWords, useParagraphs, numParagraphs, textType);
+                
+                // Final update
+                currentWordCount.textContent = actualWordCount.toLocaleString();
+                updateProgress(actualWordCount, totalWords);
+                
+                // Save generated text for offline access
+                const generatedText = textOutput.innerHTML;
+                localStorage.setItem('lastGeneratedText', generatedText);
+                localStorage.setItem('lastWordCount', actualWordCount.toString());
+                
+            } catch (error) {
+                console.error('Generation error:', error);
+                textOutput.innerHTML = '<p style="color: #f44336;">Error generating text. Please try again.</p>';
+            } finally {
+                // Hide loading elements
+                loadingMessage.style.display = 'none';
+                progressBar.style.display = 'none';
+                
+                // Reset button
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<span>⚡</span> Generate Unlimited Text';
+                
+                // Scroll to top
+                textOutput.scrollTop = 0;
+            }
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            const textToCopy = textOutput.innerText;
+            
+            if (!textToCopy.trim()) {
+                alert('No text to copy. Please generate text first.');
+                return;
+            }
+            
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = '<span>✓</span> Copied!';
+                    
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = '<span>📋</span> Copy to Clipboard';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Copy failed:', err);
+                    alert('Failed to copy text. Please try again.');
+                });
+        }
+
+        // Load last generated text if available
+        function loadLastText() {
+            const lastText = localStorage.getItem('lastGeneratedText');
+            const lastWordCount = localStorage.getItem('lastWordCount');
+            
+            if (lastText && lastWordCount) {
+                textOutput.innerHTML = lastText;
+                currentWordCount.textContent = parseInt(lastWordCount).toLocaleString();
+            }
+        }
+
+        // Event listeners
+        generateBtn.addEventListener('click', generateText);
+        copyBtn.addEventListener('click', copyToClipboard);
+        
+        paragraphOption.addEventListener('change', function() {
+            paragraphCountInput.disabled = !this.checked;
+            saveSettings();
+        });
+        
+        // Save settings on change
+        wordCountInput.addEventListener('input', saveSettings);
+        paragraphCountInput.addEventListener('input', saveSettings);
+        textTypeSelect.addEventListener('change', saveSettings);
+        
+        // Initialize
+        function init() {
+            initTheme();
+            loadSettings();
+            loadLastText();
+            paragraphCountInput.disabled = !paragraphOption.checked;
+            
+            // Auto-generate on page load
+            if (!localStorage.getItem('lastGeneratedText')) {
+                generateText();
+            }
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

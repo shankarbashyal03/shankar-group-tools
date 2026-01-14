@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presets | Excel Data Generator</title>
+    <style>
+        /* Reuse styles from index.html */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: var(--shadow);
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--secondary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .preset-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+
+        .preset-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .preset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .preset-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .btn-icon:hover {
+            background: var(--light);
+        }
+
+        .preset-info {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .preset-columns {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .column-tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0.25rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--secondary);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i>📊</i>
+                <span>Excel Data Generator</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">
+                    <i>⚡</i> Generator
+                </a>
+                <a href="presets.html" class="nav-link active">
+                    <i>💾</i> Presets
+                </a>
+                <a href="history.html" class="nav-link">
+                    <i>📋</i> History
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1><i>💾</i> Saved Presets</h1>
+            <p>Manage your saved data configurations for quick reuse</p>
+        </header>
+
+        <div id="presetsContainer">
+            <!-- Presets will be loaded here -->
+        </div>
+
+        <footer class="footer">
+            <p>© 2024 Excel Data Generator | Works 100% Offline</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadPresets);
+
+        function loadPresets() {
+            const presets = JSON.parse(localStorage.getItem('excelPresets') || '[]');
+            const container = document.getElementById('presetsContainer');
+            
+            if (presets.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h2>📁 No Presets Saved</h2>
+                        <p>Save presets from the Generator page to see them here.</p>
+                        <button class="btn btn-primary" onclick="location.href='index.html'" style="margin-top: 1rem;">
+                            <i>⚡</i> Go to Generator
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div class="presets-grid"></div>';
+            const grid = container.querySelector('.presets-grid');
+
+            presets.forEach((preset, index) => {
+                const card = document.createElement('div');
+                card.className = 'preset-card';
+                card.innerHTML = `
+                    <div class="preset-header">
+                        <h3 class="preset-name">${preset.name}</h3>
+                        <div class="preset-actions">
+                            <button class="btn btn-primary" onclick="loadPresetToGenerator(${index})">
+                                <i>⚡</i> Use
+                            </button>
+                            <button class="btn btn-danger" onclick="deletePreset(${index})">
+                                <i>🗑️</i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preset-info">
+                        <p><i>📊</i> ${preset.columns.length} columns, ${preset.rowCount} rows</p>
+                        <p><i>⏱️</i> ${new Date(preset.timestamp).toLocaleDateString()}</p>
+                    </div>
+                    <div class="preset-columns">
+                        ${preset.columns.slice(0, 5).map(col => 
+                            `<span class="column-tag">${col.name}</span>`
+                        ).join('')}
+                        ${preset.columns.length > 5 ? `<span class="column-tag">+${preset.columns.length - 5} more</span>` : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function loadPresetToGenerator(index) {
+            const presets = JSON.parse(localStorage.getItem('excelPresets') || '[]');
+            if (presets[index]) {
+                localStorage.setItem('selectedPreset', JSON.stringify(presets[index]));
+                location.href = 'index.html';
+            }
+        }
+
+        function deletePreset(index) {
+            if (confirm('Are you sure you want to delete this preset?')) {
+                const presets = JSON.parse(localStorage.getItem('excelPresets') || '[]');
+                presets.splice(index, 1);
+                localStorage.setItem('excelPresets', JSON.stringify(presets));
+                loadPresets();
+            }
+        }
+    </script>
+</body>
+</html>

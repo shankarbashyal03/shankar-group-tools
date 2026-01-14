@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-mode">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Daily Planner</title>
+    <meta name="description" content="Customize your planner settings">
+    <style>
+        /* Import Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-bg-light: #334155;
+            --text-color: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        .light-mode {
+            --primary-color: #7c3aed;
+            --primary-dark: #6d28d9;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-bg-light: #f1f5f9;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Header */
+        header {
+            background: var(--card-bg);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            background: var(--card-bg-light);
+        }
+
+        .nav-link.active {
+            color: var(--primary-color);
+            background: var(--card-bg-light);
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .page-icon {
+            font-size: 3rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Settings Grid */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Settings Card */
+        .settings-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .settings-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Settings Group */
+        .settings-group {
+            margin-bottom: 2rem;
+        }
+
+        .settings-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .group-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .group-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Settings Item */
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--card-bg-light);
+            border-radius: var(--radius);
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .settings-item:hover {
+            background: var(--border-color);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .item-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .theme-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .theme-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .theme-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .theme-dark .theme-preview {
+            background: #0f172a;
+        }
+
+        .theme-light .theme-preview {
+            background: #f8fafc;
+        }
+
+        .theme-preview-header {
+            height: 20px;
+            background: var(--primary-color);
+        }
+
+        .theme-preview-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 4px;
+            padding: 4px;
+        }
+
+        .theme-preview-sidebar {
+            background: #1e293b;
+        }
+
+        .theme-light .theme-preview-sidebar {
+            background: #ffffff;
+        }
+
+        .theme-preview-main {
+            background: #334155;
+        }
+
+        .theme-light .theme-preview-main {
+            background: #f1f5f9;
+        }
+
+        .theme-name {
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        /* Color Palette */
+        .color-palette {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: white;
+            box-shadow: 0 0 0 2px var(--border-color);
+        }
+
+        /* Select Input */
+        .select-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-color);
+            font-family: inherit;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .select-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-buttons .btn {
+            width: 100%;
+        }
+
+        /* Data Stats */
+        .data-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--card-bg-light);
+            border-radius: var(--radius);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* About Section */
+        .about-content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .about-content p {
+            margin-bottom: 1rem;
+        }
+
+        .version-info {
+            background: var(--card-bg-light);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 1.5rem 0;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+
+        .app-version {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger-color);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .theme-selector {
+                flex-direction: column;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-menu {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">📅</span>
+                <span>Daily Planner</span>
+            </a>
+            
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="tasks.html" class="nav-link">Tasks</a>
+                <a href="calendar.html" class="nav-link">Calendar</a>
+                <a href="settings.html" class="nav-link active">Settings</a>
+            </div>
+            
+            <div class="header-actions">
+                <!-- Empty for alignment -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <span class="page-icon">⚙️</span>
+                Settings
+            </h1>
+            <p class="page-subtitle">
+                Customize your planner experience, manage your data, and configure preferences
+            </p>
+        </div>
+
+        <!-- Settings Grid -->
+        <div class="settings-grid">
+            <!-- Appearance Settings -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🎨</div>
+                    <div>
+                        <h2 class="card-title">Appearance</h2>
+                        <p class="card-description">Customize look and feel</p>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="group-title">
+                        <span class="group-icon">🌓</span>
+                        Theme
+                    </h3>
+                    <div class="theme-selector">
+                        <div class="theme-option theme-dark selected" data-theme="dark">
+                            <div class="theme-preview"></div>
+                            <div class="theme-name">Dark</div>
+                        </div>
+                        <div class="theme-option theme-light" data-theme="light">
+                            <div class="theme-preview"></div>
+                            <div class="theme-name">Light</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="group-title">
+                        <span class="group-icon">🎨</span>
+                        Accent Color
+                    </h3>
+                    <div class="color-palette">
+                        <div class="color-option selected" style="background: #8b5cf6;" data-color="#8b5cf6"></div>
+                        <div class="color-option" style="background: #3b82f6;" data-color="#3b82f6"></div>
+                        <div class="color-option" style="background: #10b981;" data-color="#10b981"></div>
+                        <div class="color-option" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                        <div class="color-option" style="background: #ef4444;" data-color="#ef4444"></div>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="group-title">
+                        <span class="group-icon">📱</span>
+                        Display
+                    </h3>
+                    <div class="settings-item">
+                        <div class="item-info">
+                            <div class="item-title">Compact Mode</div>
+                            <div class="item-description">Show more content in less space</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="compactMode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="item-info">
+                            <div class="item-title">Animations</div>
+                            <div class="item-description">Enable smooth transitions</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="animations" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Settings -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🔔</div>
+                    <div>
+                        <h2 class="card-title">Notifications</h2>
+                        <p class="card-description">Configure alerts and reminders</p>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="group-title">
+                        <span class="group-icon">⏰</span>
+                        Reminders
+                    </h3>
+                    <div class="settings-item">
+                        <div class="item-info">
+                            <div class="item-title">Task Reminders</div>
+                            <div class="item-description">Get notified before tasks are due</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="taskReminders" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="item-info">
+                            <div class="item-title">Event Reminders</div>
+                            <div class="item-description">Get notified before events</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="eventReminders" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="group-title">
+                        <span class="group-icon">🔕</span>
+                        Quiet Hours
+                    </h3>
+                    <div class="settings-item">
+                        <div class="item-info">
+                            <div class="item-title">Enable Quiet Hours</div>
+                            <div class="item-description">Silence notifications during specified hours</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="quietHours">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="item-info">
+                            <div class="item-title">Quiet Hours</div>
+                            <div class="item-description">Set quiet time range</div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="time" id="quietStart" class="select-input" value="22:00" style="flex: 1;">
+                            <span style="color: var(--text-secondary); align-self: center;">to</span>
+                            <input type="time" id="quietEnd" class="select-input" value="07:00" style="flex: 1;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="group-title">
+                        <span class="group-icon">📲</span>
+                        Notification Methods
+                    </h3>
+                    <div class="settings-item">
+                        <div class="item-info">
+                            <div class="item-title">Browser Notifications</div>
+                            <div class="item-description">Show native browser notifications</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="browserNotifications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="item-info">
+                            <div class="item-title">Sound Alerts</div>
+                            <div class="item-description">Play sound for important notifications</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="soundAlerts">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">💾</div>
+                    <div>
+                        <h2 class="card-title">Data Management</h2>
+                        <p class="card-description">Manage your planner data</p>
+                    </div>
+                </div>
+                
+                <div class="data-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalTasks">0</div>
+                        <div class="stat-label">Tasks</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalEvents">0</div>
+                        <div class="stat-label">Events</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="storageUsed">0KB</div>
+                        <div class="stat-label">Storage</div>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="group-title">
+                        <span class="group-icon">📤</span>
+                        Export Data
+                    </h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="exportTasksBtn">
+                            📝 Export Tasks
+                        </button>
+                        <button class="btn btn-primary" id="exportAllBtn">
+                            💾 Export All Data
+                        </button>
+                        <button class="btn btn-secondary" id="backupBtn">
+                            🔄 Create Backup
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3 class="group-title">
+                        <span class="group-icon">🗑️</span>
+                        Clear Data
+                    </h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" id="clearCompletedBtn">
+                            ✅ Clear Completed Tasks
+                        </button>
+                        <button class="btn btn-danger" id="clearAllBtn">
+                            🗑️ Clear All Data
+              
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+   
+
+    <!-- Modals -->
+    <div class="modal" id="clearModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Clear All Data</h3>
+                <button class="modal-close" data-modal="clearModal">&times;</button>
+            </div>
+            <div style="color: var(--text-color); margin-bottom: 1.5rem;">
+                <p>⚠️ <strong>Warning:</strong> This action cannot be undone!</p>
+                <p>All your tasks, events, and settings will be permanently deleted.</p>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="btn btn-secondary" data-modal="clearModal">
+                    Cancel
+                </button>
+                <button class="btn btn-danger" id="confirmClearBtn">
+                    Yes, Clear Everything
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // App State
+        let isDarkMode = localStorage.getItem('planner_darkMode') !== 'false';
+        let settings = JSON.parse(localStorage.getItem('planner_settings') || '{}');
+        let tasks = JSON.parse(localStorage.getItem('planner_tasks') || '[]');
+        let events = JSON.parse(localStorage.getItem('planner_events') || '[]');
+
+        // DOM Elements
+        const themeOptions = document.querySelectorAll('.theme-option');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const clearModal = document.getElementById('clearModal');
+        const modalCloses = document.querySelectorAll('.modal-close, [data-modal]');
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            loadStats();
+            setupEventListeners();
+        });
+
+        // Load Settings
+        function loadSettings() {
+            // Theme
+            if (!isDarkMode) {
+                document.querySelector('.theme-light').classList.add('selected');
+                document.querySelector('.theme-dark').classList.remove('selected');
+            }
+            
+            // Load saved settings
+            const savedColor = settings.accentColor || '#8b5cf6';
+            document.documentElement.style.setProperty('--primary-color', savedColor);
+            document.documentElement.style.setProperty('--primary-dark', darkenColor(savedColor));
+            
+            colorOptions.forEach(opt => {
+                if (opt.dataset.color === savedColor) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            // Load toggle states
+            document.getElementById('compactMode').checked = settings.compactMode || false;
+            document.getElementById('animations').checked = settings.animations !== false;
+            document.getElementById('taskReminders').checked = settings.taskReminders !== false;
+            document.getElementById('eventReminders').checked = settings.eventReminders !== false;
+            document.getElementById('quietHours').checked = settings.quietHours || false;
+            document.getElementById('browserNotifications').checked = settings.browserNotifications !== false;
+            document.getElementById('soundAlerts').checked = settings.soundAlerts || false;
+            
+            if (settings.quietStart) {
+                document.getElementById('quietStart').value = settings.quietStart;
+            }
+            if (settings.quietEnd) {
+                document.getElementById('quietEnd').value = settings.quietEnd;
+            }
+            
+            // Update last updated date
+            document.getElementById('lastUpdated').textContent = 
+                new Date().toISOString().split('T')[0];
+        }
+
+        // Load Statistics
+        function loadStats() {
+            const totalTasks = tasks.length;
+            const totalEvents = events.length;
+            
+            // Calculate storage used
+            let totalStorage = 0;
+            for (let key in localStorage) {
+                if (key.startsWith('planner_')) {
+                    totalStorage += localStorage[key].length * 2;
+                }
+            }
+            
+            const storageText = totalStorage < 1024 ? 
+                `${totalStorage}B` : 
+                totalStorage < 1024 * 1024 ? 
+                `${(totalStorage / 1024).toFixed(1)}KB` : 
+                `${(totalStorage / (1024 * 1024)).toFixed(1)}MB`;
+            
+            // Update UI
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('totalEvents').textContent = totalEvents;
+            document.getElementById('storageUsed').textContent = storageText;
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Theme selection
+            themeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    themeOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    
+                    const theme = option.dataset.theme;
+                    isDarkMode = theme === 'dark';
+                    localStorage.setItem('planner_darkMode', isDarkMode);
+                    
+                    if (isDarkMode) {
+                        document.documentElement.classList.remove('light-mode');
+                        document.documentElement.classList.add('dark-mode');
+                    } else {
+                        document.documentElement.classList.remove('dark-mode');
+                        document.documentElement.classList.add('light-mode');
+                    }
+                    
+                    saveSettings();
+                    showNotification(`Theme changed to ${theme} mode`);
+                });
+            });
+            
+            // Color selection
+            colorOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    
+                    const color = option.dataset.color;
+                    document.documentElement.style.setProperty('--primary-color', color);
+                    document.documentElement.style.setProperty('--primary-dark', darkenColor(color));
+                    
+                    settings.accentColor = color;
+                    saveSettings();
+                    showNotification('Accent color updated');
+                });
+            });
+            
+            // Toggle switches
+            document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+                toggle.addEventListener('change', saveSettings);
+            });
+            
+            // Time inputs
+            document.getElementById('quietStart').addEventListener('change', saveSettings);
+            document.getElementById('quietEnd').addEventListener('change', saveSettings);
+            
+            // Export buttons
+            document.getElementById('exportTasksBtn').addEventListener('click', exportTasks);
+            document.getElementById('exportAllBtn').addEventListener('click', exportAllData);
+            document.getElementById('backupBtn').addEventListener('click', createBackup);
+            
+            // Clear buttons
+            document.getElementById('clearCompletedBtn').addEventListener('click', clearCompletedTasks);
+            document.getElementById('clearAllBtn').addEventListener('click', () => {
+                clearModal.classList.add('show');
+            });
+            
+            // Modal close buttons
+            modalCloses.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const modalId = btn.dataset.modal;
+                    document.getElementById(modalId).classList.remove('show');
+                });
+            });
+            
+            // Confirm clear button
+            document.getElementById('confirmClearBtn').addEventListener('click', clearAllData);
+            
+            // Help buttons
+            document.getElementById('helpBtn').addEventListener('click', showHelp);
+            document.getElementById('feedbackBtn').addEventListener('click', sendFeedback);
+            document.getElementById('checkUpdatesBtn').addEventListener('click', checkUpdates);
+        }
+
+        // Save Settings
+        function saveSettings() {
+            settings = {
+                accentColor: settings.accentColor || '#8b5cf6',
+                compactMode: document.getElementById('compactMode').checked,
+                animations: document.getElementById('animations').checked,
+                taskReminders: document.getElementById('taskReminders').checked,
+                eventReminders: document.getElementById('eventReminders').checked,
+                quietHours: document.getElementById('quietHours').checked,
+                quietStart: document.getElementById('quietStart').value,
+                quietEnd: document.getElementById('quietEnd').value,
+                browserNotifications: document.getElementById('browserNotifications').checked,
+                soundAlerts: document.getElementById('soundAlerts').checked,
+                lastSave: new Date().toISOString()
+            };
+            
+            localStorage.setItem('planner_settings', JSON.stringify(settings));
+            showNotification('Settings saved');
+        }
+
+        // Export Functions
+        function exportTasks() {
+            const data = {
+                tasks: tasks,
+                exportedAt: new Date().toISOString(),
+                version: '1.0.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `daily-planner-tasks-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Tasks exported successfully');
+        }
+
+        function exportAllData() {
+            const data = {
+                tasks: tasks,
+                events: events,
+                settings: settings,
+                notes: JSON.parse(localStorage.getItem('planner_notes') || '[]'),
+                schedule: JSON.parse(localStorage.getItem('planner_schedule') || '[]'),
+                exportedAt: new Date().toISOString(),
+                version: '1.0.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `daily-planner-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('All data exported successfully');
+        }
+
+        function createBackup() {
+            const backup = {
+                tasks: tasks,
+                events: events,
+                settings: settings,
+                notes: JSON.parse(localStorage.getItem('planner_notes') || '[]'),
+                schedule: JSON.parse(localStorage.getItem('planner_schedule') || '[]'),
+                backedUpAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('planner_backup', JSON.stringify(backup));
+            showNotification('Backup created successfully');
+        }
+
+        // Clear Functions
+        function clearCompletedTasks() {
+            const completedCount = tasks.filter(t => t.completed).length;
+            
+            if (completedCount === 0) {
+                showNotification('No completed tasks to clear');
+                return;
+            }
+            
+            if (confirm(`Clear ${completedCount} completed tasks?`)) {
+                tasks = tasks.filter(t => !t.completed);
+                localStorage.setItem('planner_tasks', JSON.stringify(tasks));
+                loadStats();
+                showNotification(`${completedCount} completed tasks cleared`);
+            }
+        }
+
+        function clearAllData() {
+            // Clear all planner data
+            localStorage.removeItem('planner_tasks');
+            localStorage.removeItem('planner_events');
+            localStorage.removeItem('planner_notes');
+            localStorage.removeItem('planner_schedule');
+            
+            // Reset to defaults
+            tasks = [];
+            events = [];
+            
+            // Keep settings
+            settings = {
+                accentColor: '#8b5cf6',
+                animations: true,
+                taskReminders: true,
+                eventReminders: true,
+                browserNotifications: true
+            };
+            localStorage.setItem('planner_settings', JSON.stringify(settings));
+            
+            // Close modal and reload
+            clearModal.classList.remove('show');
+            loadStats();
+            loadSettings();
+            
+            showNotification('All data cleared successfully');
+        }
+
+        // Help Functions
+        function showHelp() {
+            const helpText = `
+Daily Planner - Help Guide
+
+GETTING STARTED:
+1. Use the Dashboard to see your daily overview
+2. Create tasks in the Tasks section
+3. View your schedule in the Calendar
+4. Customize settings in this section
+
+KEY FEATURES:
+• Create tasks with priorities and due dates
+• Schedule events in the calendar
+• Plan your day with time blocks
+• Dark/Light theme support
+• Works completely offline
+• Data export/import
+
+TIPS:
+• Use color coding to organize tasks
+• Set reminders for important deadlines
+• Export your data regularly
+• Use the search feature to find tasks quickly
+            `;
+            
+            alert(helpText);
+        }
+
+        function sendFeedback() {
+            const email = 'feedback@dailyplanner.app';
+            const subject = 'Daily Planner Feedback';
+            const body = `\n\n---\nApp Version: 1.0.0\nBrowser: ${navigator.userAgent}\nDate: ${new Date().toISOString()}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Daily Planner Feedback',
+                    text: 'I would like to provide feedback about the Daily Planner app:',
+                    url: window.location.href
+                });
+            } else {
+                window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            }
+        }
+
+        function checkUpdates() {
+            showNotification('You have the latest version (1.0.0)');
+        }
+
+        // Utility Functions
+        function darkenColor(color) {
+            // Simple darkening function
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            
+            const darken = (value) => Math.max(0, value - 30);
+            
+            return `#${darken(r).toString(16).padStart(2, '0')}${darken(g).toString(16).padStart(2, '0')}${darken(b).toString(16).padStart(2, '0')}`;
+        }
+
+        // Notification System
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: var(--primary-color);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+            
+            // Add CSS for animations
+            if (!document.querySelector('#notification-animations')) {
+                const style = document.createElement('style');
+                style.id = 'notification-animations';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+    </script>
+</body>
+</html>

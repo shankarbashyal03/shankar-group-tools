@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Emergency Contacts</title>
+    <meta name="description" content="Global emergency contact directory with offline support">
+    <style>
+        /* CSS Reset and Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #ffffff;
+            --card-bg: #f8fafc;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Header */
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Search Container */
+        .search-container {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 1.1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .stats {
+            display: flex;
+            gap: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Filter Buttons */
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: var(--border-color);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Country Cards */
+        .countries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .country-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .country-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .country-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .country-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .continent {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 0.25rem;
+        }
+
+        .favorite-btn.active {
+            color: var(--danger-color);
+        }
+
+        .emergency-numbers {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .number-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .number-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .number-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-family: 'Courier New', monospace;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .countries-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .emergency-numbers {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🆘</span>
+                <span>Emergency Contacts</span>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    🌙
+                </button>
+                <a href="settings.html" style="color: white; text-decoration: none;">
+                    ⚙️
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Search Section -->
+        <div class="search-container">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Search countries..."
+                    autocomplete="off"
+                >
+            </div>
+            <div class="stats">
+                <span id="totalCountries">Loading...</span>
+                <span id="showingCount"></span>
+            </div>
+            
+            <!-- Continent Filters -->
+            <div class="filter-buttons" id="continentFilters">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Countries Grid -->
+        <div class="countries-grid" id="countriesGrid">
+            <div class="loading">
+                <div>Loading emergency contacts...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>⚠️ In emergencies, verify numbers with local authorities</p>
+        <div class="footer-links">
+            <a href="settings.html">Settings</a>
+            <a href="#about">About</a>
+            <span>Works Offline</span>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Country Data (Inline)
+        const countriesData = [
+            {Country: "Afghanistan", Continent: "Asia", Region: "South Asia", Police: "119", Fire: "112", Ambulance: "102", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Albania", Continent: "Europe", Region: "Southern Europe", Police: "129", Fire: "128", Ambulance: "127", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Algeria", Continent: "Africa", Region: "North Africa", Police: "1548", Fire: "14", Ambulance: "14", Coast_Guard: "", Disaster: "14", Poison_Control: "", Universal: "112"},
+            {Country: "Andorra", Continent: "Europe", Region: "Southern Europe", Police: "110", Fire: "118", Ambulance: "116", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Angola", Continent: "Africa", Region: "Sub-Saharan Africa", Police: "113", Fire: "115", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Antigua and Barbuda", Continent: "North America", Region: "Caribbean", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "911", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Argentina", Continent: "South America", Region: "South America", Police: "911", Fire: "100", Ambulance: "107", Coast_Guard: "106", Disaster: "", Poison_Control: "0800-333-0160", Universal: "911"},
+            {Country: "Armenia", Continent: "Asia", Region: "Western Asia", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Australia", Continent: "Oceania", Region: "Oceania", Police: "000", Fire: "000", Ambulance: "000", Coast_Guard: "000", Disaster: "", Poison_Control: "13-11-26", Universal: "000"},
+            {Country: "Austria", Continent: "Europe", Region: "Central Europe", Police: "133", Fire: "122", Ambulance: "144", Coast_Guard: "", Disaster: "112", Poison_Control: "01-406-43-43", Universal: "112"},
+            {Country: "Azerbaijan", Continent: "Asia", Region: "Western Asia", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Bahamas", Continent: "North America", Region: "Caribbean", Police: "919", Fire: "919", Ambulance: "919", Coast_Guard: "919", Disaster: "", Poison_Control: "", Universal: "919"},
+            {Country: "Bahrain", Continent: "Asia", Region: "Middle East", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "998", Disaster: "", Poison_Control: "", Universal: "112"},
+            {Country: "Bangladesh", Continent: "Asia", Region: "South Asia", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "999", Poison_Control: "", Universal: "999"},
+            {Country: "Barbados", Continent: "North America", Region: "Caribbean", Police: "911", Fire: "311", Ambulance: "511", Coast_Guard: "810", Disaster: "", Poison_Control: "246-426-5432", Universal: "911"},
+            {Country: "Belarus", Continent: "Europe", Region: "Eastern Europe", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Belgium", Continent: "Europe", Region: "Western Europe", Police: "101", Fire: "100", Ambulance: "100", Coast_Guard: "", Disaster: "112", Poison_Control: "070-245-245", Universal: "112"},
+            {Country: "Belize", Continent: "North America", Region: "Central America", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Benin", Continent: "Africa", Region: "West Africa", Police: "117", Fire: "118", Ambulance: "119", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Bhutan", Continent: "Asia", Region: "South Asia", Police: "113", Fire: "110", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Bolivia", Continent: "South America", Region: "South America", Police: "110", Fire: "119", Ambulance: "118", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Bosnia and Herzegovina", Continent: "Europe", Region: "Southeast Europe", Police: "122", Fire: "123", Ambulance: "124", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Botswana", Continent: "Africa", Region: "Southern Africa", Police: "999", Fire: "998", Ambulance: "997", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Brazil", Continent: "South America", Region: "South America", Police: "190", Fire: "193", Ambulance: "192", Coast_Guard: "185", Disaster: "", Poison_Control: "0800-722-6001", Universal: "112"},
+            {Country: "Brunei", Continent: "Asia", Region: "Southeast Asia", Police: "993", Fire: "995", Ambulance: "991", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Bulgaria", Continent: "Europe", Region: "Eastern Europe", Police: "166", Fire: "160", Ambulance: "150", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Burkina Faso", Continent: "Africa", Region: "West Africa", Police: "17", Fire: "18", Ambulance: "15", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Burundi", Continent: "Africa", Region: "East Africa", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Cambodia", Continent: "Asia", Region: "Southeast Asia", Police: "117", Fire: "118", Ambulance: "119", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Cameroon", Continent: "Africa", Region: "Central Africa", Police: "117", Fire: "118", Ambulance: "119", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Canada", Continent: "North America", Region: "North America", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "911", Disaster: "", Poison_Control: "1-844-POISON-X", Universal: "911"},
+            {Country: "Central African Republic", Continent: "Africa", Region: "Central Africa", Police: "117", Fire: "118", Ambulance: "1220", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Chad", Continent: "Africa", Region: "Central Africa", Police: "17", Fire: "18", Ambulance: "2251", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Chile", Continent: "South America", Region: "South America", Police: "133", Fire: "132", Ambulance: "131", Coast_Guard: "137", Disaster: "", Poison_Control: "800-222-7777", Universal: "112"},
+            {Country: "China", Continent: "Asia", Region: "East Asia", Police: "110", Fire: "119", Ambulance: "120", Coast_Guard: "12395", Disaster: "", Poison_Control: "120", Universal: "112"},
+            {Country: "Colombia", Continent: "South America", Region: "South America", Police: "123", Fire: "119", Ambulance: "125", Coast_Guard: "146", Disaster: "", Poison_Control: "018000-916012", Universal: "112"},
+            {Country: "Comoros", Continent: "Africa", Region: "East Africa", Police: "117", Fire: "118", Ambulance: "119", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Congo", Continent: "Africa", Region: "Central Africa", Police: "117", Fire: "118", Ambulance: "119", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Costa Rica", Continent: "North America", Region: "Central America", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "911", Disaster: "", Poison_Control: "911", Universal: "911"},
+            {Country: "Côte d'Ivoire", Continent: "Africa", Region: "West Africa", Police: "110", Fire: "180", Ambulance: "185", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Croatia", Continent: "Europe", Region: "Southern Europe", Police: "192", Fire: "193", Ambulance: "194", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Cuba", Continent: "North America", Region: "Caribbean", Police: "106", Fire: "105", Ambulance: "104", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Cyprus", Continent: "Asia", Region: "Middle East", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "112", Universal: "112"},
+            {Country: "Czech Republic", Continent: "Europe", Region: "Central Europe", Police: "158", Fire: "150", Ambulance: "155", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Denmark", Continent: "Europe", Region: "Northern Europe", Police: "114", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "82121212", Universal: "112"},
+            {Country: "Djibouti", Continent: "Africa", Region: "Horn of Africa", Police: "17", Fire: "18", Ambulance: "19", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Dominica", Continent: "North America", Region: "Caribbean", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "999"},
+            {Country: "Dominican Republic", Continent: "North America", Region: "Caribbean", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Ecuador", Continent: "South America", Region: "South America", Police: "911", Fire: "102", Ambulance: "131", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Egypt", Continent: "Africa", Region: "North Africa", Police: "122", Fire: "180", Ambulance: "123", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "El Salvador", Continent: "North America", Region: "Central America", Police: "911", Fire: "913", Ambulance: "132", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Equatorial Guinea", Continent: "Africa", Region: "Central Africa", Police: "114", Fire: "115", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Eritrea", Continent: "Africa", Region: "East Africa", Police: "113", Fire: "114", Ambulance: "115", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Estonia", Continent: "Europe", Region: "Northern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Eswatini", Continent: "Africa", Region: "Southern Africa", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Ethiopia", Continent: "Africa", Region: "East Africa", Police: "991", Fire: "939", Ambulance: "907", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Fiji", Continent: "Oceania", Region: "Oceania", Police: "917", Fire: "910", Ambulance: "911", Coast_Guard: "", Disaster: "917", Poison_Control: "", Universal: "917"},
+            {Country: "Finland", Continent: "Europe", Region: "Northern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "0800-147-111", Universal: "112"},
+            {Country: "France", Continent: "Europe", Region: "Western Europe", Police: "17", Fire: "18", Ambulance: "15", Coast_Guard: "196", Disaster: "", Poison_Control: "0800-821-821", Universal: "112"},
+            {Country: "Gabon", Continent: "Africa", Region: "Central Africa", Police: "1730", Fire: "18", Ambulance: "1300", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Gambia", Continent: "Africa", Region: "West Africa", Police: "117", Fire: "118", Ambulance: "116", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Georgia", Continent: "Asia", Region: "Western Asia", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Germany", Continent: "Europe", Region: "Central Europe", Police: "110", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "030-19240", Universal: "112"},
+            {Country: "Ghana", Continent: "Africa", Region: "West Africa", Police: "191", Fire: "192", Ambulance: "193", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Greece", Continent: "Europe", Region: "Southern Europe", Police: "100", Fire: "199", Ambulance: "166", Coast_Guard: "108", Disaster: "", Poison_Control: "210-7793777", Universal: "112"},
+            {Country: "Grenada", Continent: "North America", Region: "Caribbean", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Guatemala", Continent: "North America", Region: "Central America", Police: "110", Fire: "122", Ambulance: "123", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Guinea", Continent: "Africa", Region: "West Africa", Police: "122", Fire: "118", Ambulance: "124", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Guinea-Bissau", Continent: "Africa", Region: "West Africa", Police: "117", Fire: "118", Ambulance: "119", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Guyana", Continent: "South America", Region: "South America", Police: "911", Fire: "912", Ambulance: "913", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Haiti", Continent: "North America", Region: "Caribbean", Police: "114", Fire: "115", Ambulance: "116", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Honduras", Continent: "North America", Region: "Central America", Police: "911", Fire: "198", Ambulance: "195", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Hungary", Continent: "Europe", Region: "Central Europe", Police: "107", Fire: "105", Ambulance: "104", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Iceland", Continent: "Europe", Region: "Northern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "112", Universal: "112"},
+            {Country: "India", Continent: "Asia", Region: "South Asia", Police: "112", Fire: "101", Ambulance: "108", Coast_Guard: "1093", Disaster: "1078", Poison_Control: "1800-116-117", Universal: "112"},
+            {Country: "Indonesia", Continent: "Asia", Region: "Southeast Asia", Police: "110", Fire: "113", Ambulance: "119", Coast_Guard: "115", Disaster: "", Poison_Control: "119", Universal: "112"},
+            {Country: "Iran", Continent: "Asia", Region: "Middle East", Police: "110", Fire: "125", Ambulance: "115", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Iraq", Continent: "Asia", Region: "Middle East", Police: "112", Fire: "112", Ambulance: "122", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Ireland", Continent: "Europe", Region: "Northern Europe", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "112", Disaster: "", Poison_Control: "01-809-2166", Universal: "112"},
+            {Country: "Israel", Continent: "Asia", Region: "Middle East", Police: "100", Fire: "102", Ambulance: "101", Coast_Guard: "919", Disaster: "", Poison_Control: "04-777-1900", Universal: "112"},
+            {Country: "Italy", Continent: "Europe", Region: "Southern Europe", Police: "112", Fire: "115", Ambulance: "118", Coast_Guard: "1530", Disaster: "", Poison_Control: "800-883300", Universal: "112"},
+            {Country: "Jamaica", Continent: "North America", Region: "Caribbean", Police: "119", Fire: "110", Ambulance: "110", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "119"},
+            {Country: "Japan", Continent: "Asia", Region: "East Asia", Police: "110", Fire: "119", Ambulance: "119", Coast_Guard: "118", Disaster: "", Poison_Control: "072-727-2499", Universal: "112"},
+            {Country: "Jordan", Continent: "Asia", Region: "Middle East", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Kazakhstan", Continent: "Asia", Region: "Central Asia", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Kenya", Continent: "Africa", Region: "East Africa", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Kiribati", Continent: "Oceania", Region: "Oceania", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "999"},
+            {Country: "Kuwait", Continent: "Asia", Region: "Middle East", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "112"},
+            {Country: "Kyrgyzstan", Continent: "Asia", Region: "Central Asia", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Laos", Continent: "Asia", Region: "Southeast Asia", Police: "1191", Fire: "1190", Ambulance: "195", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Latvia", Continent: "Europe", Region: "Northern Europe", Police: "110", Fire: "112", Ambulance: "113", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Lebanon", Continent: "Asia", Region: "Middle East", Police: "112", Fire: "175", Ambulance: "140", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "112"},
+            {Country: "Lesotho", Continent: "Africa", Region: "Southern Africa", Police: "123", Fire: "122", Ambulance: "121", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Liberia", Continent: "Africa", Region: "West Africa", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Libya", Continent: "Africa", Region: "North Africa", Police: "1515", Fire: "1515", Ambulance: "1515", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Liechtenstein", Continent: "Europe", Region: "Central Europe", Police: "117", Fire: "118", Ambulance: "144", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Lithuania", Continent: "Europe", Region: "Northern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Luxembourg", Continent: "Europe", Region: "Western Europe", Police: "113", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Madagascar", Continent: "Africa", Region: "East Africa", Police: "117", Fire: "118", Ambulance: "124", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Malawi", Continent: "Africa", Region: "Southern Africa", Police: "997", Fire: "998", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Malaysia", Continent: "Asia", Region: "Southeast Asia", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "999", Disaster: "", Poison_Control: "04-6560099", Universal: "112"},
+            {Country: "Maldives", Continent: "Asia", Region: "South Asia", Police: "119", Fire: "118", Ambulance: "102", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Mali", Continent: "Africa", Region: "West Africa", Police: "17", Fire: "18", Ambulance: "15", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Malta", Continent: "Europe", Region: "Southern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "112", Universal: "112"},
+            {Country: "Marshall Islands", Continent: "Oceania", Region: "Oceania", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Mauritania", Continent: "Africa", Region: "West Africa", Police: "117", Fire: "118", Ambulance: "119", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Mauritius", Continent: "Africa", Region: "East Africa", Police: "999", Fire: "995", Ambulance: "114", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Mexico", Continent: "North America", Region: "North America", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "911", Disaster: "", Poison_Control: "800-222-1222", Universal: "911"},
+            {Country: "Micronesia", Continent: "Oceania", Region: "Oceania", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Moldova", Continent: "Europe", Region: "Eastern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Monaco", Continent: "Europe", Region: "Western Europe", Police: "17", Fire: "18", Ambulance: "15", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Mongolia", Continent: "Asia", Region: "East Asia", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Montenegro", Continent: "Europe", Region: "Southeast Europe", Police: "122", Fire: "123", Ambulance: "124", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Morocco", Continent: "Africa", Region: "North Africa", Police: "19", Fire: "15", Ambulance: "15", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Mozambique", Continent: "Africa", Region: "Southern Africa", Police: "119", Fire: "198", Ambulance: "117", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Myanmar", Continent: "Asia", Region: "Southeast Asia", Police: "199", Fire: "191", Ambulance: "192", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Namibia", Continent: "Africa", Region: "Southern Africa", Police: "10111", Fire: "2032270", Ambulance: "211111", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Nauru", Continent: "Oceania", Region: "Oceania", Police: "110", Fire: "112", Ambulance: "111", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "112"},
+            {Country: "Nepal", Continent: "Asia", Region: "South Asia", Police: "100", Fire: "101", Ambulance: "102", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Netherlands", Continent: "Europe", Region: "Western Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "112", Universal: "112"},
+            {Country: "New Zealand", Continent: "Oceania", Region: "Oceania", Police: "111", Fire: "111", Ambulance: "111", Coast_Guard: "111", Disaster: "", Poison_Control: "0800-764-766", Universal: "111"},
+            {Country: "Nicaragua", Continent: "North America", Region: "Central America", Police: "118", Fire: "115", Ambulance: "128", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Niger", Continent: "Africa", Region: "West Africa", Police: "17", Fire: "18", Ambulance: "15", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Nigeria", Continent: "Africa", Region: "West Africa", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "North Korea", Continent: "Asia", Region: "East Asia", Police: "112", Fire: "119", Ambulance: "119", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "112"},
+            {Country: "North Macedonia", Continent: "Europe", Region: "Southeast Europe", Police: "192", Fire: "193", Ambulance: "194", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Norway", Continent: "Europe", Region: "Northern Europe", Police: "112", Fire: "110", Ambulance: "113", Coast_Guard: "120", Disaster: "", Poison_Control: "112", Universal: "112"},
+            {Country: "Oman", Continent: "Asia", Region: "Middle East", Police: "9999", Fire: "9999", Ambulance: "9999", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "9999"},
+            {Country: "Pakistan", Continent: "Asia", Region: "South Asia", Police: "15", Fire: "16", Ambulance: "115", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Palau", Continent: "Oceania", Region: "Oceania", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Panama", Continent: "North America", Region: "Central America", Police: "104", Fire: "103", Ambulance: "911", Coast_Guard: "108", Disaster: "", Poison_Control: "911", Universal: "911"},
+            {Country: "Papua New Guinea", Continent: "Oceania", Region: "Oceania", Police: "112", Fire: "110", Ambulance: "111", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "112"},
+            {Country: "Paraguay", Continent: "South America", Region: "South America", Police: "911", Fire: "132", Ambulance: "141", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Peru", Continent: "South America", Region: "South America", Police: "105", Fire: "116", Ambulance: "106", Coast_Guard: "", Disaster: "911", Poison_Control: "", Universal: "911"},
+            {Country: "Philippines", Continent: "Asia", Region: "Southeast Asia", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "911", Disaster: "", Poison_Control: "911", Universal: "911"},
+            {Country: "Poland", Continent: "Europe", Region: "Central Europe", Police: "997", Fire: "998", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Portugal", Continent: "Europe", Region: "Southern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "112", Universal: "112"},
+            {Country: "Qatar", Continent: "Asia", Region: "Middle East", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "999", Disaster: "", Poison_Control: "999", Universal: "112"},
+            {Country: "Romania", Continent: "Europe", Region: "Eastern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Russia", Continent: "Europe/East Asia", Region: "Eastern Europe", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Rwanda", Continent: "Africa", Region: "East Africa", Police: "112", Fire: "112", Ambulance: "912", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Saint Kitts and Nevis", Continent: "North America", Region: "Caribbean", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Saint Lucia", Continent: "North America", Region: "Caribbean", Police: "999", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Saint Vincent and the Grenadines", Continent: "North America", Region: "Caribbean", Police: "999", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Samoa", Continent: "Oceania", Region: "Oceania", Police: "995", Fire: "994", Ambulance: "996", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "995"},
+            {Country: "San Marino", Continent: "Europe", Region: "Southern Europe", Police: "112", Fire: "115", Ambulance: "118", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Sao Tome and Principe", Continent: "Africa", Region: "Central Africa", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Saudi Arabia", Continent: "Asia", Region: "Middle East", Police: "999", Fire: "998", Ambulance: "997", Coast_Guard: "996", Disaster: "", Poison_Control: "997", Universal: "112"},
+            {Country: "Senegal", Continent: "Africa", Region: "West Africa", Police: "17", Fire: "18", Ambulance: "15", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Serbia", Continent: "Europe", Region: "Southeast Europe", Police: "192", Fire: "193", Ambulance: "194", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Seychelles", Continent: "Africa", Region: "East Africa", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Sierra Leone", Continent: "Africa", Region: "West Africa", Police: "019", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Singapore", Continent: "Asia", Region: "Southeast Asia", Police: "999", Fire: "995", Ambulance: "995", Coast_Guard: "999", Disaster: "", Poison_Control: "995", Universal: "112"},
+            {Country: "Slovakia", Continent: "Europe", Region: "Central Europe", Police: "158", Fire: "150", Ambulance: "155", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Slovenia", Continent: "Europe", Region: "Central Europe", Police: "113", Fire: "112", Ambulance: "112", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Solomon Islands", Continent: "Oceania", Region: "Oceania", Police: "999", Fire: "911", Ambulance: "933", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "999"},
+            {Country: "Somalia", Continent: "Africa", Region: "Horn of Africa", Police: "888", Fire: "555", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "South Africa", Continent: "Africa", Region: "Southern Africa", Police: "10111", Fire: "10177", Ambulance: "10177", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "South Sudan", Continent: "Africa", Region: "East Africa", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Spain", Continent: "Europe", Region: "Southern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "112", Universal: "112"},
+            {Country: "Sri Lanka", Continent: "Asia", Region: "South Asia", Police: "119", Fire: "110", Ambulance: "110", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Sudan", Continent: "Africa", Region: "North Africa", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Suriname", Continent: "South America", Region: "South America", Police: "115", Fire: "110", Ambulance: "113", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "115"},
+            {Country: "Sweden", Continent: "Europe", Region: "Northern Europe", Police: "112", Fire: "112", Ambulance: "112", Coast_Guard: "112", Disaster: "", Poison_Control: "112", Universal: "112"},
+            {Country: "Switzerland", Continent: "Europe", Region: "Central Europe", Police: "117", Fire: "118", Ambulance: "144", Coast_Guard: "112", Disaster: "", Poison_Control: "145", Universal: "112"},
+            {Country: "Syria", Continent: "Asia", Region: "Middle East", Police: "112", Fire: "113", Ambulance: "110", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Taiwan", Continent: "Asia", Region: "East Asia", Police: "110", Fire: "119", Ambulance: "119", Coast_Guard: "118", Disaster: "", Poison_Control: "119", Universal: "112"},
+            {Country: "Tajikistan", Continent: "Asia", Region: "Central Asia", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Tanzania", Continent: "Africa", Region: "East Africa", Police: "112", Fire: "114", Ambulance: "115", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Thailand", Continent: "Asia", Region: "Southeast Asia", Police: "191", Fire: "199", Ambulance: "1669", Coast_Guard: "1196", Disaster: "", Poison_Control: "1669", Universal: "112"},
+            {Country: "Timor-Leste", Continent: "Asia", Region: "Southeast Asia", Police: "112", Fire: "115", Ambulance: "118", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "112"},
+            {Country: "Togo", Continent: "Africa", Region: "West Africa", Police: "117", Fire: "118", Ambulance: "119", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Tonga", Continent: "Oceania", Region: "Oceania", Police: "922", Fire: "999", Ambulance: "933", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "999"},
+            {Country: "Trinidad and Tobago", Continent: "North America", Region: "Caribbean", Police: "999", Fire: "990", Ambulance: "811", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "999"},
+            {Country: "Tunisia", Continent: "Africa", Region: "North Africa", Police: "80101111", Fire: "80101111", Ambulance: "80101111", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Turkey", Continent: "Asia/Europe", Region: "Western Asia", Police: "155", Fire: "110", Ambulance: "112", Coast_Guard: "158", Disaster: "", Poison_Control: "114", Universal: "112"},
+            {Country: "Turkmenistan", Continent: "Asia", Region: "Central Asia", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Tuvalu", Continent: "Oceania", Region: "Oceania", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Uganda", Continent: "Africa", Region: "East Africa", Police: "999", Fire: "999", Ambulance: "912", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Ukraine", Continent: "Europe", Region: "Eastern Europe", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "United Arab Emirates", Continent: "Asia", Region: "Middle East", Police: "999", Fire: "997", Ambulance: "998", Coast_Guard: "996", Disaster: "", Poison_Control: "998", Universal: "112"},
+            {Country: "United Kingdom", Continent: "Europe", Region: "Northern Europe", Police: "999", Fire: "999", Ambulance: "999", Coast_Guard: "999", Disaster: "", Poison_Control: "111", Universal: "112"},
+            {Country: "United States", Continent: "North America", Region: "North America", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "911", Disaster: "", Poison_Control: "1-800-222-1222", Universal: "911"},
+            {Country: "Uruguay", Continent: "South America", Region: "South America", Police: "911", Fire: "104", Ambulance: "105", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "911"},
+            {Country: "Uzbekistan", Continent: "Asia", Region: "Central Asia", Police: "102", Fire: "101", Ambulance: "103", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Vanuatu", Continent: "Oceania", Region: "Oceania", Police: "112", Fire: "113", Ambulance: "114", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "112"},
+            {Country: "Vatican City", Continent: "Europe", Region: "Southern Europe", Police: "112", Fire: "115", Ambulance: "118", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Venezuela", Continent: "South America", Region: "South America", Police: "911", Fire: "911", Ambulance: "911", Coast_Guard: "911", Disaster: "", Poison_Control: "800-347-2233", Universal: "911"},
+            {Country: "Vietnam", Continent: "Asia", Region: "Southeast Asia", Police: "113", Fire: "114", Ambulance: "115", Coast_Guard: "111", Disaster: "", Poison_Control: "115", Universal: "112"},
+            {Country: "Yemen", Continent: "Asia", Region: "Middle East", Police: "194", Fire: "191", Ambulance: "191", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Zambia", Continent: "Africa", Region: "Southern Africa", Police: "991", Fire: "993", Ambulance: "992", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Zimbabwe", Continent: "Africa", Region: "Southern Africa", Police: "995", Fire: "993", Ambulance: "994", Coast_Guard: "", Disaster: "112", Poison_Control: "", Universal: "112"},
+            {Country: "Palestine", Continent: "Asia", Region: "Middle East", Police: "100", Fire: "102", Ambulance: "101", Coast_Guard: "", Disaster: "", Poison_Control: "", Universal: "112"}
+        ];
+
+        // App State
+        let currentFilter = 'all';
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const countriesGrid = document.getElementById('countriesGrid');
+        const totalCountries = document.getElementById('totalCountries');
+        const showingCount = document.getElementById('showingCount');
+        const continentFilters = document.getElementById('continentFilters');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            renderStats();
+            renderContinentFilters();
+            renderCountries(countriesData);
+            setupEventListeners();
+        });
+
+        // Theme Functions
+        function initTheme() {
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            } else {
+                themeToggle.textContent = '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            document.documentElement.classList.toggle('dark-mode');
+            themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+        }
+
+        // Render Functions
+        function renderStats() {
+            totalCountries.textContent = `Total Countries: ${countriesData.length}`;
+        }
+
+        function renderContinentFilters() {
+            const continents = ['All', ...new Set(countriesData.map(c => c.Continent))];
+            continentFilters.innerHTML = continents.map(continent => `
+                <button class="filter-btn ${continent === 'All' ? 'active' : ''}" 
+                        data-continent="${continent.toLowerCase()}">
+                    ${continent}
+                </button>
+            `).join('');
+        }
+
+        function renderCountries(countries) {
+            if (countries.length === 0) {
+                countriesGrid.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <h3>No countries found</h3>
+                        <p>Try adjusting your search or filter</p>
+                    </div>
+                `;
+                showingCount.textContent = 'Showing 0 countries';
+                return;
+            }
+
+            countriesGrid.innerHTML = countries.map(country => `
+                <div class="country-card" data-country="${country.Country}">
+                    <div class="country-header">
+                        <div>
+                            <h3 class="country-name">${country.Country}</h3>
+                            <div class="continent">${country.Continent} • ${country.Region}</div>
+                        </div>
+                        <button class="favorite-btn ${favorites.includes(country.Country) ? 'active' : ''}" 
+                                data-country="${country.Country}">
+                            ${favorites.includes(country.Country) ? '❤️' : '🤍'}
+                        </button>
+                    </div>
+                    
+                    <div class="emergency-numbers">
+                        ${renderNumberItem('Police', country.Police)}
+                        ${renderNumberItem('Fire', country.Fire)}
+                        ${renderNumberItem('Ambulance', country.Ambulance)}
+                        ${country.Coast_Guard ? renderNumberItem('Coast Guard', country.Coast_Guard) : ''}
+                        ${country.Universal ? renderNumberItem('Universal', country.Universal) : ''}
+                    </div>
+                    
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                        Click for details →
+                    </div>
+                </div>
+            `).join('');
+
+            showingCount.textContent = `Showing ${countries.length} countries`;
+        }
+
+        function renderNumberItem(label, number) {
+            if (!number) return '';
+            return `
+                <div class="number-item">
+                    <div class="number-label">${label}</div>
+                    <div class="number-value">${number}</div>
+                </div>
+            `;
+        }
+
+        // Filter Functions
+        function filterCountries() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let filtered = countriesData;
+
+            // Apply continent filter
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(country => 
+                    country.Continent.toLowerCase() === currentFilter
+                );
+            }
+
+            // Apply search filter
+            if (searchTerm) {
+                filtered = filtered.filter(country => {
+                    const countryName = country.Country.toLowerCase();
+                    // Check if country name starts with search term (incremental search)
+                    return countryName.startsWith(searchTerm);
+                });
+            }
+
+            // Apply favorites filter if active
+            if (currentFilter === 'favorites') {
+                filtered = filtered.filter(country => 
+                    favorites.includes(country.Country)
+                );
+            }
+
+            renderCountries(filtered);
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Search input with incremental search
+            searchInput.addEventListener('input', filterCountries);
+
+            // Theme toggle
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // Continent filters
+            continentFilters.addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    // Update active button
+                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    
+                    // Update filter
+                    const continent = e.target.dataset.continent;
+                    currentFilter = continent === 'all' ? 'all' : continent;
+                    filterCountries();
+                }
+            });
+
+            // Country card clicks and favorite buttons
+            countriesGrid.addEventListener('click', (e) => {
+                const countryCard = e.target.closest('.country-card');
+                const favoriteBtn = e.target.closest('.favorite-btn');
+                
+                if (favoriteBtn) {
+                    e.stopPropagation();
+                    toggleFavorite(favoriteBtn.dataset.country);
+                } else if (countryCard) {
+                    const countryName = countryCard.dataset.country;
+                    window.location.href = `country-detail.html?country=${encodeURIComponent(countryName)}`;
+                }
+            });
+
+            // Enter key in search
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    filterCountries();
+                }
+            });
+        }
+
+        // Favorite Functions
+        function toggleFavorite(countryName) {
+            const index = favorites.indexOf(countryName);
+            if (index === -1) {
+                favorites.push(countryName);
+            } else {
+                favorites.splice(index, 1);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            
+            // Update UI
+            const btn = document.querySelector(`.favorite-btn[data-country="${countryName}"]`);
+            if (btn) {
+                btn.classList.toggle('active');
+                btn.innerHTML = favorites.includes(countryName) ? '❤️' : '🤍';
+            }
+            
+            // If we're in favorites filter, update the list
+            if (currentFilter === 'favorites') {
+                filterCountries();
+            }
+        }
+
+        // Initialize service worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .catch(err => console.log('ServiceWorker registration failed: ', err));
+            });
+        }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🆘</span>
+                <span>Emergency Contacts</span>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    🌙
+                </button>
+                <a href="settings.html" style="color: white; text-decoration: none;">
+                    ⚙️
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Search Section -->
+        <div class="search-container">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Search countries... Type 'n', 'ne', 'nep' for Nepal"
+                    autocomplete="off"
+                >
+            </div>
+            <div class="stats">
+                <span id="totalCountries">Loading...</span>
+                <span id="showingCount"></span>
+            </div>
+            
+            <!-- Continent Filters -->
+            <div class="filter-buttons" id="continentFilters">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Countries Grid -->
+        <div class="countries-grid" id="countriesGrid">
+            <div class="loading">
+                <div>Loading emergency contacts...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>⚠️ In emergencies, verify numbers with local authorities</p>
+        <div class="footer-links">
+            <a href="settings.html">Settings</a>
+            <a href="#about">About</a>
+            <span>Works Offline</span>
+        </div>
+    </footer>
+</body>
+</html>

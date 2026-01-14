@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Excel Data Generator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: var(--shadow);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--secondary);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .page-header h1 {
+            font-size: 2.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-header p {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            max-width: 800px;
+        }
+
+        .generator-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-help {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-top: 0.25rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--light);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        /* Quick Templates */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .template-card {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .template-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .template-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .template-desc {
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+
+        /* Columns Section */
+        .columns-section {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin: 2.5rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .columns-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .columns-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .column-item {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .column-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .column-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+            transform: translateY(-2px);
+        }
+
+        .btn-icon {
+            padding: 0.625rem;
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background: var(--light);
+            color: var(--danger);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border);
+        }
+
+        /* Preview */
+        .preview-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-container {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-top: 1rem;
+            max-height: 500px;
+            position: relative;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 800px;
+        }
+
+        .preview-table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .preview-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+
+        .preview-table tr:hover {
+            background: var(--light);
+        }
+
+        .preview-table tr:nth-child(even) {
+            background: rgba(0,0,0,0.02);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary);
+            margin-top: 3rem;
+            font-size: 0.9rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-menu {
+                gap: 0.5rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .columns-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        .data-type-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-text { background: #dbeafe; color: var(--primary); }
+        .badge-number { background: #d1fae5; color: var(--success); }
+        .badge-date { background: #fef3c7; color: #f59e0b; }
+        .badge-email { background: #e0e7ff; color: #6366f1; }
+        .badge-boolean { background: #fce7f3; color: #db2777; }
+        .badge-custom { background: #fef3c7; color: #d97706; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span>📊</span>
+                <span>Professional Data Generator</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link active">
+                    <span>⚡</span> Generator
+                </a>
+                <a href="presets.html" class="nav-link">
+                    <span>💾</span> Presets
+                </a>
+                <a href="history.html" class="nav-link">
+                    <span>📋</span> History
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="page-header">
+            <h1><span>🚀</span> Professional Excel Data Generator</h1>
+            <p>Generate realistic test data with professional patterns - Names, Emails, IDs, Dates, and more. Works 100% offline.</p>
+        </header>
+
+        <!-- Quick Templates -->
+        <div class="generator-card">
+            <h2 class="section-title"><span>📁</span> Quick Templates</h2>
+            <p class="form-help">Click any template to auto-configure columns</p>
+            
+            <div class="template-grid">
+                <div class="template-card" onclick="loadTemplate('employee')">
+                    <div class="template-icon">👨‍💼</div>
+                    <div class="template-name">Employee Data</div>
+                    <div class="template-desc">EmpID, Name, Email, Dept, Salary</div>
+                </div>
+                
+                <div class="template-card" onclick="loadTemplate('customer')">
+                    <div class="template-icon">👥</div>
+                    <div class="template-name">Customer Data</div>
+                    <div class="template-desc">Name, Email, Phone, City, Join Date</div>
+                </div>
+                
+                <div class="template-card" onclick="loadTemplate('products')">
+                    <div class="template-icon">🛍️</div>
+                    <div class="template-name">Products</div>
+                    <div class="template-desc">SKU, Name, Category, Price, Stock</div>
+                </div>
+                
+                <div class="template-card" onclick="loadTemplate('sales')">
+                    <div class="template-icon">💰</div>
+                    <div class="template-name">Sales Data</div>
+                    <div class="template-desc">OrderID, Amount, Date, Region, Profit</div>
+                </div>
+                
+                <div class="template-card" onclick="loadTemplate('finance')">
+                    <div class="template-icon">📈</div>
+                    <div class="template-name">Financial Data</div>
+                    <div class="template-desc">Transaction, Amount, Date, Account, Balance</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generator Form -->
+        <div class="generator-card">
+            <h2 class="section-title"><span>⚙️</span> Data Configuration</h2>
+            
+            <!-- Basic Settings -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label"><span>📈</span> Number of Rows</label>
+                    <input type="number" id="rowCount" class="form-control" min="1" max="100000" value="100">
+                    <p class="form-help">Generate 1 to 100,000 rows of data</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><span>📊</span> Data Pattern</label>
+                    <select id="dataPattern" class="form-control" onchange="applyDataPattern(this.value)">
+                        <option value="">Select pattern...</option>
+                        <option value="sequential">Sequential IDs</option>
+                        <option value="random">Random Data</option>
+                        <option value="incremental">Incremental Values</option>
+                        <option value="realistic">Realistic Patterns</option>
+                    </select>
+                    <p class="form-help">Choose how data should be generated</p>
+                </div>
+            </div>
+
+            <!-- Columns Section -->
+            <div class="columns-section">
+                <div class="columns-header">
+                    <h3 class="section-title"><span>✨</span> Column Configuration</h3>
+                    <div>
+                        <button class="btn btn-secondary" onclick="addColumn()">
+                            <span>➕</span> Add Column
+                        </button>
+                        <button class="btn btn-secondary" onclick="addSmartColumn()">
+                            <span>🤖</span> Smart Column
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="columns-list" id="columnsList">
+                    <!-- Columns will be added here -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generateData()">
+                    <span>🚀</span> Generate Data
+                </button>
+                <button class="btn btn-success" onclick="exportCSV()">
+                    <span>📥</span> Export as CSV
+                </button>
+                <button class="btn btn-success" onclick="exportExcel()">
+                    <span>📊</span> Export as Excel
+                </button>
+                <button class="btn btn-secondary" onclick="savePreset()">
+                    <span>💾</span> Save as Preset
+                </button>
+                <button class="btn btn-danger" onclick="resetForm()">
+                    <span>🔄</span> Reset All
+                </button>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <h2 class="section-title"><span>👁️</span> Data Preview</h2>
+                <button class="btn btn-secondary" onclick="updatePreview()">
+                    <span>🔄</span> Refresh Preview
+                </button>
+            </div>
+            
+            <div class="preview-container">
+                <table class="preview-table" id="previewTable">
+                    <thead id="previewHeader">
+                        <!-- Headers will be added here -->
+                    </thead>
+                    <tbody id="previewBody">
+                        <!-- Data will be added here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="margin-top: 1rem; text-align: center; color: var(--secondary); font-size: 0.9rem;">
+                Showing first 20 rows | Total columns: <span id="columnCount">0</span> | Total rows to generate: <span id="totalRows">100</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2024 Professional Data Generator | 100% Offline | Realistic Test Data</p>
+        </footer>
+    </div>
+
+    <!-- Column Template -->
+    <template id="columnTemplate">
+        <div class="column-item">
+            <div class="column-header">
+                <div class="column-title">
+                    <span class="column-icon">📋</span>
+                    <span class="column-name-display">Column</span>
+                    <span class="data-type-badge badge-text">Text</span>
+                </div>
+                <div class="column-actions">
+                    <button class="btn-icon" onclick="moveColumnUp(this)" title="Move Up">
+                        <span>⬆️</span>
+                    </button>
+                    <button class="btn-icon" onclick="moveColumnDown(this)" title="Move Down">
+                        <span>⬇️</span>
+                    </button>
+                    <button class="btn-icon" onclick="duplicateColumn(this)" title="Duplicate">
+                        <span>📋</span>
+                    </button>
+                    <button class="btn-icon" onclick="removeColumn(this)" title="Delete">
+                        <span>🗑️</span>
+                    </button>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Column Name *</label>
+                    <input type="text" class="form-control column-name" placeholder="e.g., Employee Name, Email, Salary" 
+                           oninput="updateColumnDisplay(this)">
+                </div>
+                <div class="form-group">
+                    <label>Data Type *</label>
+                    <select class="form-control data-type" onchange="updateDataType(this)">
+                        <option value="name">Full Name</option>
+                        <option value="firstname">First Name</option>
+                        <option value="lastname">Last Name</option>
+                        <option value="email">Email Address</option>
+                        <option value="phone">Phone Number</option>
+                        <option value="id">ID Number</option>
+                        <option value="empid">Employee ID</option>
+                        <option value="date">Date</option>
+                        <option value="dob">Date of Birth</option>
+                        <option value="age">Age</option>
+                        <option value="number">Number</option>
+                        <option value="salary">Salary</option>
+                        <option value="amount">Amount</option>
+                        <option value="price">Price</option>
+                        <option value="profit">Profit</option>
+                        <option value="quantity">Quantity</option>
+                        <option value="percentage">Percentage</option>
+                        <option value="city">City</option>
+                        <option value="country">Country</option>
+                        <option value="address">Address</option>
+                        <option value="department">Department</option>
+                        <option value="category">Category</option>
+                        <option value="status">Status</option>
+                        <option value="boolean">Yes/No</option>
+                        <option value="custom">Custom Text</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Options / Pattern</label>
+                    <input type="text" class="form-control data-options" 
+                           placeholder="e.g., 1000-9999, @company.com, Active/Inactive">
+                    <p class="form-help" id="optionsHelp">Enter range, pattern, or specific values</p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Smart Column Modal -->
+    <div class="modal" id="smartColumnModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem;">🤖 Add Smart Column</h2>
+            <div class="form-group">
+                <label>What type of data do you need?</label>
+                <select class="form-control" id="smartType">
+                    <option value="person">👤 Person Information</option>
+                    <option value="contact">📞 Contact Details</option>
+                    <option value="financial">💰 Financial Data</option>
+                    <option value="business">🏢 Business Data</option>
+                    <option value="location">📍 Location Data</option>
+                    <option value="product">🛍️ Product Data</option>
+                </select>
+            </div>
+            <div class="form-group" id="smartOptions">
+                <!-- Options will be loaded here -->
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="addSelectedSmartColumns()">Add Columns</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Professional Data Generator with Realistic Data
+        const firstNames = ['James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda', 'William', 'Elizabeth', 
+                          'David', 'Susan', 'Richard', 'Jessica', 'Joseph', 'Sarah', 'Thomas', 'Karen', 'Charles', 'Nancy',
+                          'Christopher', 'Lisa', 'Daniel', 'Margaret', 'Matthew', 'Sandra', 'Anthony', 'Ashley', 'Mark', 'Kimberly',
+                          'Donald', 'Emily', 'Steven', 'Donna', 'Paul', 'Michelle', 'Andrew', 'Carol', 'Joshua', 'Amanda',
+                          'Kenneth', 'Melissa', 'Kevin', 'Deborah', 'Brian', 'Stephanie', 'George', 'Rebecca', 'Timothy', 'Laura'];
+        
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez',
+                         'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin',
+                         'Lee', 'Perez', 'Thompson', 'White', 'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson',
+                         'Walker', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores',
+                         'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell', 'Carter', 'Roberts'];
+        
+        const departments = ['Sales', 'Marketing', 'Engineering', 'IT', 'HR', 'Finance', 'Operations', 'Customer Service', 
+                           'Research & Development', 'Product Management', 'Quality Assurance', 'Administration'];
+        
+        const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego',
+                       'Dallas', 'San Jose', 'Austin', 'Jacksonville', 'San Francisco', 'Columbus', 'Indianapolis', 'Fort Worth',
+                       'Charlotte', 'Seattle', 'Denver', 'Washington', 'Boston', 'El Paso', 'Nashville', 'Detroit', 'Memphis',
+                       'Portland', 'Oklahoma City', 'Las Vegas', 'Louisville', 'Baltimore'];
+        
+        const countries = ['United States', 'Canada', 'United Kingdom', 'Australia', 'Germany', 'France', 'Japan', 'China',
+                          'India', 'Brazil', 'Italy', 'Spain', 'Mexico', 'South Korea', 'Russia', 'Netherlands'];
+        
+        const productCategories = ['Electronics', 'Clothing', 'Home & Garden', 'Books', 'Sports', 'Beauty', 'Toys', 'Food',
+                                 'Automotive', 'Health', 'Office', 'Jewelry', 'Music', 'Movies', 'Software'];
+        
+        const statuses = ['Active', 'Inactive', 'Pending', 'Completed', 'Cancelled', 'Processing', 'Shipped', 'Delivered'];
+        
+        const companyDomains = ['@company.com', '@gmail.com', '@yahoo.com', '@outlook.com', '@business.com', '@enterprise.com'];
+        
+        let columns = [];
+        let currentData = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDefaultColumns();
+            updateColumnCount();
+            updatePreview();
+            setupSmartOptions();
+        });
+
+        // Load default columns
+        function loadDefaultColumns() {
+            columns = [
+                {
+                    id: 1,
+                    name: 'Employee ID',
+                    type: 'empid',
+                    options: 'EMP1000-EMP1999'
+                },
+                {
+                    id: 2,
+                    name: 'Full Name',
+                    type: 'name',
+                    options: ''
+                },
+                {
+                    id: 3,
+                    name: 'Email',
+                    type: 'email',
+                    options: '@company.com'
+                },
+                {
+                    id: 4,
+                    name: 'Department',
+                    type: 'department',
+                    options: ''
+                },
+                {
+                    id: 5,
+                    name: 'Salary',
+                    type: 'salary',
+                    options: '50000-120000'
+                }
+            ];
+            renderColumns();
+        }
+
+        // Render columns
+        function renderColumns() {
+            const container = document.getElementById('columnsList');
+            container.innerHTML = '';
+            
+            columns.forEach((col, index) => {
+                const template = document.getElementById('columnTemplate').content.cloneNode(true);
+                const columnItem = template.querySelector('.column-item');
+                
+                // Set column name
+                const nameInput = columnItem.querySelector('.column-name');
+                nameInput.value = col.name;
+                nameInput.oninput = function() {
+                    updateColumnName(index, this.value);
+                };
+                
+                // Update display
+                columnItem.querySelector('.column-name-display').textContent = col.name;
+                
+                // Set data type
+                const typeSelect = columnItem.querySelector('.data-type');
+                typeSelect.value = col.type;
+                typeSelect.onchange = function() {
+                    updateColumnType(index, this.value);
+                };
+                
+                // Set options
+                const optionsInput = columnItem.querySelector('.data-options');
+                optionsInput.value = col.options || '';
+                optionsInput.onchange = function() {
+                    updateColumnOptions(index, this.value);
+                };
+                
+                // Update badge
+                updateTypeBadge(columnItem, col.type);
+                
+                container.appendChild(columnItem);
+            });
+            
+            updateColumnCount();
+            saveToStorage();
+        }
+
+        // Update type badge
+        function updateTypeBadge(element, type) {
+            const badge = element.querySelector('.data-type-badge');
+            badge.className = 'data-type-badge ';
+            badge.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            
+            // Set badge color based on type
+            if (['name', 'firstname', 'lastname', 'department', 'city', 'country', 'address', 'category', 'status'].includes(type)) {
+                badge.classList.add('badge-text');
+            } else if (['number', 'salary', 'amount', 'price', 'profit', 'quantity', 'percentage', 'age'].includes(type)) {
+                badge.classList.add('badge-number');
+            } else if (['date', 'dob'].includes(type)) {
+                badge.classList.add('badge-date');
+            } else if (type === 'email') {
+                badge.classList.add('badge-email');
+            } else if (type === 'boolean') {
+                badge.classList.add('badge-boolean');
+            } else if (['id', 'empid'].includes(type)) {
+                badge.classList.add('badge-custom');
+            } else {
+                badge.classList.add('badge-text');
+            }
+        }
+
+        // Add new column
+        function addColumn() {
+            const newId = columns.length > 0 ? Math.max(...columns.map(c => c.id)) + 1 : 1;
+            columns.push({
+                id: newId,
+                name: `Column ${newId}`,
+                type: 'name',
+                options: ''
+            });
+            renderColumns();
+        }
+
+        // Add smart column
+        function addSmartColumn() {
+            document.getElementById('smartColumnModal').style.display = 'flex';
+        }
+
+        // Setup smart options
+        function setupSmartOptions() {
+            const smartOptions = {
+                person: [
+                    {name: 'Full Name', type: 'name'},
+                    {name: 'First Name', type: 'firstname'},
+                    {name: 'Last Name', type: 'lastname'},
+                    {name: 'Date of Birth', type: 'dob'},
+                    {name: 'Age', type: 'age'},
+                    {name: 'Gender', type: 'custom', options: 'Male,Female'}
+                ],
+                contact: [
+                    {name: 'Email Address', type: 'email'},
+                    {name: 'Phone Number', type: 'phone'},
+                    {name: 'Address', type: 'address'},
+                    {name: 'City', type: 'city'},
+                    {name: 'Country', type: 'country'}
+                ],
+                financial: [
+                    {name: 'Salary', type: 'salary'},
+                    {name: 'Amount', type: 'amount'},
+                    {name: 'Price', type: 'price'},
+                    {name: 'Profit', type: 'profit'},
+                    {name: 'Transaction ID', type: 'id'},
+                    {name: 'Balance', type: 'number', options: '0-10000'}
+                ],
+                business: [
+                    {name: 'Employee ID', type: 'empid'},
+                    {name: 'Department', type: 'department'},
+                    {name: 'Job Title', type: 'custom'},
+                    {name: 'Status', type: 'status'},
+                    {name: 'Join Date', type: 'date'}
+                ],
+                location: [
+                    {name: 'City', type: 'city'},
+                    {name: 'Country', type: 'country'},
+                    {name: 'Address', type: 'address'},
+                    {name: 'Zip Code', type: 'id'},
+                    {name: 'Region', type: 'custom', options: 'North,South,East,West'}
+                ],
+                product: [
+                    {name: 'Product ID', type: 'id'},
+                    {name: 'Product Name', type: 'custom'},
+                    {name: 'Category', type: 'category'},
+                    {name: 'Price', type: 'price'},
+                    {name: 'Quantity', type: 'quantity'},
+                    {name: 'In Stock', type: 'boolean'}
+                ]
+            };
+
+            const container = document.getElementById('smartOptions');
+            const smartType = document.getElementById('smartType');
+            
+            smartType.onchange = function() {
+                const options = smartOptions[this.value] || [];
+                container.innerHTML = '';
+                
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '0.5rem';
+                    div.innerHTML = `
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" value="${option.name}|${option.type}|${option.options || ''}">
+                            ${option.name} <small style="color: #666;">(${option.type})</small>
+                        </label>
+                    `;
+                    container.appendChild(div);
+                });
+            };
+            
+            smartType.onchange(); // Trigger initial load
+        }
+
+        // Add selected smart columns
+        function addSelectedSmartColumns() {
+            const checkboxes = document.querySelectorAll('#smartOptions input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => {
+                const [name, type, options] = cb.value.split('|');
+                const newId = columns.length > 0 ? Math.max(...columns.map(c => c.id)) + 1 : 1;
+                columns.push({
+                    id: newId,
+                    name: name,
+                    type: type,
+                    options: options || ''
+                });
+            });
+            
+            renderColumns();
+            closeModal();
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('smartColumnModal').style.display = 'none';
+        }
+
+        // Update column functions
+        function updateColumnName(index, value) {
+            columns[index].name = value;
+            const columnItem = document.querySelectorAll('.column-item')[index];
+            if (columnItem) {
+                columnItem.querySelector('.column-name-display').textContent = value;
+            }
+            saveToStorage();
+        }
+
+        function updateColumnType(index, value) {
+            columns[index].type = value;
+            const columnItem = document.querySelectorAll('.column-item')[index];
+            if (columnItem) {
+                updateTypeBadge(columnItem, value);
+            }
+            saveToStorage();
+        }
+
+        function updateColumnOptions(index, value) {
+            columns[index].options = value;
+            saveToStorage();
+        }
+
+        function removeColumn(button) {
+            const columnItem = button.closest('.column-item');
+            const index = Array.from(document.querySelectorAll('.column-item')).indexOf(columnItem);
+            if (index > -1) {
+                columns.splice(index, 1);
+                renderColumns();
+                updatePreview();
+            }
+        }
+
+        function moveColumnUp(button) {
+            const columnItem = button.closest('.column-item');
+            const index = Array.from(document.querySelectorAll('.column-item')).indexOf(columnItem);
+            if (index > 0) {
+                [columns[index], columns[index - 1]] = [columns[index - 1], columns[index]];
+                renderColumns();
+            }
+        }
+
+        function moveColumnDown(button) {
+            const columnItem = button.closest('.column-item');
+            const index = Array.from(document.querySelectorAll('.column-item')).indexOf(columnItem);
+            if (index < columns.length - 1) {
+                [columns[index], columns[index + 1]] = [columns[index + 1], columns[index]];
+                renderColumns();
+            }
+        }
+
+        function duplicateColumn(button) {
+            const columnItem = button.closest('.column-item');
+            const index = Array.from(document.querySelectorAll('.column-item')).indexOf(columnItem);
+            if (index > -1) {
+                const original = columns[index];
+                const newId = Math.max(...columns.map(c => c.id)) + 1;
+                columns.splice(index + 1, 0, {
+                    ...JSON.parse(JSON.stringify(original)),
+                    id: newId,
+                    name: `${original.name} (Copy)`
+                });
+                renderColumns();
+            }
+        }
+
+        // Load templates
+        function loadTemplate(templateName) {
+            columns = [];
+            
+            switch(templateName) {
+                case 'employee':
+                    columns = [
+                        {id: 1, name: 'Employee ID', type: 'empid', options: 'EMP1000-EMP1999'},
+                        {id: 2, name: 'Full Name', type: 'name', options: ''},
+                        {id: 3, name: 'Email', type: 'email', options: '@company.com'},
+                        {id: 4, name: 'Department', type: 'department', options: ''},
+                        {id: 5, name: 'Job Title', type: 'custom', options: 'Manager,Developer,Analyst,Designer'},
+                        {id: 6, name: 'Salary', type: 'salary', options: '50000-120000'},
+                        {id: 7, name: 'Join Date', type: 'date', options: ''},
+                        {id: 8, name: 'Status', type: 'status', options: ''}
+                    ];
+                    break;
+                    
+                case 'customer':
+                    columns = [
+                        {id: 1, name: 'Customer ID', type: 'id', options: 'CUST1000-CUST1999'},
+                        {id: 2, name: 'Full Name', type: 'name', options: ''},
+                        {id: 3, name: 'Email', type: 'email', options: '@gmail.com'},
+                        {id: 4, name: 'Phone', type: 'phone', options: ''},
+                        {id: 5, name: 'City', type: 'city', options: ''},
+                        {id: 6, name: 'Country', type: 'country', options: ''},
+                        {id: 7, name: 'Join Date', type: 'date', options: ''},
+                        {id: 8, name: 'Total Orders', type: 'number', options: '1-50'}
+                    ];
+                    break;
+                    
+                case 'products':
+                    columns = [
+                        {id: 1, name: 'Product ID', type: 'id', options: 'PROD1000-PROD1999'},
+                        {id: 2, name: 'Product Name', type: 'custom', options: 'Premium,Deluxe,Standard,Basic'},
+                        {id: 3, name: 'Category', type: 'category', options: ''},
+                        {id: 4, name: 'Price', type: 'price', options: '10-500'},
+                        {id: 5, name: 'Stock', type: 'quantity', options: '0-100'},
+                        {id: 6, name: 'Rating', type: 'percentage', options: '1-5'},
+                        {id: 7, name: 'Status', type: 'status', options: 'In Stock,Out of Stock'}
+                    ];
+                    break;
+                    
+                case 'sales':
+                    columns = [
+                        {id: 1, name: 'Order ID', type: 'id', options: 'ORD10000-ORD19999'},
+                        {id: 2, name: 'Customer Name', type: 'name', options: ''},
+                        {id: 3, name: 'Amount', type: 'amount', options: '50-5000'},
+                        {id: 4, name: 'Profit', type: 'profit', options: '10-1000'},
+                        {id: 5, name: 'Date', type: 'date', options: ''},
+                        {id: 6, name: 'Region', type: 'custom', options: 'North,South,East,West'},
+                        {id: 7, name: 'Status', type: 'status', options: ''}
+                    ];
+                    break;
+                    
+                case 'finance':
+                    columns = [
+                        {id: 1, name: 'Transaction ID', type: 'id', options: 'TRX10000-TRX19999'},
+                        {id: 2, name: 'Description', type: 'custom', options: 'Payment,Refund,Transfer,Withdrawal'},
+                        {id: 3, name: 'Amount', type: 'amount', options: '-5000-5000'},
+                        {id: 4, name: 'Date', type: 'date', options: ''},
+                        {id: 5, name: 'Account', type: 'custom', options: 'Checking,Savings,Credit,Investment'},
+                        {id: 6, name: 'Balance', type: 'number', options: '0-100000'},
+                        {id: 7, name: 'Status', type: 'status', options: 'Completed,Pending,Failed'}
+                    ];
+                    break;
+            }
+            
+            renderColumns();
+            updatePreview();
+            alert(`Loaded ${templateName.replace(/([A-Z])/g, ' $1').trim()} template!`);
+        }
+
+        // Generate realistic data
+        function generateData() {
+            const rowCount = parseInt(document.getElementById('rowCount').value) || 100;
+            const pattern = document.getElementById('dataPattern').value;
+            const headers = columns.map(col => col.name);
+            const data = [];
+            
+            // Generate data based on pattern
+            for (let i = 0; i < Math.min(rowCount, 1000); i++) {
+                const row = {};
+                columns.forEach((col, colIndex) => {
+                    row[col.name] = generateCellValue(col, i, rowCount, pattern);
+                });
+                data.push(row);
+            }
+            
+            currentData = data;
+            updatePreview();
+            updateRowCount(rowCount);
+            
+            // Save to history
+            saveToHistory(headers.length, rowCount);
+            
+            alert(`✅ Generated ${rowCount} rows with ${headers.length} columns of realistic data!`);
+        }
+
+        // Generate cell value based on column type
+        function generateCellValue(column, rowIndex, totalRows, pattern) {
+            const options = column.options;
+            
+            switch(column.type) {
+                case 'name':
+                    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                    return `${firstName} ${lastName}`;
+                    
+                case 'firstname':
+                    return firstNames[Math.floor(Math.random() * firstNames.length)];
+                    
+                case 'lastname':
+                    return lastNames[Math.floor(Math.random() * lastNames.length)];
+                    
+                case 'email':
+                    const name = firstNames[Math.floor(Math.random() * firstNames.length)].toLowerCase();
+                    const domain = options || companyDomains[Math.floor(Math.random() * companyDomains.length)];
+                    return `${name}.${lastNames[Math.floor(Math.random() * lastNames.length)].toLowerCase()}${domain}`;
+                    
+                case 'phone':
+                    return `+1 (${Math.floor(Math.random() * 900) + 100}) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`;
+                    
+                case 'id':
+                case 'empid':
+                    if (options && options.includes('-')) {
+                        const [prefix1, prefix2] = options.split('-');
+                        const prefix = prefix1.replace(/\d/g, '');
+                        const [start, end] = options.match(/\d+/g).map(Number);
+                        if (pattern === 'sequential') {
+                            const num = start + rowIndex;
+                            return prefix + num;
+                        } else {
+                            const num = Math.floor(Math.random() * (end - start + 1)) + start;
+                            return prefix + num;
+                        }
+                    }
+                    return pattern === 'sequential' ? `${column.type.toUpperCase()}${1000 + rowIndex}` : 
+                           `${column.type.toUpperCase()}${1000 + Math.floor(Math.random() * 1000)}`;
+                    
+                case 'date':
+                    const date = new Date();
+                    date.setDate(date.getDate() - Math.floor(Math.random() * 365 * 2)); // Last 2 years
+                    return date.toISOString().split('T')[0];
+                    
+                case 'dob':
+                    const dob = new Date();
+                    dob.setFullYear(dob.getFullYear() - (Math.floor(Math.random() * 40) + 20)); // 20-60 years ago
+                    return dob.toISOString().split('T')[0];
+                    
+                case 'age':
+                    return Math.floor(Math.random() * 40) + 20; // 20-60
+                    
+                case 'salary':
+                    const salaryRange = options ? options.split('-').map(Number) : [30000, 120000];
+                    return Math.floor(Math.random() * (salaryRange[1] - salaryRange[0] + 1)) + salaryRange[0];
+                    
+                case 'amount':
+                case 'price':
+                case 'profit':
+                    const amountRange = options ? options.split('-').map(Number) : [10, 1000];
+                    const value = Math.floor(Math.random() * (amountRange[1] - amountRange[0] + 1)) + amountRange[0];
+                    return pattern === 'realistic' ? `$${value.toFixed(2)}` : value;
+                    
+                case 'quantity':
+                    return Math.floor(Math.random() * 100) + 1;
+                    
+                case 'percentage':
+                    const perc = (Math.random() * 4 + 1).toFixed(1); // 1.0-5.0
+                    return pattern === 'realistic' ? `${perc} ⭐` : perc;
+                    
+                case 'city':
+                    return cities[Math.floor(Math.random() * cities.length)];
+                    
+                case 'country':
+                    return countries[Math.floor(Math.random() * countries.length)];
+                    
+                case 'address':
+                    const streetNum = Math.floor(Math.random() * 9999) + 1;
+                    const streets = ['Main St', 'Oak Ave', 'Maple Rd', 'Cedar Ln', 'Pine St', 'Elm St', 'Washington St'];
+                    return `${streetNum} ${streets[Math.floor(Math.random() * streets.length)]}`;
+                    
+                case 'department':
+                    return departments[Math.floor(Math.random() * departments.length)];
+                    
+                case 'category':
+                    return productCategories[Math.floor(Math.random() * productCategories.length)];
+                    
+                case 'status':
+                    return statuses[Math.floor(Math.random() * statuses.length)];
+                    
+                case 'boolean':
+                    return Math.random() > 0.5 ? 'Yes' : 'No';
+                    
+                case 'custom':
+                    if (options && options.includes(',')) {
+                        const values = options.split(',').map(v => v.trim());
+                        return values[Math.floor(Math.random() * values.length)];
+                    }
+                    return options || `Custom ${rowIndex + 1}`;
+                    
+                default: // number
+                    if (options && options.includes('-')) {
+                        const [min, max] = options.split('-').map(Number);
+                        return Math.floor(Math.random() * (max - min + 1)) + min;
+                    }
+                    return Math.floor(Math.random() * 1000);
+            }
+        }
+
+        // Update preview
+        function updatePreview() {
+            const previewHeader = document.getElementById('previewHeader');
+            const previewBody = document.getElementById('previewBody');
+            
+            // Clear existing
+            previewHeader.innerHTML = '';
+            previewBody.innerHTML = '';
+            
+            // Add headers
+            columns.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col.name;
+                previewHeader.appendChild(th);
+            });
+            
+            // Add sample data (max 20 rows for preview)
+            const sampleData = currentData.length > 0 ? currentData.slice(0, 20) : generateSampleData();
+            
+            sampleData.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                columns.forEach(col => {
+                    const td = document.createElement('td');
+                    td.textContent = row[col.name] || generateCellValue(col, rowIndex, 20, 'realistic');
+                    tr.appendChild(td);
+                });
+                previewBody.appendChild(tr);
+            });
+            
+            updateColumnCount();
+        }
+
+        // Generate sample data for preview
+        function generateSampleData() {
+            const data = [];
+            for (let i = 0; i < 10; i++) {
+                const row = {};
+                columns.forEach(col => {
+                    row[col.name] = generateCellValue(col, i, 10, 'realistic');
+                });
+                data.push(row);
+            }
+            return data;
+        }
+
+        // Export functions
+        function exportCSV() {
+            if (columns.length === 0) {
+                alert('Please add columns first!');
+                return;
+            }
+            
+            const rowCount = parseInt(document.getElementById('rowCount').value) || 100;
+            const headers = columns.map(col => col.name);
+            let csv = headers.join(',') + '\n';
+            
+            // Generate full dataset
+            for (let i = 0; i < rowCount; i++) {
+                const rowData = [];
+                columns.forEach(col => {
+                    const value = generateCellValue(col, i, rowCount, 'realistic');
+                    // Escape quotes and wrap in quotes if contains comma
+                    const escapedValue = value.toString().replace(/"/g, '""');
+                    rowData.push(`"${escapedValue}"`);
+                });
+                csv += rowData.join(',') + '\n';
+            }
+            
+            downloadFile(csv, 'professional_data.csv', 'text/csv');
+        }
+
+        function exportExcel() {
+            if (columns.length === 0) {
+                alert('Please add columns first!');
+                return;
+            }
+            
+            const rowCount = parseInt(document.getElementById('rowCount').value) || 100;
+            const headers = columns.map(col => col.name);
+            
+            // Create HTML table for Excel
+            let html = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                      xmlns:x="urn:schemas-microsoft-com:office:excel" 
+                      xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Professional Data</title>
+                    <style>
+                        td { padding: 4px 8px; border: 1px solid #ddd; }
+                        th { background: #2563eb; color: white; padding: 8px; font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                <table border="1">
+                    <tr>
+            `;
+            
+            // Add headers
+            headers.forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            html += '</tr>';
+            
+            // Add data rows
+            for (let i = 0; i < rowCount; i++) {
+                html += '<tr>';
+                columns.forEach(col => {
+                    html += `<td>${generateCellValue(col, i, rowCount, 'realistic')}</td>`;
+                });
+                html += '</tr>';
+            }
+            
+            html += '</table></body></html>';
+            
+            downloadFile(html, 'professional_data.xls', 'application/vnd.ms-excel');
+        }
+
+        // Helper functions
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function updateColumnCount() {
+            document.getElementById('columnCount').textContent = columns.length;
+        }
+
+        function updateRowCount(count) {
+            document.getElementById('totalRows').textContent = count;
+        }
+
+        function applyDataPattern(pattern) {
+            updatePreview();
+        }
+
+        function savePreset() {
+            if (columns.length === 0) {
+                alert('Please add columns first!');
+                return;
+            }
+            
+            const presetName = prompt('Enter a name for this preset:');
+            if (!presetName) return;
+            
+            const preset = {
+                name: presetName,
+                rowCount: document.getElementById('rowCount').value,
+                dataPattern: document.getElementById('dataPattern').value,
+                columns: JSON.parse(JSON.stringify(columns)),
+                timestamp: new Date().toISOString()
+            };
+            
+            const presets = JSON.parse(localStorage.getItem('professionalPresets') || '[]');
+            presets.push(preset);
+            localStorage.setItem('professionalPresets', JSON.stringify(presets));
+            
+            alert(`✅ Preset "${presetName}" saved successfully!`);
+        }
+
+        function resetForm() {
+            if (confirm('Are you sure you want to reset all columns and settings?')) {
+                columns = [];
+                renderColumns();
+                document.getElementById('rowCount').value = 100;
+                document.getElementById('dataPattern').value = '';
+                currentData = [];
+                updatePreview();
+            }
+        }
+
+        function saveToStorage() {
+            const data = {
+                rowCount: document.getElementById('rowCount').value,
+                dataPattern: document.getElementById('dataPattern').value,
+                columns: columns
+            };
+            localStorage.setItem('professionalGenerator', JSON.stringify(data));
+        }
+
+        function saveToHistory(columnCount, rowCount) {
+            const history = JSON.parse(localStorage.getItem('professionalHistory') || '[]');
+            history.unshift({
+                timestamp: new Date().toISOString(),
+                columns: columnCount,
+                rows: rowCount,
+                dataPattern: document.getElementById('dataPattern').value || 'realistic',
+                columnTypes: columns.map(c => c.type)
+            });
+            
+            if (history.length > 50) history.pop();
+            localStorage.setItem('professionalHistory', JSON.stringify(history));
+        }
+    </script>
+</body>
+</html>
