@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker - Create Habit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .header i {
+            font-size: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group label i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f8faff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .category-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category-option {
+            background: #f8faff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-option:hover {
+            border-color: #667eea;
+            background: white;
+        }
+
+        .category-option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        .category-option i {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .category-option span {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .reminder-options {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .reminder-option {
+            flex: 1;
+            background: #f8faff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .reminder-option:hover {
+            border-color: #667eea;
+        }
+
+        .reminder-option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        .reminder-option i {
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-control.error {
+            border-color: #e74c3c;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-permission {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .google-sheet-section {
+            background: #f8faff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px dashed #667eea;
+        }
+
+        .google-sheet-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <div class="header">
+                <i>✨</i>
+                <h1>Create New Habit</h1>
+                <p>Start your journey to a better you! Fill in the details below.</p>
+            </div>
+
+            <div id="notificationPermission" class="notification-permission">
+                <i>🔔</i> Please enable notifications to receive habit reminders
+            </div>
+
+            <div id="successMessage" class="success-message">
+                <i>✓</i> Habit created successfully! Redirecting to dashboard...
+            </div>
+
+            <form id="habitForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label><i>📝</i> Habit Name</label>
+                    <input type="text" class="form-control" id="habitName" placeholder="e.g., Morning Meditation, Daily Exercise" maxlength="50">
+                    <div class="error-message" id="nameError">Please enter a habit name</div>
+                </div>
+
+                <div class="form-group">
+                    <label><i>📋</i> Description (Optional)</label>
+                    <textarea class="form-control" id="habitDescription" rows="3" placeholder="Describe your habit..."></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label><i>🎯</i> Category</label>
+                        <div class="category-options" id="categoryOptions">
+                            <div class="category-option selected" data-category="Health" onclick="selectCategory(this)">
+                                <i>💪</i>
+                                <span>Health</span>
+                            </div>
+                            <div class="category-option" data-category="Fitness" onclick="selectCategory(this)">
+                                <i>🏃</i>
+                                <span>Fitness</span>
+                            </div>
+                            <div class="category-option" data-category="Mindfulness" onclick="selectCategory(this)">
+                                <i>🧘</i>
+                                <span>Mindfulness</span>
+                            </div>
+                            <div class="category-option" data-category="Learning" onclick="selectCategory(this)">
+                                <i>📚</i>
+                                <span>Learning</span>
+                            </div>
+                            <div class="category-option" data-category="Productivity" onclick="selectCategory(this)">
+                                <i>⚡</i>
+                                <span>Productivity</span>
+                            </div>
+                            <div class="category-option" data-category="Other" onclick="selectCategory(this)">
+                                <i>✨</i>
+                                <span>Other</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i>🎨</i> Color Theme</label>
+                        <div class="color-picker" id="colorPicker">
+                            <div class="color-option selected" style="background: #667eea;" onclick="selectColor(this)" data-color="#667eea"></div>
+                            <div class="color-option" style="background: #e74c3c;" onclick="selectColor(this)" data-color="#e74c3c"></div>
+                            <div class="color-option" style="background: #2ecc71;" onclick="selectColor(this)" data-color="#2ecc71"></div>
+                            <div class="color-option" style="background: #f39c12;" onclick="selectColor(this)" data-color="#f39c12"></div>
+                            <div class="color-option" style="background: #9b59b6;" onclick="selectColor(this)" data-color="#9b59b6"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label><i>⏰</i> Reminder Time</label>
+                        <input type="time" class="form-control" id="reminderTime" value="09:00">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i>📅</i> Target Days</label>
+                        <input type="number" class="form-control" id="targetDays" min="1" max="365" value="30">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i>🔔</i> Reminder Type</label>
+                    <div class="reminder-options" id="reminderOptions">
+                        <div class="reminder-option selected" onclick="selectReminder(this)" data-reminder="daily">
+                            <i>📅</i>
+                            <span>Daily</span>
+                        </div>
+                        <div class="reminder-option" onclick="selectReminder(this)" data-reminder="weekly">
+                            <i>📆</i>
+                            <span>Weekly</span>
+                        </div>
+                        <div class="reminder-option" onclick="selectReminder(this)" data-reminder="custom">
+                            <i>⚙️</i>
+                            <span>Custom</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Google Sheets Integration Section -->
+                <div class="google-sheet-section">
+                    <h3><i>📊</i> Google Sheets Integration</h3>
+                    <div class="form-group">
+                        <label><i>🔗</i> Google Sheet URL (Optional)</label>
+                        <input type="url" class="form-control" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    </div>
+                    <div class="form-group">
+                        <label><i>⚙️</i> Auto-sync</label>
+                        <select class="form-control" id="autoSync">
+                            <option value="hourly">Every hour</option>
+                            <option value="daily" selected>Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="manual">Manual only</option>
+                        </select>
+                    </div>
+                    <small style="color: #666;">Connect to Google Sheets to auto-export your habit data</small>
+                </div>
+
+                <div class="btn-group">
+                    <a href="index.html" class="btn btn-secondary">← Back</a>
+                    <button type="button" class="btn btn-primary" onclick="createHabit()">Create Habit ✨</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Selected values
+        let selectedCategory = 'Health';
+        let selectedColor = '#667eea';
+        let selectedReminder = 'daily';
+
+        // Request notification permission on load
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    document.getElementById('notificationPermission').style.display = 'block';
+                } else if (Notification.permission === 'granted') {
+                    document.getElementById('notificationPermission').style.display = 'none';
+                }
+            }
+        }
+
+        // Select category
+        function selectCategory(element) {
+            document.querySelectorAll('.category-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedCategory = element.dataset.category;
+        }
+
+        // Select color
+        function selectColor(element) {
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedColor = element.dataset.color;
+        }
+
+        // Select reminder type
+        function selectReminder(element) {
+            document.querySelectorAll('.reminder-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedReminder = element.dataset.reminder;
+        }
+
+        // Schedule notification
+        function scheduleNotification(habit) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') {
+                return;
+            }
+
+            const reminderTime = habit.reminderTime.split(':');
+            const now = new Date();
+            const reminderDate = new Date();
+            reminderDate.setHours(parseInt(reminderTime[0]), parseInt(reminderTime[1]), 0, 0);
+
+            // If time has passed today, schedule for tomorrow
+            if (reminderDate < now) {
+                reminderDate.setDate(reminderDate.getDate() + 1);
+            }
+
+            const timeUntilReminder = reminderDate - now;
+
+            // Schedule notification
+            setTimeout(() => {
+                new Notification('Habit Reminder 🔔', {
+                    body: `Time to ${habit.name}! Keep up your streak!`,
+                    icon: 'https://img.icons8.com/color/48/000000/meditation.png',
+                    badge: 'https://img.icons8.com/color/48/000000/meditation.png',
+                    tag: `habit-${habit.id}`,
+                    renotify: true,
+                    requireInteraction: true
+                });
+                
+                // If daily reminder, reschedule for next day
+                if (habit.reminderType === 'daily') {
+                    scheduleNotification(habit);
+                }
+            }, timeUntilReminder);
+
+            // Store scheduled notification in localStorage
+            const scheduledNotifications = JSON.parse(localStorage.getItem('scheduledNotifications')) || [];
+            scheduledNotifications.push({
+                habitId: habit.id,
+                habitName: habit.name,
+                reminderTime: habit.reminderTime,
+                scheduledFor: reminderDate.toISOString()
+            });
+            localStorage.setItem('scheduledNotifications', JSON.stringify(scheduledNotifications));
+        }
+
+        // Export to Google Sheets
+        async function exportToGoogleSheets(habit, sheetUrl) {
+            if (!sheetUrl) return;
+
+            try {
+                // Extract sheet ID from URL
+                const match = sheetUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                if (!match) return;
+
+                const sheetId = match[1];
+                
+                // Prepare data for export
+                const data = {
+                    habit: habit.name,
+                    category: habit.category,
+                    date: new Date().toISOString().split('T')[0],
+                    streak: habit.streak || 0,
+                    completed: habit.completedDates?.length || 0,
+                    target: habit.targetDays
+                };
+
+                // Store for auto-sync
+                const pendingExports = JSON.parse(localStorage.getItem('pendingExports')) || [];
+                pendingExports.push({
+                    sheetId: sheetId,
+                    data: data,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('pendingExports', JSON.stringify(pendingExports));
+
+                // If auto-sync is set to manual, don't sync now
+                if (habit.autoSync === 'manual') return;
+
+                // For demo purposes, we'll show a success message
+                // In production, you would use Google Sheets API
+                console.log('Exporting to Google Sheets:', data);
+                
+                // Show success message
+                alert('Data prepared for Google Sheets export! In production, this would use the Google Sheets API.');
+
+            } catch (error) {
+                console.error('Error exporting to Google Sheets:', error);
+            }
+        }
+
+        // Validate form
+        function validateForm() {
+            let isValid = true;
+            const nameInput = document.getElementById('habitName');
+            const nameError = document.getElementById('nameError');
+
+            // Reset errors
+            nameInput.classList.remove('error');
+            nameError.style.display = 'none';
+
+            // Check habit name
+            if (!nameInput.value.trim()) {
+                nameInput.classList.add('error');
+                nameError.style.display = 'block';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Get next habit ID
+        function getNextId(habits) {
+            if (habits.length === 0) return 1;
+            return Math.max(...habits.map(h => h.id)) + 1;
+        }
+
+        // Format date to YYYY-MM-DD
+        function formatDate(date) {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Create habit
+        function createHabit() {
+            if (!validateForm()) return;
+
+            // Request notification permission if not granted
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        document.getElementById('notificationPermission').style.display = 'none';
+                    }
+                });
+            }
+
+            const habits = JSON.parse(localStorage.getItem('habits')) || [];
+            
+            // Create new habit
+            const newHabit = {
+                id: getNextId(habits),
+                name: document.getElementById('habitName').value.trim(),
+                description: document.getElementById('habitDescription').value.trim(),
+                category: selectedCategory,
+                color: selectedColor,
+                reminderTime: document.getElementById('reminderTime').value,
+                reminderType: selectedReminder,
+                targetDays: parseInt(document.getElementById('targetDays').value),
+                streak: 0,
+                completedDates: [],
+                createdAt: formatDate(new Date()),
+                totalDays: parseInt(document.getElementById('targetDays').value),
+                sheetUrl: document.getElementById('sheetUrl').value,
+                autoSync: document.getElementById('autoSync').value,
+                notificationsEnabled: Notification.permission === 'granted'
+            };
+
+            // Add to habits array
+            habits.push(newHabit);
+            
+            // Save to localStorage
+            localStorage.setItem('habits', JSON.stringify(habits));
+
+            // Schedule notification if permission granted
+            if (Notification.permission === 'granted') {
+                scheduleNotification(newHabit);
+            }
+
+            // Export to Google Sheets if URL provided
+            if (newHabit.sheetUrl) {
+                exportToGoogleSheets(newHabit, newHabit.sheetUrl);
+            }
+
+            // Show success message
+            const successMsg = document.getElementById('successMessage');
+            successMsg.style.display = 'block';
+
+            // Disable button to prevent double submission
+            const createBtn = document.querySelector('.btn-primary');
+            createBtn.disabled = true;
+            createBtn.style.opacity = '0.5';
+
+            // Redirect to dashboard after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+
+        // Initialize
+        window.onload = function() {
+            // Set default time to current time + 1 hour
+            const now = new Date();
+            now.setHours(now.getHours() + 1);
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('reminderTime').value = `${hours}:${minutes}`;
+            
+            // Request notification permission
+            requestNotificationPermission();
+        };
+    </script>
+</body>
+</html>
